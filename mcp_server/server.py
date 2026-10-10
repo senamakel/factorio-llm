@@ -33,7 +33,9 @@ def rcon_command(command: str) -> str:
 @mcp.tool()
 def get_status() -> str:
     """Query server status via the control-bridge mod (tick, player count)."""
-    return run('/c rcon.print(game.table_to_json(remote.call("control-bridge", "status")))')
+    return run(
+        '/c rcon.print(serpent.block(remote.call("control-bridge", "status")))'
+    )
 
 
 if __name__ == "__main__":
