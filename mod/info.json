@@ -1,0 +1,9 @@
+{
+  "name": "control-bridge",
+  "version": "0.1.0",
+  "title": "Control Bridge",
+  "description": "Remote control helpers exposed over RCON: status, item giving, teleport, custom RPCs.",
+  "author": "you",
+  "factorio_version": "1.1",
+  "dependencies": []
+}

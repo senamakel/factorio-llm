@@ -1,0 +1,11 @@
+services:
+  factorio-mcp:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    environment:
+      FACTORIO_HOST: ${FACTORIO_HOST:-host.docker.internal}
+      FACTORIO_PORT: ${FACTORIO_PORT:-27015}
+      FACTORIO_RCON_PASSWORD: ${FACTORIO_RCON_PASSWORD:?set in .env}
+    stdin_open: true
+    tty: true
