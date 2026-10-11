@@ -17,9 +17,9 @@ Connections -> MCP -> Add server (or a `[[mcp_client.servers]]` entry in the use
 ```toml
 [[mcp_client.servers]]
 name = "factorio-control"
-command = "/Users/enamakel/OpenHuman/projects/factorio-control/.venv/bin/python"
+command = "/Users/enamakel/work/personal/recursive-factorio/.venv/bin/python"
 args = ["-m", "mcp_server.server"]
-working_dir = "/Users/enamakel/OpenHuman/projects/factorio-control"
+working_dir = "/Users/enamakel/work/personal/recursive-factorio"
 
 [mcp_client.servers.env]
 FACTORIO_HOST = "127.0.0.1"
