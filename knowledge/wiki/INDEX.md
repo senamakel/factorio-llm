@@ -1,0 +1,76 @@
+# Factorio wiki cache index
+
+Frozen offline copy of wiki.factorio.com pages (Factorio 2.x). One file per page; `grep -ril <term> knowledge/wiki` to search.
+
+70 pages.
+
+- [Advanced material processing (research)](Advanced_material_processing_research.md) — (no summary)
+- [Assembling machine 1](Assembling_machine_1.md) — Assembling machine 1 is the most basic assembling machine.
+- [Assembling machine 2](Assembling_machine_2.md) — The assembling machine 2 is an upgraded version of the assembling machine.
+- [Automation (research)](Automation_research.md) — Automation is one of the first technologies that the player will research.
+- [Automation 2 (research)](Automation_2_research.md) — Automation 2 allows the player to craft the Assembling machine 2, an essential part of more advanced auto-crafting.
+- [Automation science pack](Automation_science_pack.md) — Automation science pack (also referred to as "red science") is the first tier of science pack.
+- [Automation science pack (research)](Automation_science_pack_research.md) — The automation science pack research allows the player to craft the automation science packs.
+- [Belt transport system](Belt_transport_system.md) — The belt transport system is the first system the player will use to transport items from place to place.
+- [Blueprint](Blueprint.md) — Blueprints are items that contain building layouts.
+- [Boiler](Boiler.md) — The boiler uses fuel to convert water into steam at 165°C suitable for use in a steam engine.
+- [Burner inserter](Burner_inserter.md) — The burner inserter is the most basic and slowest type of inserters.
+- [Burner mining drill](Burner_mining_drill.md) — The burner mining drill is the first type of drill accessible to the player.
+- [Chemical science pack](Chemical_science_pack.md) — Chemical science pack (also referred to as "blue science") is the third tier of science pack.
+- [Coal](Coal.md) — Coal is a resource found on Nauvis and Vulcanus(Space Age).
+- [Copper cable](Copper_cable.md) — the intermediate product the tool for connecting electric poles copper wire
+- [Copper ore](Copper_ore.md) — Copper ore is a basic resource found in resource patches throughout the world.
+- [Copper plate](Copper_plate.md) — Copper plate is a material that can be made by smelting copper ore in a furnace, or cast by a foundry(Space Age).
+- [Crafting](Crafting.md) — The process of 'crafting' is to produce an end product off of input products using a recipe.
+- [Electric energy distribution 1 (research)](Electric_energy_distribution_1_research.md) — Electric energy distribution 1 gives the player access to bigger power poles, very useful for transferring power over a greater distance.
+- [Electric mining drill](Electric_mining_drill.md) — The electric mining drill mines out iron ore, copper ore, uranium ore, stone and coal, and places it in front of the output tile, on a belt or in a machine or chest that covers...
+- [Electric mining drill (research)](Electric_mining_drill_research.md) — The electric mining drill research allows the player to craft the electric mining drill.
+- [Electric system](Electric_system.md) — The Electric system is used to power a lot of different machines; the game can hardly be played without using electricity.
+- [Electronic circuit](Electronic_circuit.md) — The electronic circuit (or "green circuit") is a basic intermediate product, widely used throughout the game.
+- [Electronics (research)](Electronics_research.md) — Electronics unlocks many new technologies, essential for upgrading machines.
+- [Fast inserter](Fast_inserter.md) — The fast inserter is an electric inserter that is more than twice as fast as the regular inserter.
+- [Fast inserter (research)](Fast_inserter_research.md) — Unlocks the fast inserter.
+- [Fuel](Fuel.md) — Fuel can be inserted into burner devices and burned to power them.
+- [Furnace](Furnace.md) — Furnaces are used to smelt resources into usable products for further usage.
+- [Inserter](Inserter.md) — The inserter can be used to transfer items between entities such as transport belts and stone furnaces.
+- [Inserters](Inserters.md) — Inserters are devices which are used to move items over short distances.
+- [Iron chest](Iron_chest.md) — Iron chests are available to the player at the start of the game.
+- [Iron gear wheel](Iron_gear_wheel.md) — The iron gear wheel is an intermediate product crafted from two iron plates, or cast by a foundry(Space Age).
+- [Iron ore](Iron_ore.md) — Iron ore is a resource found on the map.
+- [Iron plate](Iron_plate.md) — The iron plate is a material that can be made by smelting iron ore in a furnace, or cast by a foundry(Space Age).
+- [Iron stick](Iron_stick.md) — Iron sticks are a basic intermediate product.
+- [Lab](Lab.md) — Labs are buildings that perform research for technologies by consuming science packs.
+- [Logistic science pack](Logistic_science_pack.md) — Logistic science pack (also referred to as "green science") is the second tier of science pack.
+- [Logistic science pack (research)](Logistic_science_pack_research.md) — Logistic science pack unlocks the ability to craft logistic science packs which are used for nearly all research.
+- [Logistics (research)](Logistics_research.md) — Logistics gives the player faster and more flexible ways of transporting items.
+- [Logistics 2 (research)](Logistics_2_research.md) — Logistics 2 allows the player to research faster methods of transportation, such as the locomotive, and the Car.
+- [Long-handed inserter](Long-handed_inserter.md) — The Long-handed inserter is an electric inserter that picks up and places items two tiles from its location instead of the usual one.
+- [Medium electric pole](Medium_electric_pole.md) — The medium electric pole is an improved electric pole that is superior to the small electric pole in all regards, requiring slightly more expensive resources to produce.
+- [Military science pack](Military_science_pack.md) — The Military science pack is one of the four early game science packs, the other three being the automation science pack, the logistic science pack, and the chemical science pack.
+- [Mining](Mining.md) — Mining is used to extract resources from the world.
+- [Offshore pump](Offshore_pump.md) — The offshore pump produces fluids from lakes and oceans; the fluid generated is based on the contents of the lake it is placed alongside.
+- [Pipe](Pipe.md) — The pipe is the most basic method of distribution of fluids.
+- [Pipe to ground](Pipe_to_ground.md) — The pipe to ground (or "underground pipe") is a distribution method for liquids and gases.
+- [Player](Player.md) — Factorio is played from the angled top down perspective of the player.
+- [Power production](Power_production.md) — Electricity has to be produced before it can be transferred to consumers over the electric system.
+- [Research](Research.md) — Research is used to unlock technologies, offering new recipes and bonuses.
+- [Small electric pole](Small_electric_pole.md) — The small electric pole is the basic electric pole.
+- [Splitter](Splitter.md) — The splitter is used to divide a single belt, combine two belts into one, or equally balance two belts together.
+- [Steam engine](Steam_engine.md) — Steam engines are the most basic electricity generator, available to the player at the start of the game.
+- [Steam power (research)](Steam_power_research.md) — The Steam power research allows the player to build the necessary buildings to produce power in early game.
+- [Steel furnace](Steel_furnace.md) — The steel furnace is the second-tier of furnaces.
+- [Steel plate](Steel_plate.md) — The steel plate is an advanced material made by smelting iron plates again.
+- [Steel processing (research)](Steel_processing_research.md) — Steel processing allows you to process steel from iron plates, and enables the creation of basic steel items.
+- [Stone](Stone.md) — Stone is a resource found on the map on Nauvis and Gleba(Space Age), recycled from scrap on Fulgora(Space Age), and produced from lava as a byproduct of metal production on Vulc...
+- [Stone brick](Stone_brick.md) — Stone bricks are produced from stone in any furnace, and are used in multiple recipes as well as placing them to create stone paths.
+- [Stone furnace](Stone_furnace.md) — The stone furnace is the most basic smelting machinery, providing a cheap and reliable source of basic products like iron plates and copper plates.
+- [Technologies](Technologies.md) — Technologies are series of research projects that provide various enhancements.
+- [Time](Time.md) — The concept of Time in Factorio is used for many different implements, most notably crafting time and game time.
+- [Transport belt](Transport_belt.md) — The transport belt is the easiest and cheapest method of automatic item transportation.
+- [Transport belts/Physics](Transport_belts_Physics.md) — The belt transport system in Factorio is among the most detailed simulations in the game.
+- [Tutorial:Applied power math](Tutorial_Applied_power_math.md) — In this tutorial we'll be answering the question: how much coal is needed to power a factory?
+- [Tutorial:Main bus](Tutorial_Main_bus.md) — The concept of a Main Bus is to put the most used and useful ingredients in a central spot to use for assembling machines.
+- [Tutorial:Quick start guide](Tutorial_Quick_start_guide.md) — If you're still lost after playing through the tutorial levels, this guide is here to help.
+- [Underground belt](Underground_belt.md) — The underground belt is the first tier of underground belts.
+- [Wood](Wood.md) — Wood is a basic resource that can be collected by harvesting trees, water cane(Space Age), boompuff(Space Age), cuttlepop(Space Age) and stingfrond(Space Age).
+- [Wooden chest](Wooden_chest.md) — Wooden chests are the first type of chest available to the player at the start of the game.
