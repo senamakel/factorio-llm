@@ -100,7 +100,7 @@ connects to it to show and play the world.
 All assistant logic and rules live in `brain/`. `brain/goal.py` defines iron and
 first-research objectives. Add `--objective research` to the command below for
 the real steam/electronics/red-science/Automation chain. Refresh attributed wiki
-facts with `.venv/bin/python -m brain.enrichment`.
+facts with `.venv/bin/python scripts/wiki_enrichment.py`.
 `brain/actions.py` exports high-level plans such as `mine_coal`, `mine_iron_ore`,
 `build_furnace`, and `make_iron_plates`. Each action lives in its own file under
 `brain/action_library/`, grouped into gathering, movement, manufacturing and inventory.

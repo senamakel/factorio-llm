@@ -18,6 +18,6 @@ engine queue and real ingredients; structures consume inventory; electricity and
 research are read back. Transfers approach machines, face them and use paced batches.
 
 Runtime SQLite, layout plans and logs stay in ignored root `server/data/`.
-Refresh wiki facts with `.venv/bin/python -m brain.enrichment`. Run
+Refresh wiki facts with `.venv/bin/python scripts/wiki_enrichment.py`. Run
 `./factorio check`; opt-in checks use `FACTORIO_LIVE_TESTS=1 .venv/bin/python -m
 unittest scripts.test_brain_live` on disposable surfaces.

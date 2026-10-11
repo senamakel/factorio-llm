@@ -25,9 +25,9 @@ There are no sources of stone on space platforms(Space Age) or Aquilo(Space Age)
 ## Alternative recipes
 | Process | Input | Output | Made in | Required technology |
 |---|---|---|---|---|
-| Molten iron from lava | 16 × Time + 500 × Lava + 1 × Calcite | 250 × Molten iron + 10 × Stone | Foundry | Foundry (research) Foundry (research) |
-| Molten copper from lava | 16 × Time + 500 × Lava + 1 × Calcite | 250 × Molten copper + 15 × Stone | Foundry | Foundry (research) Foundry (research) |
-| Scrap recycling | 1 × Time + 1 × scrap | 0.03 × Advanced circuit + 0.04 × Battery + 0.06 × Concrete + 0.03 × Copper cable + 0.01 × Holmium ore + 0.05 × Ice + 0.2 × Iron gear wheel + 0.01 × Low density structure + 0.02 × Processing unit + 0.07 × Solid fuel + 0.04 × Steel plate + 0.04 × Stone | Recycler | Recycling (research) Recycling (research) |
+| Molten iron from lava | 16 × Time + 500 × Lava + 1 × Calcite | 250 × Molten iron + 10 × Stone | Foundry | Foundry (research) |
+| Molten copper from lava | 16 × Time + 500 × Lava + 1 × Calcite | 250 × Molten copper + 15 × Stone | Foundry | Foundry (research) |
+| Scrap recycling | 1 × Time + 1 × scrap | 0.03 × Advanced circuit + 0.04 × Battery + 0.06 × Concrete + 0.03 × Copper cable + 0.01 × Holmium ore + 0.05 × Ice + 0.2 × Iron gear wheel + 0.01 × Low density structure + 0.02 × Processing unit + 0.07 × Solid fuel + 0.04 × Steel plate + 0.04 × Stone | Recycler | Recycling (research) |
 
 ## History
 Version 0.10.1:

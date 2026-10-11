@@ -28,7 +28,7 @@ Coal cannot be obtained on Fulgora(Space Age) or Aquilo(Space Age) and must be i
 ## Alternative recipes
 | Process | Input | Output | Made in | Required technology |
 |---|---|---|---|---|
-| Coal synthesis | 2 × Time + 1 × Sulfur + 5 × Carbon + 10 × Water | 1 × Coal | Chemical plant | Bioflux (research) Bioflux (research) |
+| Coal synthesis | 2 × Time + 1 × Sulfur + 5 × Carbon + 10 × Water | 1 × Coal | Chemical plant | Bioflux (research) |
 
 This recipe is needed for making explosives on Gleba and space platforms, where coal cannot be directly acquired.
 
