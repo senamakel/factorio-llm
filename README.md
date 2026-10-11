@@ -89,6 +89,25 @@ Or: **â€œPut 100 iron plates in that chest, then verify its inventory and save.â
 
 ## Tools
 
+## Local assistant brain
+
+`goal.py` defines Teeny's objective: 100 iron plates held in its inventory.
+`score.py` rewards measured inventory gains, goal progress and plates produced
+per game second. It penalizes depleted resources, consumed fuel, elapsed game
+time, nearby enemies and damage. Production/fuel counters currently cover the
+actor's force on its surface, so another factory can contribute to those scores.
+
+Run `.venv/bin/python brain.py --actor UNIT_NUMBER --steps 1200 --target 100`
+using the inspected unit number of an unattached assistant character. Supply
+`FACTORIO_CONNECTION_FILE` if the running server belongs to another checkout.
+The loop stops at completion, danger, or its step limit and records observations,
+decisions, actions, outcomes and learning in ignored `server/data/brain.sqlite3`.
+Movement uses small collision-checked teleports; mining and furnace crafting are
+scripted inventory-costed actions, not native player input. Smelting runs in the
+actual game furnace. The loop does not restart or modify the running mod.
+
+## Tools
+
 | Tool | What it does |
 | --- | --- |
 | `get_status` | Tick, speed, players, positions, surfaces, bridge version |
