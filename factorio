@@ -36,7 +36,7 @@ EOF
     if [ ! -x "$PY" ]; then
       # Worktrees (including tinyrsi candidates) share the primary checkout's venv.
       COMMON=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)
-      PY="${COMMON%/.git}/"$PY""
+      PY="${COMMON%/.git}/.venv/bin/python"
     fi
     if [ ! -x "$PY" ]; then
       echo 'Run ./factorio setup first' >&2
