@@ -99,8 +99,9 @@ def solve(targets, recipes, machines, raw_inputs=None, input_costs=None):
     modeled=[]
     for name,recipe in sorted(recipes.items()):
         if not recipe.get('enabled',True):continue
-        candidates=[m for m in machines if recipe.get('machine')==m['name'] or
-                    (not recipe.get('machine') and recipe.get('category','crafting') in m.get('categories',[]))]
+        categories=recipe.get('categories',[recipe.get('category','crafting')])
+        candidates=[m for m in machines if m.get('available',True) and (recipe.get('machine')==m['name'] or
+                    (not recipe.get('machine') and set(categories)&set(m.get('categories',[]))))]
         if not candidates:continue
         machine=max(candidates,key=lambda m:number(m['speed']))
         speed=number(machine['speed']);time=number(recipe['energy'])
@@ -119,6 +120,13 @@ def solve(targets, recipes, machines, raw_inputs=None, input_costs=None):
             if value<=0:raise ValueError('fuel energy must be supplied for burner machines')
             inputs[fuel]+=number(machine.get('power_w',0))*time/speed/value
         modeled.append((name,recipe,machine,dict(inputs),dict(outputs),time/speed))
+    required=set(targets);selected=set()
+    while True:
+        previous=len(selected)
+        for i,(_,_,_,ins,out,_) in enumerate(modeled):
+            if required&set(out):selected.add(i);required.update(ins)
+        if len(selected)==previous:break
+    modeled=[row for i,row in enumerate(modeled) if i in selected]
     produced={item for _,_,_,_,out,_ in modeled for item in out}
     consumed={item for _,_,_,ins,_,_ in modeled for item in ins}
     raw=sorted(set(raw_inputs) if raw_inputs is not None else consumed-produced)

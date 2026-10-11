@@ -207,3 +207,34 @@ def ideate(targets, recipes, variants):
     if not 1<=len(variants)<=20:raise ValueError('supply 1..20 blueprint variants')
     candidates=[design(targets,recipes,v['machines'],**{k:value for k,value in v.items() if k!='machines'}) for v in variants]
     return sorted(candidates,key=lambda b:(len(b.entities),Fraction(b.analysis['electric_watts'])))
+
+
+def live_facts(actor_id, recipe_names, machine_names=('stone-furnace','assembling-machine-1'), allow_locked=False):
+    """Read normal-quality recipe/machine facts from Factorio 2.1 for the solver.
+
+    Recipe categories, expected output amounts and energy/speed come from the
+    running mods. The explicit allow_locked flag supports future blueprint ideas;
+    it retains original availability and does not unlock or execute anything.
+    """
+    from brain.io import actor_rpc
+    facts=actor_rpc(actor_id,
+        'local recipes,machines={},{}; for _,n in ipairs(a.recipes) do local r=e.force.recipes[n]; assert(r,"unknown recipe"); '
+        'local products={}; for i,p in ipairs(r.products) do products[#products+1]={name=p.name,type=p.type,amount=r.prototype.get_product_amount(i,0)} end; '
+        'recipes[n]={enabled=r.enabled,categories=r.prototype.categories,ingredients=r.ingredients,products=products,energy=r.energy} end; '
+        'for _,n in ipairs(a.machines) do local p=prototypes.entity[n]; assert(p,"unknown machine"); '
+        'local box=p.selection_box; machines[#machines+1]={name=n,categories=p.crafting_categories,speed=p.get_crafting_speed("normal"),'
+        'power_w=p.get_max_energy_usage("normal")*60,width=box.right_bottom.x-box.left_top.x,height=box.right_bottom.y-box.left_top.y,'
+        'burner=p.burner_prototype~=nil,available=e.force.recipes[n] and e.force.recipes[n].enabled or false} end; '
+        'return {recipes=recipes,machines=machines,coal_j=prototypes.item.coal.fuel_value,mods=script.active_mods}',
+        {'recipes':list(recipe_names),'machines':list(machine_names)})
+    for recipe in facts['recipes'].values():
+        recipe['currently_enabled']=recipe['enabled']
+        if allow_locked:recipe['enabled']=True
+    for machine in facts['machines']:
+        machine['categories']=list(machine['categories'])
+        machine['width']=int(round(machine['width']));machine['height']=int(round(machine['height']))
+        machine['currently_available']=machine['available']
+        if allow_locked:machine['available']=True
+        if machine.pop('burner'):
+            machine.update(fuel_item='coal',fuel_value_j=facts['coal_j'])
+    return facts
