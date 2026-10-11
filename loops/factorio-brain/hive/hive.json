@@ -32,7 +32,7 @@
       "prompt": "seats/foreman.md",
       "template": "openhuman",
       "config": {
-        "action_dir": "{incumbent}",
+        "action_dir": "{candidate}",
         "max_iterations": 30
       },
       "tools": {

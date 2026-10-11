@@ -7,9 +7,10 @@ When asked for a diagnosis:
   wasted walking, crafting that blocks progress, wrong recipe or tech
   assumptions (check `knowledge/prototypes.json`), and anything that should not
   have been done at all.
-- `./factorio memory recall "<symptom>" --kind failure` to see if it happened before.
+- Ask `foreman` to run `./factorio memory recall "<symptom>" --kind failure` if
+  past failures matter (your shell only runs read commands such as cat/grep/ls).
 - Reply with the root cause, the exact file:line, and the evidence.
 
 When asked to review a diff (`read_diff`): check it against the assignment, the
 honesty rules and the tests. Approve, or name the single most important defect.
-Record new failure patterns: `./factorio memory remember failure "<pattern and fix>"`.
+Send new failure patterns to `foreman` to record in memory.
