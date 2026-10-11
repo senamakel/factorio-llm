@@ -15,9 +15,9 @@ The belt transport system in Factorio is among the most detailed simulations in 
 ## Belt speeds
 Given the values above we can calculate the speed and throughput of the three types of belts. Measurements confirm these values.
 
-| Belt type // colspan=2 / Speed // colspan=4 / Throughput |  |  |  |  |  |  |
+| Belt type | Speed | Speed | Throughput | Throughput | Throughput | Throughput |
 |---|---|---|---|---|---|---|
-| Factor // Tiles/sec // Single lane, items/sec // Single lane, items/min // Both lanes, items/sec // Both lanes, items/min |  |  |  |  |  |  |
+|  | Factor | Tiles/sec | Single lane, items/sec | Single lane, items/min | Both lanes, items/sec | Both lanes, items/min |
 | Transport belt | 1 | 1.875 | 7.5 | 450 | 15 | 900 |
 | Fast transport belt | 2 | 3.75 | 15 | 900 | 30 | 1800 |
 | Express transport belt | 3 | 5.625 | 22.5 | 1350 | 45 | 2700 |
@@ -56,22 +56,22 @@ Careful measurement shows that the outer lane of a turn is exactly 1.15234375 ti
 
 Here are the speeds and lengths of the various types of belt tiles in terms of these positions:
 
-| Belt // Item Speed (Positions per Tick) |  |
-|---|---|
-| Transport belt | 8 |
-| Fast transport belt | 16 |
-| Express transport belt | 24 |
-| Turbo transport belt | 32 |
-
-| Measurement // Length (Positions) |  |  |
+| Belt | Belt | Item Speed (Positions per Tick) |
 |---|---|---|
-| Distance between items on a saturated belt (of any speed) | 64 |  |
-| Length of one lane of a straight belt | 256 |  |
-| Length of inner lane of a belt turn | 106 |  |
-| Length of outer lane of a belt turn | 295 |  |
-| Length of one lane of an underground belt | 256 |  |
-| Length of one lane of a splitter's input | 128–179† |  |
-| Length of one lane of a splitter's output | 128 |  |
+| Transport belt | Transport belt | 8 |
+| Fast transport belt | Fast transport belt | 16 |
+| Express transport belt | Express transport belt | 24 |
+| Turbo transport belt | Turbo transport belt | 32 |
+
+| Measurement | Measurement | Length (Positions) |
+|---|---|---|
+| Distance between items on a saturated belt (of any speed) | Distance between items on a saturated belt (of any speed) | 64 |
+| Length of one lane of a straight belt | Length of one lane of a straight belt | 256 |
+| Length of inner lane of a belt turn | Length of inner lane of a belt turn | 106 |
+| Length of outer lane of a belt turn | Length of outer lane of a belt turn | 295 |
+| Length of one lane of an underground belt | Length of one lane of an underground belt | 256 |
+| Length of one lane of a splitter's input | Length of one lane of a splitter's input | 128–179† |
+| Length of one lane of a splitter's output | Length of one lane of a splitter's output | 128 |
 | Distance travelled by an item sideloaded late on a straight belt / or an underground exit |  | 68 |
 | Distance travelled by an item sideloaded early on a straight belt / or an underground entrance |  | 188 |
 

@@ -31,7 +31,7 @@ Steel furnaces, like all burner devices, cannot be placed in space.
 ## Output
 | Resource | Stone furnace | Steel furnace | Electric furnace |
 |---|---|---|---|
-| **Coal consumption**: 0.0225/sec | **Coal consumption**: 0.0225/sec |  |  |
+|  | **Coal consumption**: 0.0225/sec | **Coal consumption**: 0.0225/sec |  |
 | Iron | 0.3125 × Iron plate 0.3125/sec | 0.625 × Iron plate 0.625/sec | 0.625 × Iron plate 0.625/sec |
 | Copper | 0.3125 × Copper plate 0.3125/sec | 0.625 × Copper plate 0.625/sec | 0.625 × Copper plate 0.625/sec |
 | Stone brick | 0.3125 × Stone brick 0.3125/sec | 0.625 × Stone brick 0.625/sec | 0.625 × Stone brick 0.625/sec |

@@ -23,6 +23,24 @@ def default_actor():
     return json.loads(path.read_text())['unit_number'] if path.exists() else None
 
 
+def episode(argv):
+    """Scored-episode entrypoint called by the frozen harness: play until the wall budget ends.
+
+    Contract: ``python -m brain episode --actor ID --wall-secs N``. The harness
+    sends SIGTERM when time is up, then measures what the factory produces on
+    its own. Print one JSON object per step on stdout (``phase``, ``result``
+    with ``error`` on failure) and a final object with ``stop_reason``; the
+    harness feeds those errors back to the hive. Exit code is informational.
+    """
+    parser=argparse.ArgumentParser(prog='brain episode')
+    parser.add_argument('--actor',type=int,required=True)
+    parser.add_argument('--wall-secs',type=float,required=True)
+    args=parser.parse_args(argv)
+    from brain.runner import main as run
+    return run(['--actor',str(args.actor),'--objective','research','--steps','100000',
+                '--run-timeout',str(max(1,args.wall_secs-5))])
+
+
 def main(argv=None):
     """Run JSON-first commands; only run mutates the game, inspection/planning are read-only."""
     argv=list(sys.argv[1:] if argv is None else argv)
@@ -42,6 +60,9 @@ def main(argv=None):
     sub.add_parser('actions')
     sub.add_parser('status');sub.add_parser('stop')
     p=sub.add_parser('blueprint');p.add_argument('path')
+    p=sub.add_parser('episode');p.add_argument('options',nargs=argparse.REMAINDER)
+    if argv and argv[0]=='episode':
+        return episode(argv[1:])
     if argv and argv[0]=='run':
         from brain.runner import main as run
         options=argv[1:]
