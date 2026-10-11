@@ -26,27 +26,37 @@ Usage: ./factorio COMMAND [options]
   client-mod  Install the mod into the desktop client's normal mods directory
   check       Run offline tests plus read-only live MCP check; --edits tests mutations
   reload-check Verify saved demo entity references in an isolated server
+  episode     Score this checkout's brain on a disposable seeded world (--seed, --wall-secs)
+  memory      Shared hive memory in CortexDB: remember / recall / list
 Options for setup: --binary PATH --read-data PATH --port N --game-port N
 EOF
     ;;
   *)
-    if [ ! -x .venv/bin/python ]; then
+    PY=.venv/bin/python
+    if [ ! -x "$PY" ]; then
+      # Worktrees (including tinyrsi candidates) share the primary checkout's venv.
+      COMMON=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)
+      PY="${COMMON%/.git}/"$PY""
+    fi
+    if [ ! -x "$PY" ]; then
       echo 'Run ./factorio setup first' >&2
       exit 1
     fi
     shift
     case "$ACTION" in
-      mcp) exec .venv/bin/python scripts/mcp_entrypoint.py "$@" ;;
-      brain) exec .venv/bin/python -m brain "$@" ;;
+      mcp) exec "$PY" scripts/mcp_entrypoint.py "$@" ;;
+      brain) exec "$PY" -m brain "$@" ;;
       check)
-        .venv/bin/python -m unittest scripts.test_mcp_tools scripts.test_factorio_setup scripts.test_brain scripts.test_brain_actions scripts.test_brain_observation scripts.test_actions scripts.test_goal_score scripts.test_mcp_config scripts.test_research scripts.test_navigation scripts.test_blueprint scripts.test_timeouts scripts.test_tree_search scripts.test_fetch_wiki
-        .venv/bin/python -m scripts.test_rcon
-        .venv/bin/python -m scripts.test_rcon_adversarial
-        .venv/bin/python scripts/check_readme_toml.py
-        exec .venv/bin/python scripts/smoke_mcp.py "$@"
+        "$PY" -m unittest scripts.test_mcp_tools scripts.test_factorio_setup scripts.test_brain scripts.test_brain_actions scripts.test_brain_observation scripts.test_actions scripts.test_goal_score scripts.test_mcp_config scripts.test_research scripts.test_navigation scripts.test_blueprint scripts.test_timeouts scripts.test_tree_search scripts.test_fetch_wiki scripts.test_actuator scripts.test_harness
+        "$PY" -m scripts.test_rcon
+        "$PY" -m scripts.test_rcon_adversarial
+        "$PY" scripts/check_readme_toml.py
+        exec "$PY" scripts/smoke_mcp.py "$@"
         ;;
-      reload-check) exec .venv/bin/python scripts/verify_reload.py "$@" ;;
-      *) exec .venv/bin/python scripts/factorio.py "$ACTION" "$@" ;;
+      reload-check) exec "$PY" scripts/verify_reload.py "$@" ;;
+      episode) exec "$PY" -m harness.episode "$@" ;;
+      memory) exec "$PY" scripts/memory.py "$@" ;;
+      *) exec "$PY" scripts/factorio.py "$ACTION" "$@" ;;
     esac
     ;;
 esac
