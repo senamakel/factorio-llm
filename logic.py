@@ -97,6 +97,7 @@ def brain_think(state,experience=None,player_name='',target_plates=16):
     waiting rather than fabricated knowledge. Other factories and surfaces remain
     available in state for future policies; this policy edits only the iron chain.
     """
+    import actions
     if not state.get('coverage',{}).get('complete'):
         return decision('observe','World collection is incomplete; retry observation before acting.')
     player=get_player(state,player_name)
@@ -123,12 +124,12 @@ def brain_think(state,experience=None,player_name='',target_plates=16):
     batch=min(16,max(1,target_plates-plates))
     loaded=sum(entity_item_count(f,'furnace_source','iron-ore') for f in furnaces)
     if ore<batch and loaded==0:
-        return mining_decision(state,player,'iron-ore',experience,batch-ore)
+        return actions.mine_iron_ore(state,player,experience,batch-ore)
     fuel_name=next((name for name in ('coal','wood','solid-fuel') if inventory_count(player,name)>0),None)
     fueled=[f for f in furnaces if any(entity_item_count(f,'fuel',n)>0 for n in ('coal','wood','solid-fuel'))
             or f.get('remaining_burning_fuel',0)>0]
     if not fuel_name and not fueled:
-        return mining_decision(state,player,'coal',experience,4)
+        return actions.mine_coal(state,player,experience,4)
     if not furnaces:
         if player.get('crafting_queue'):
             return decision('crafting','Wait for the queued furnace craft to finish.')

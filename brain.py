@@ -12,7 +12,7 @@ import time
 
 from event_store import EventStore
 from goal import IronPlateGoal
-from logic import brain_think
+from actions import make_iron_plates
 from brain_actions import execute
 from brain_io import rpc, show_status
 from brain_observation import observe
@@ -40,7 +40,7 @@ def run_brain(actor_id, steps=500, interval=0.5, target=100):
         for step in range(steps):
             sid = store.snapshot(before)
             store.log('observation', goal.evaluate(before), before['tick'])
-            decision = brain_think(before, store.experience(), goal.player_name, goal.target)
+            decision = make_iron_plates(before, store.experience(), goal.player_name, goal.target)
             status = goal.evaluate(before)
             show_status(actor_id, f"Teeny: {decision['phase'].replace('_',' ')} | {status['inventory']}/{goal.target} plates")
             ident = store.decision(sid, decision, applied=decision['phase'] not in ('complete','danger'))
