@@ -1,15 +1,11 @@
-"""Python assembles bounded game observations; Lua only reads API fields."""
+"""Python assembles bounded game observations from the read-only actuator queries."""
 import math
-from brain.io import actor_rpc
+from actuator import queries
 
 
 def read_entities(actor_id, filters, fields, limit=512):
-    """Read a bounded list of entity fields and report truncation explicitly."""
-    return actor_rpc(actor_id,
-        'a.force=a.force=="actor" and e.force or a.force; local found=s.find_entities_filtered(a); '
-        'local out={}; for i,f in ipairs(found) do if i<=a.limit-1 then '
-        'out[#out+1]={' + fields + '} end end; return {entities=out,truncated=#found>=a.limit}',
-        {**filters, 'limit':limit+1})
+    """Read a bounded list of allowlisted entity fields and report truncation explicitly."""
+    return queries.find_entities(actor_id, filters, fields, limit)
 
 
 def resource_targets(actor_id, position):
@@ -23,7 +19,7 @@ def resource_targets(actor_id, position):
         radius, empty_radius, crowded_radius = 256, 0, 256
         for attempt in range(20):
             result = read_entities(actor_id, {'name':name,'type':'resource','position':position,'radius':radius},
-                                   'name=f.name,position=f.position,amount=f.amount')
+                                   ('name','position','amount'))
             if not result['truncated'] and (result['entities'] or attempt == 0):
                 break
             if result['truncated']:
@@ -50,83 +46,77 @@ def resource_targets(actor_id, position):
 def tree_targets(actor_id, position):
     """Find nearby harvestable trees using complete bounded results, never a truncated prefix."""
     radius,empty,crowded=128,0,128
-    fields=('name=f.name,position=f.position,mineable=f.minable,'
-            'wood_yield=(function() local n=0; for _,p in pairs(f.prototype.mineable_properties.products or {}) do '
-            'if p.name=="wood" then n=n+(p.amount or p.amount_min or 1) end end; return n end)()')
+    fields=('name','position','minable','wood_yield')
     for attempt in range(20):
         result=read_entities(actor_id,{'type':'tree','position':position,'radius':radius},fields,128)
         if not result['truncated'] and (result['entities'] or attempt==0):
-            return [t for t in result['entities'] or [] if t.get('mineable') and t.get('wood_yield',0)>0]
+            return [t for t in result['entities'] or [] if t.get('minable') and t.get('wood_yield',0)>0]
         if result['truncated']:crowded=radius
         else:empty=radius
         radius=(empty+crowded)/2
     raise RuntimeError('tree search could not obtain complete bounded candidates')
 
 
+MACHINES = ('offshore-pump','pipe','boiler','steam-engine','small-electric-pole','lab',
+            'assembling-machine-1','inserter','iron-chest','transport-belt')
+RECIPES = ('stone-furnace','iron-gear-wheel','copper-cable','electronic-circuit','transport-belt','lab',
+           'automation-science-pack','pipe','boiler','offshore-pump','steam-engine','small-electric-pole',
+           'assembling-machine-1','inserter','iron-chest','iron-plate','copper-plate')
+TECHNOLOGIES = ('steam-power','electronics','automation-science-pack','automation')
+MACHINE_FIELDS = ('name','type','unit_number','position','surface','force','energy','status','fluids',
+                  'remaining_burning_fuel','recipe','inventories')
+
+
 def observe(actor_id, name):
     """Assemble actor state, nearby resources/threats and all bounded surface furnaces."""
-    data = actor_rpc(actor_id,
-        'local stats=e.force.get_item_production_statistics(s); return {tick=game.tick,surface=s.name,force=e.force.name,'
-        'position=e.position,health=e.health,inventory=inv.get_contents(),crafting_queue=e.crafting_queue or {},seed=s.map_gen_settings.seed,'
-        'game_status={speed=game.speed,tick_paused=game.tick_paused,connected_players=#game.connected_players},'
-        'surface_info={name=s.name,seed=s.map_gen_settings.seed,daytime=s.daytime,peaceful=s.peaceful_mode,no_enemies=s.map_gen_settings.no_enemies_mode},'
-        'iron_produced=stats.get_input_count("iron-plate"),'
-        'copper_produced=stats.get_input_count("copper-plate"),red_produced=stats.get_input_count("automation-science-pack"),'
-        'mined={stats.get_input_count("iron-ore"),stats.get_input_count("copper-ore"),stats.get_input_count("coal"),stats.get_input_count("stone")},'
-        'fuel={stats.get_output_count("coal"),stats.get_output_count("wood"),stats.get_output_count("solid-fuel")}}')
+    data = queries.actor_state(actor_id)
+    stats = queries.production(actor_id, ('iron-plate','copper-plate','automation-science-pack','iron-ore',
+                                          'copper-ore','coal','stone','wood','solid-fuel'))['items']
     position, surface = data['position'], data['surface']
     resources, radii = resource_targets(actor_id, position)
     for resource in resources:
         resource['surface'] = surface
-    furnaces = read_entities(actor_id, {'type':'furnace','force':'actor'},
-        'name=f.name,type=f.type,unit_number=f.unit_number,surface=s.name,force=f.force.name,position=f.position,'
-        'remaining_burning_fuel=f.burner and f.burner.remaining_burning_fuel or 0,'
-        'inventories={fuel=f.get_inventory(defines.inventory.fuel).get_contents(),'
-        'furnace_source=f.get_inventory(defines.inventory.crafter_input).get_contents(),'
-        'furnace_result=f.get_inventory(defines.inventory.crafter_output).get_contents()}')
-    enemies = read_entities(actor_id, {'force':'enemy','position':position,'radius':32},
-                            'type=f.type,surface=s.name,position=f.position')
+    furnaces = read_entities(actor_id, {'type':'furnace','force':'actor'}, MACHINE_FIELDS)
+    for furnace in furnaces['entities'] or []:
+        inventories = furnace.get('inventories') or {}
+        furnace['inventories'] = {'fuel':inventories.get('fuel',[]),'furnace_source':inventories.get('crafter_input',[]),
+                                  'furnace_result':inventories.get('crafter_output',[])}
+    enemies = read_entities(actor_id, {'force':'enemy','position':position,'radius':32}, ('type','surface','position'))
     trees = tree_targets(actor_id,position)
-    machines=read_entities(actor_id,{'name':['offshore-pump','pipe','boiler','steam-engine','small-electric-pole','lab',
-                                          'assembling-machine-1','inserter','iron-chest','transport-belt'],'force':'actor'},
-        'name=f.name,type=f.type,unit_number=f.unit_number,position=f.position,surface=s.name,force=f.force.name,'
-        'energy=f.energy,status=f.status,fluids=f.get_fluid_contents(),remaining_burning_fuel=f.burner and f.burner.remaining_burning_fuel or 0,'
-        'recipe=f.type=="assembling-machine" and f.get_recipe() and f.get_recipe().name or nil,'
-        'inventories={fuel=f.get_fuel_inventory() and f.get_fuel_inventory().get_contents() or {},'
-        'chest=f.type=="container" and f.get_inventory(defines.inventory.chest).get_contents() or {},'
-        'lab_input=f.type=="lab" and f.get_inventory(defines.inventory.lab_input).get_contents() or {}}')
-    progression=actor_rpc(actor_id,
-        'local recipes,tech={},{}; for _,n in ipairs(a.recipes) do local r=e.force.recipes[n]; '
-        'if r then recipes[n]={enabled=r.enabled,ingredients=r.ingredients,products=r.products,energy=r.energy,categories=r.prototype.categories} end end; '
-        'for _,n in ipairs(a.technologies) do local t=e.force.technologies[n]; '
-        'tech[n]={researched=t.researched,enabled=t.enabled,count=t.research_unit_count,energy=t.research_unit_energy,'
-        'ingredients=t.research_unit_ingredients,trigger=t.prototype.research_trigger} end; '
-        'return {recipes=recipes,technologies=tech,current=e.force.current_research and e.force.current_research.name,progress=e.force.research_progress,'
-        'fuel_values={coal=prototypes.item.coal.fuel_value,wood=prototypes.item.wood.fuel_value,["solid-fuel"]=prototypes.item["solid-fuel"].fuel_value}}',
-        {'recipes':['stone-furnace','iron-gear-wheel','copper-cable','electronic-circuit','transport-belt','lab',
-                    'automation-science-pack','pipe','boiler','offshore-pump','steam-engine','small-electric-pole',
-                    'assembling-machine-1','inserter','iron-chest','iron-plate','copper-plate'],
-         'technologies':['steam-power','electronics','automation-science-pack','automation']})
+    machines = read_entities(actor_id, {'name':list(MACHINES),'force':'actor'}, MACHINE_FIELDS)
+    for machine in machines['entities'] or []:
+        inventories = machine.get('inventories') or {}
+        machine['inventories'] = {'fuel':inventories.get('fuel',[]),'chest':inventories.get('chest',[]),
+                                  'lab_input':inventories.get('lab_input',[])}
+    progression = queries.technologies(actor_id, TECHNOLOGIES)
+    recipes = queries.recipes(actor_id, RECIPES)
+    for recipe in recipes.values():
+        recipe['categories'] = {recipe.pop('category'): True}
+    fuel = queries.item_facts(actor_id, ('coal','wood','solid-fuel'))
     candidates = [{'x':math.floor(position['x'])+dx,'y':math.floor(position['y'])+dy}
                   for r in range(3,9) for dx,dy in ((r,0),(-r,0),(0,r),(0,-r))
                   if math.hypot(math.floor(position['x'])+dx-position['x'],
                                 math.floor(position['y'])+dy-position['y']) <= 10]
-    sites = actor_rpc(actor_id,
-        'local out={}; for _,pos in ipairs(a) do '
-        'if s.can_place_entity{name="stone-furnace",position=pos,force=e.force} then out[#out+1]=pos end end; return out', candidates)
-    return {'schema_version':1,'tick':data['tick'],'game_status':data['game_status'],'surface_info':data['surface_info'],
+    clear = queries.can_place(actor_id, [{'name':'stone-furnace','position':p} for p in candidates])
+    sites = [p for p, ok in zip(candidates, clear) if ok]
+    game_status = {'speed':data['game_speed'],'tick_paused':data['tick_paused'],'connected_players':0}
+    return {'schema_version':1,'tick':data['tick'],'game_status':game_status,
+            'surface_info':{'name':surface,'seed':data['seed'],'daytime':data['daytime'],'peaceful':None,'no_enemies':None},
             'coverage':{'complete':not furnaces['truncated'] and not enemies['truncated'] and not machines['truncated'],
                         'scope':'bounded local resources and enemies; surface furnaces','resource_radii':radii},
             'players':[{'name':name,'surface':surface,'force':data['force'],'position':position,
-                        'health':data['health'],'inventory':data['inventory'],'reach_distance':10,
-                        'resource_reach_distance':2.7,'crafting_queue':data['crafting_queue'] or []}],
+                        'health':data['health'],'inventory':data['inventory'],'reach_distance':data['reach_distance'],
+                        'resource_reach_distance':data['resource_reach_distance'],'crafting_queue':data['crafting_queue'] or []}],
             'entities':(furnaces['entities'] or [])+(machines['entities'] or []),'enemies':enemies['entities'] or [],
-            'trees':trees,'recipes':progression['recipes'],'technologies':progression['technologies'],
-            'current_research':progression.get('current'),'research_progress':progression['progress'],'fuel_values':progression['fuel_values'],
+            'trees':trees,'recipes':recipes,'technologies':progression['technologies'],
+            'current_research':progression.get('current'),'research_progress':progression['progress'],
+            'fuel_values':{k:v['fuel_value'] for k,v in fuel.items()},
             'power_layout':load_layout(data['seed'],surface),
-            'world':{'resources':resources},'build_sites':{name:sites or []},
-            'iron_produced':data['iron_produced'],'copper_produced':data['copper_produced'],'red_produced':data['red_produced'],'resource_mined':sum(data['mined']),
-            'fuel_consumed':sum(data['fuel'])}
+            'world':{'resources':resources},'build_sites':{name:sites},
+            'iron_produced':stats['iron-plate']['produced'],'copper_produced':stats['copper-plate']['produced'],
+            'red_produced':stats['automation-science-pack']['produced'],
+            'resource_mined':sum(stats[k]['produced'] for k in ('iron-ore','copper-ore','coal','stone')),
+            'fuel_consumed':sum(stats[k]['consumed'] for k in ('coal','wood','solid-fuel'))}
 
 
 def load_layout(seed, surface):
