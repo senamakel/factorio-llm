@@ -257,17 +257,32 @@ def _convert_links(text):
                   lambda m: m.group(2) or '', text)
 
 
-def _cell_text(cell):
-    """Strip a leading ``attr="x" |`` block from a table cell and tidy it."""
+def _parse_cell(cell):
+    """Split a raw table cell into (text, rowspan, colspan).
+
+    A leading ``attr="x" |`` block is removed; ``rowspan``/``colspan`` are read
+    from it. ``<br>`` becomes `` / `` so every cell stays on one line.
+    """
     attr, sep, content = cell.partition('|')
-    if sep and re.search(r'\w+\s*=\s*', attr) and '[' not in attr:
+    spans = {'rowspan': 1, 'colspan': 1}
+    if sep and re.search(r'\w+\s*=', attr) and '[' not in attr:
         cell = content
+        for key in spans:
+            m = re.search(key + r'\s*=\s*"?(\d+)', attr)
+            if m:
+                spans[key] = max(1, min(int(m.group(1)), 50))
     cell = re.sub(r'<br\s*/?>', ' / ', cell)
-    return ' '.join(cell.split()).replace('|', '/').strip(' /')
+    text = ' '.join(cell.split()).replace('|', '/').strip(' /')
+    return text, spans['rowspan'], spans['colspan']
 
 
-def _table_rows(body):
-    """Parse the inside of ``{| ... |}`` into (caption, rows-of-cells, header flags)."""
+def _cell_text(cell):
+    """Return only the tidied text of a raw table cell."""
+    return _parse_cell(cell)[0]
+
+
+def _raw_rows(body):
+    """Parse the inside of ``{| ... |}`` into (caption, rows of parsed cells)."""
     rows, caption, current = [], '', None
     for line in body.split('\n')[1:]:  # first line holds table attributes
         s = line.strip()
@@ -281,11 +296,45 @@ def _table_rows(body):
             if current is None:
                 current = []
                 rows.append(current)
-            sep = '!!' if s[0] == '!' else '||'
-            current.extend(_cell_text(c) for c in s[1:].split(sep))
+            parts = re.split(r'!!|\|\|', s[1:]) if s[0] == '!' else s[1:].split('||')
+            current.extend(_parse_cell(c) for c in parts)
         elif current:
-            current[-1] = (current[-1] + ' ' + _cell_text(s)).strip()
-    return caption, [r for r in rows if any(r)]
+            text, rs, cs = current[-1]
+            current[-1] = ((text + ' ' + _cell_text(s)).strip(), rs, cs)
+    return caption, rows
+
+
+def _table_rows(body):
+    """Return (caption, grid) with row/col spans expanded into a full grid.
+
+    Column-spanning cells repeat their text; row-spanning cells leave the
+    cells below them empty, so every row has the same column positions.
+    """
+    caption, raw = _raw_rows(body)
+    grid, pending = [], {}  # pending: column -> remaining rows still covered
+    for cells in raw:
+        row, col, queue = [], 0, list(cells)
+        while queue or any(c >= col for c in pending):
+            if pending.get(col):
+                pending[col] -= 1
+                row.append('')
+                col += 1
+                continue
+            if not queue:
+                col += 1
+                if col > 200:
+                    break
+                row.append('')
+                continue
+            text, rowspan, colspan = queue.pop(0)
+            for _ in range(colspan):
+                if rowspan > 1:
+                    pending[col] = rowspan - 1
+                row.append(text)
+                col += 1
+        pending = {c: n for c, n in pending.items() if n > 0}
+        grid.append(row)
+    return caption, [r for r in grid if any(r)]
 
 
 def render_table(body, nested):
