@@ -1,50 +1,149 @@
-# factorio-control
+# recursive-factorio
 
-Programmatic control of a Factorio server: RCON client, Lua mod helpers, and an MCP server exposing them as tools.
+Run a local Factorio world and let an LLM inspect and change it through MCP.
+The headless server keeps the simulation running; you can join in the desktop game
+and watch the LLM build, edit inventories, change recipes, or teleport players.
 
-Repo: https://github.com/senamakel/factorio-llm
+Requires Python 3.10+ and an installed **Factorio 2.1.x**. On macOS, setup finds the
+Steam installation automatically. Factorio itself is not downloaded by this repo.
 
-## Layout
-- `rcon_client/` - stdlib RCON client + CLI (`python -m rcon_client.cli '/c game.print(game.tick)')`
-- `mod/` - `control-bridge` mod exposing `remote.call("control-bridge", ...)` RPCs
-- `mcp_server/` - MCP server with `rcon_command` and `get_status` tools
-- `docker/` - Dockerfile + compose to run the MCP server as a container
-- `scripts/` - helper launch scripts and tests
+## Start playing
 
-## OpenHuman MCP registration
-Connections -> MCP -> Add server (or a `[[mcp_client.servers]]` entry in the user config):
+```sh
+./factorio setup
+./factorio start
+./factorio join
+```
+
+`setup` creates `.venv`, a private RCON password, the mod installation, and configs
+under `server/data/`. `start` creates a peaceful map on first use and loads the
+newest save thereafter. The server runs in the background on `127.0.0.1:34197`;
+RCON listens on `127.0.0.1:27015`. It keeps simulating when nobody is connected.
+
+`join` launches the desktop client with the same mods as the server. If you open
+Factorio through Steam instead, run `./factorio client-mod`, restart the client,
+connect via **Multiplayer → Connect to address → 127.0.0.1:34197**, and accept
+**Sync mods**. The custom bridge is installed locally because it is not on the
+mod portal. Space Age built-in mods may also be active; use the server's mod list.
+
+For another installation or ports:
+
+```sh
+./factorio setup --binary /path/to/factorio --read-data /path/to/data \
+  --port 27016 --game-port 34198
+```
+
+Setup detects the Steam installation on macOS and typical `bin/x64/factorio`
+layouts elsewhere. `FACTORIO_BINARY` and `FACTORIO_READ_DATA` are also supported.
+On other systems, pass `./factorio client-mod --client-mods /path/to/client/mods`
+if using a separately launched client. Avoid launching a second desktop client
+while one is already open.
+
+## Connect an LLM
+
+For Codex:
+
+```sh
+./factorio register
+```
+
+This registers `factorio-control` in your user-level Codex config, pointing at
+this checkout's absolute Python and entrypoint paths. Start a new Codex session
+(or reconnect MCP) so it loads the tools. `./factorio mcp-config --format codex`
+prints the TOML for a project-scoped config instead. Configuration follows the
+[official MCP documentation](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+
+For OpenHuman, run `./factorio mcp-config` and copy the generated TOML into the
+user config, or add the same command and args in **Connections → MCP → Add server**.
+The generated configuration has this shape; use the generated paths:
 
 ```toml
 [[mcp_client.servers]]
 name = "factorio-control"
-command = "/Users/enamakel/OpenHuman/projects/factorio-control/.venv/bin/python"
-args = ["-m", "mcp_server.server"]
-working_dir = "/Users/enamakel/OpenHuman/projects/factorio-control"
-
-[mcp_client.servers.env]
-FACTORIO_HOST = "127.0.0.1"
-FACTORIO_PORT = "27015"
-FACTORIO_RCON_PASSWORD = "<your rcon password>"
+command = "/absolute/path/to/repo/.venv/bin/python"
+args = ["/absolute/path/to/repo/scripts/mcp_entrypoint.py"]
+working_dir = "/absolute/path/to/repo"
 ```
 
-## Server setup
-Enable RCON by launching Factorio with:
+For a client using JSON `mcpServers` configuration, run
+`./factorio mcp-config --format json`. No API key is needed by the bridge: the LLM
+runs in your MCP client, using its existing provider configuration.
 
-    factorio --start-server your-save.zip \
-        --rcon-port 27015 --rcon-password YOURPASSWORD \
-        --mod-directory ../mods
+The stdio entrypoint works from any working directory and reads the private
+`server/data/connection.json` automatically. For an external server, override
+`FACTORIO_HOST`, `FACTORIO_PORT`, and `FACTORIO_RCON_PASSWORD`, or point
+`FACTORIO_CONNECTION_FILE` to another connection JSON. Settings load at startup;
+reconnect the MCP client after changing them. `./factorio mcp` is also a stdio
+entrypoint; it waits for protocol messages and does not present an interactive UI.
 
-## Install the mod
-Copy or symlink `mod/` into your Factorio `mods` directory as `control-bridge_0.1.0/`.
+Try: **“Inspect the area around me and build a small iron smelting line.”**
+Or: **“Put 100 iron plates in that chest, then verify its inventory and save.”**
 
-## Run the MCP server directly
+## Tools
 
-    pip install -r requirements.txt
-    export FACTORIO_HOST=127.0.0.1 FACTORIO_PORT=27015 FACTORIO_RCON_PASSWORD=...
-    python -m mcp_server.server
+| Tool | What it does |
+| --- | --- |
+| `get_status` | Tick, speed, players, positions, surfaces, bridge version |
+| `inspect_area` | Nearby entities, stable IDs, recipes, chest inventories |
+| `place_entity` | Build an entity by prototype name, coordinates and direction |
+| `remove_entity` | Destroy a player-owned entity by inspected ID |
+| `insert_items` | Add items to a chest or machine and report actual inserted count |
+| `set_recipe` | Change an assembler recipe |
+| `give_item` | Give items to a named player |
+| `teleport` | Move a named player to coordinates on a surface |
+| `print_all` | Display an in-game chat message |
+| `save_game` | Request a save; completion is asynchronous |
+| `rcon_command` | Raw console commands and `/c` Lua for advanced operations |
 
-Or with Docker (from `docker/`; needs DOCKER_BUILDKIT=0 on some hosts):
+This is a sandbox: building and item tools create things without consuming your
+inventory. Lua console commands disable achievements. World changes happen
+immediately. `inspect_area` is bounded to radius 64 and 200 entities; narrow the
+query if `truncated` is true. Inspect/place records entity references in mod
+storage so IDs can be used for subsequent edits and survive save/load.
 
-    docker compose up --build
+For advanced Lua, Factorio 2.1 uses `helpers.table_to_json`, as documented in
+[LuaHelpers](https://lua-api.factorio.com/latest/classes/LuaHelpers.html).
+Use `rcon.print(...)` to return output; `game.print(...)` goes to in-game chat.
+Entity lookup has prototype restrictions in
+[LuaGameScript](https://lua-api.factorio.com/latest/classes/LuaGameScript.html#get_entity_by_unit_number),
+which is why the bridge retains references to entities it inspects or creates.
 
-The MCP server speaks stdio, so point your MCP client at the command above.
+## Operate and verify
+
+```sh
+./factorio status
+./factorio check          # offline tests + read-only live MCP handshake/tool checks
+./factorio check --edits  # build/inventory/recipe/remove tests on a disposable surface
+./factorio stop          # save as llm-save and gracefully stop the managed server
+./factorio start         # resume the newest save
+```
+
+Live checks require the server to be running. `--edits` cleans up its temporary
+surface and verifies an actual new save ZIP. Errors fail the check. The optional
+`./factorio reload-check` validates the current demo chest from
+`server/data/demo.json` in a second isolated server; it never stops the live game.
+It is intended for the local demonstration and requires its `llm-save.zip`.
+
+Saves: `server/data/saves/`. Server log: `server/data/server.log`.
+Client log when launched with `join`: `server/data/client.log`.
+`stop` only signals the PID whose command references this checkout's config.
+Occupied ports cause startup to fail without stopping other processes.
+
+Keep `.venv/` and `server/data/` out of Git. Back up saves before deleting a
+worktree: both runtime data and registered MCP paths belong to that checkout.
+
+## Layout
+
+- `factorio` — single command for setup, server/client lifecycle and verification
+- `scripts/factorio.py` — config generation and background process management
+- `scripts/mcp_entrypoint.py` — MCP entrypoint independent of the working directory
+- `mcp_server/` — FastMCP stdio tools (MCP SDK 1.x)
+- `mod/` — `control-bridge` 0.2.0 for Factorio 2.1
+- `rcon_client/` — stdlib RCON protocol client and CLI
+- `scripts/` — offline tests and live MCP/save verification
+- `docker/` — optional containerized MCP bridge to an existing Factorio server
+
+Docker does not run Factorio. Supply RCON credentials and use stdio attachment
+(e.g. `docker compose -f docker/docker-compose.yml run --rm -T factorio-mcp`)
+from a client that can launch that command. The host's Factorio must expose RCON
+to the container; the default local launcher deliberately binds it to loopback.

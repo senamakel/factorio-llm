@@ -1,0 +1,50 @@
+#!/bin/sh
+# One entrypoint, usable from any directory. Runtime state belongs to this checkout.
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+cd "$ROOT"
+ACTION=${1:-help}
+case "$ACTION" in
+  setup)
+    shift
+    if [ ! -x .venv/bin/python ]; then python3 -m venv .venv; fi
+    .venv/bin/python -m pip install -r requirements.txt
+    exec .venv/bin/python scripts/factorio.py setup "$@"
+    ;;
+  help|--help|-h)
+    cat <<'EOF'
+Usage: ./factorio COMMAND [options]
+  setup       Install Python dependencies, generate server config and install mod
+  start       Start the local server; create a peaceful map if there is no save
+  join        Open the game client with the server's mods and connect
+  status      Query the live world
+  stop        Save and gracefully stop this checkout's server
+  register    Register factorio-control in Codex
+  mcp         Start stdio MCP (for LLM clients)
+  mcp-config  Print OpenHuman TOML; --format codex or json also supported
+  client-mod  Install the mod into the desktop client's normal mods directory
+  check       Run offline tests plus read-only live MCP check; --edits tests mutations
+  reload-check Verify saved demo entity references in an isolated server
+Options for setup: --binary PATH --read-data PATH --port N --game-port N
+EOF
+    ;;
+  *)
+    if [ ! -x .venv/bin/python ]; then
+      echo 'Run ./factorio setup first' >&2
+      exit 1
+    fi
+    shift
+    case "$ACTION" in
+      mcp) exec .venv/bin/python scripts/mcp_entrypoint.py "$@" ;;
+      check)
+        .venv/bin/python -m unittest scripts.test_mcp_tools scripts.test_factorio_setup
+        .venv/bin/python -m scripts.test_rcon
+        .venv/bin/python -m scripts.test_rcon_adversarial
+        .venv/bin/python scripts/check_readme_toml.py
+        exec .venv/bin/python scripts/smoke_mcp.py "$@"
+        ;;
+      reload-check) exec .venv/bin/python scripts/verify_reload.py "$@" ;;
+      *) exec .venv/bin/python scripts/factorio.py "$ACTION" "$@" ;;
+    esac
+    ;;
+esac

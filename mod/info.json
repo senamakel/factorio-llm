@@ -1,9 +1,11 @@
 {
   "name": "control-bridge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Control Bridge",
-  "description": "Remote control helpers exposed over RCON: status, item giving, teleport, custom RPCs.",
+  "description": "Inspect and edit a Factorio sandbox via structured RCON and MCP tools.",
   "author": "you",
   "factorio_version": "2.1",
-  "dependencies": []
+  "dependencies": [
+    "base >= 2.1.0"
+  ]
 }

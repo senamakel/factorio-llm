@@ -1,25 +1,31 @@
-"""Validate the README's TOML snippet parses and its paths exist."""
+"""Validate README TOML and all generated MCP client configs without printing secrets."""
 import json
-import os
+from pathlib import Path
 import re
-
-repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-readme = open(os.path.join(repo, "README.md")).read()
-block = re.search(r"```toml\n(.*?)```", readme, re.S).group(1)
+import subprocess
+import sys
 try:
     import tomllib
 except ImportError:
     import tomli as tomllib
 
-cfg = tomllib.loads(block)
-srv = cfg["mcp_client"]["servers"][0]
-print("name:", srv["name"])
-print("command exists:", os.path.isfile(srv["command"]), "->", srv["command"])
-print("args:", srv["args"])
-print("working_dir exists:", os.path.isdir(srv["working_dir"]))
-print("env keys:", sorted(srv["env"]))
-assert os.path.isfile(srv["command"]), "venv python missing"
-assert os.path.isdir(srv["working_dir"])
-assert srv["args"] == ["-m", "mcp_server.server"]
-assert sorted(srv["env"]) == ["FACTORIO_HOST", "FACTORIO_PORT", "FACTORIO_RCON_PASSWORD"]
-print("TOML SNIPPET VALID")
+root = Path(__file__).resolve().parents[1]
+readme = (root/'README.md').read_text()
+block = re.search(r'```toml\n(.*?)```',readme,re.S).group(1)
+example = tomllib.loads(block)['mcp_client']['servers'][0]
+assert example['name']=='factorio-control'
+assert example['args'][0].endswith('/scripts/mcp_entrypoint.py')
+for format_name in ('openhuman','codex','json'):
+    raw = subprocess.check_output([sys.executable,str(root/'scripts/factorio.py'),'mcp-config','--format',format_name],text=True)
+    if format_name=='json':
+        srv=json.loads(raw)['mcpServers']['factorio-control']
+    elif format_name=='codex':
+        srv=tomllib.loads(raw)['mcp_servers']['factorio-control']
+    else:
+        srv=tomllib.loads(raw)['mcp_client']['servers'][0]
+        assert Path(srv['working_dir'])==root
+    assert Path(srv['command']).is_file(), 'venv Python missing'
+    assert srv['args']==[str(root/'scripts/mcp_entrypoint.py')]
+    assert Path(srv['args'][0]).is_file()
+    assert 'password' not in raw.lower()
+print('README TOML and generated OpenHuman/Codex/JSON MCP configs: PASS')
