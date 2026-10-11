@@ -78,12 +78,12 @@ def move_or_act(player,action,reach):
     return action
 
 
-def mining_decision(state,player,resource,experience):
+def mining_decision(state,player,resource,experience,count=1):
     target=select_resource(state,player,resource,experience)
     if not target:
         return decision('explore',f'No {resource} target is known on this surface; explore and observe again.')
     action={'kind':'mine','player':player['name'],'surface':player['surface'],
-            'resource':resource,'position':target['position']}
+            'resource':resource,'position':target['position'],'count':count}
     return decision('mine_'+resource,f'Gather {resource} for the iron-smelting chain.',
         move_or_act(player,action,player.get('resource_reach_distance',2.7)))
 
@@ -123,18 +123,18 @@ def brain_think(state,experience=None,player_name='',target_plates=16):
     batch=min(16,max(1,target_plates-plates))
     loaded=sum(entity_item_count(f,'furnace_source','iron-ore') for f in furnaces)
     if ore<batch and loaded==0:
-        return mining_decision(state,player,'iron-ore',experience)
+        return mining_decision(state,player,'iron-ore',experience,batch-ore)
     fuel_name=next((name for name in ('coal','wood','solid-fuel') if inventory_count(player,name)>0),None)
     fueled=[f for f in furnaces if any(entity_item_count(f,'fuel',n)>0 for n in ('coal','wood','solid-fuel'))
             or f.get('remaining_burning_fuel',0)>0]
     if not fuel_name and not fueled:
-        return mining_decision(state,player,'coal',experience)
+        return mining_decision(state,player,'coal',experience,4)
     if not furnaces:
         if player.get('crafting_queue'):
             return decision('crafting','Wait for the queued furnace craft to finish.')
         if inventory_count(player,'stone-furnace')==0:
             if inventory_count(player,'stone')<5:
-                return mining_decision(state,player,'stone',experience)
+                return mining_decision(state,player,'stone',experience,5-inventory_count(player,'stone'))
             return decision('craft_furnace','Craft a stone furnace from five stone.',
                             {'kind':'craft','player':player['name'],'recipe':'stone-furnace','count':1})
         sites=state.get('build_sites',{}).get(player['name'],[])
