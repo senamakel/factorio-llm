@@ -139,7 +139,7 @@ def recipes(actor_id, names=None):
         'if a.names then for _,n in ipairs(a.names) do local r=e.force.recipes[n]; if r then add(r) end end '
         'else for _,r in pairs(e.force.recipes) do if not r.hidden then add(r) end end end; return out',
         {'names': list(names) if names else None})
-    return {name: _lists(r, ('ingredients', 'products', 'categories')) for name, r in as_list(found) and found.items() or ()}
+    return {name: _lists(r, ('ingredients', 'products', 'categories')) for name, r in (found or {}).items()}
 
 
 def technologies(actor_id, names=None):
@@ -156,7 +156,7 @@ def technologies(actor_id, names=None):
         'progress=e.force.research_progress,queue=(function() local q={}; '
         'for _,t in pairs(e.force.research_queue or {}) do q[#q+1]=t.name end; return q end)()}',
         {'names': list(names) if names else None})
-    techs = found['technologies'] if found['technologies'] != [] else {}
+    techs = found['technologies'] or {}
     found['technologies'] = {n: _lists(t, ('ingredients', 'prerequisites', 'unlocks')) for n, t in techs.items()}
     return _lists(found, ('queue',))
 
