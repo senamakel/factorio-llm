@@ -11,8 +11,8 @@ import signal
 import time
 
 from brain.event_store import EventStore
-from brain.goal import IronPlateGoal
-from brain.actions import make_iron_plates
+from brain.goal import IronPlateGoal, FirstResearchGoal
+from brain.actions import make_iron_plates, first_research
 from brain.execution import execute
 from brain.io import rpc, show_status
 from brain.observation import observe
@@ -26,9 +26,9 @@ def interrupt_run(signum, frame):
     raise KeyboardInterrupt('brain run interrupted')
 
 
-def run_brain(actor_id, steps=500, interval=0.5, target=100):
+def run_brain(actor_id, steps=500, interval=0.5, target=100, objective='iron'):
     """Run at most steps actions, record each outcome, and stop on completion or danger."""
-    goal = IronPlateGoal(target=target)
+    goal = FirstResearchGoal() if objective=='research' else IronPlateGoal(target=target)
     baseline = observe(actor_id, goal.player_name)
     total = 0
     def measured():
@@ -40,11 +40,14 @@ def run_brain(actor_id, steps=500, interval=0.5, target=100):
         for step in range(steps):
             sid = store.snapshot(before)
             store.log('observation', goal.evaluate(before), before['tick'])
-            decision = make_iron_plates(before, store.experience(), goal.player_name, goal.target)
+            decision = (first_research(before,store.experience(),goal.player_name) if objective=='research' else
+                        make_iron_plates(before, store.experience(), goal.player_name, goal.target))
             status = goal.evaluate(before)
-            show_status(actor_id, f"Teeny: {decision['phase'].replace('_',' ')} | {status['inventory']}/{goal.target} plates")
+            action=decision['action']
+            detail=f" ({action['count']} {action.get('item',action.get('recipe',''))})" if action.get('count') and action['kind'] not in ('mine','move') else ''
+            show_status(actor_id, f"Teeny: {decision['phase'].replace('_',' ')}{detail} | {status['inventory']}/{goal.target} {goal.unit}")
             ident = store.decision(sid, decision, applied=decision['phase'] not in ('complete','danger'))
-            if decision['phase'] in ('complete', 'danger'):
+            if decision['phase'] in ('complete', 'danger','blocked'):
                 break
             store.log('action', decision['action'], before['tick'])
             try:
@@ -69,6 +72,8 @@ def run_brain(actor_id, steps=500, interval=0.5, target=100):
             before = after
         summary = {**goal.evaluate(before),'score':total,'tick':before['tick']}
         store.log('run_summary', summary, before['tick'])
+        if summary['complete']:
+            rpc('game.server_save("teeny-'+objective+'-complete"); return true')
         return summary
 
 
@@ -79,7 +84,8 @@ if __name__ == '__main__':
     parser.add_argument('--steps',type=int,default=500)
     parser.add_argument('--interval',type=float,default=0.5)
     parser.add_argument('--target',type=int,default=100)
+    parser.add_argument('--objective',choices=['iron','research'],default='iron')
     args = parser.parse_args()
     if args.steps <= 0 or args.interval <= 0:
         parser.error('steps and interval must be positive')
-    print(json.dumps(run_brain(args.actor,args.steps,args.interval,args.target)))
+    print(json.dumps(run_brain(args.actor,args.steps,args.interval,args.target,args.objective)))

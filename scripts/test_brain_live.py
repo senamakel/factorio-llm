@@ -67,7 +67,7 @@ class NativeActionTest(unittest.TestCase):
         import json
         rpc('local s=game.surfaces["'+self.surface+'"]; local t={}; '
             'for x=-16,16 do for y=-16,-10 do t[#t+1]={name="water",position={x,y}} end end; s.set_tiles(t); return true')
-        layout=steam_layout({'x':-10.5,'y':-9.5},'north')
+        layout=steam_layout({'x':-10.5,'y':-8.5},'north')
         payload=lua_string(json.dumps(layout))
         result=rpc('local s=game.surfaces["'+self.surface+'"]; local a=helpers.json_to_table('+payload+'); '
             'local ids={}; for _,p in ipairs(a) do local o={name=p.name,position=p.position,direction=defines.direction[p.direction],force="player"}; '

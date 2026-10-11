@@ -33,4 +33,8 @@ def score_transition(before, after, goal=None):
              "time": -0.02 * seconds,
              "enemies": -b["enemies"] * seconds,
              "damage": min(0, b["health"] - a["health"]) / 10}
+    if goal.unit=='red packs produced':
+        parts['progress']=200*(goal.evaluate(after)['progress']-goal.evaluate(before)['progress'])
+        parts['inventory']=5*(after.get('red_produced',0)-before.get('red_produced',0))
+        parts['throughput']=max(0,after.get('red_produced',0)-before.get('red_produced',0))/seconds if seconds else 0
     return {"components": parts, "total": sum(parts.values()), "seconds": seconds}
