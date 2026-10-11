@@ -73,8 +73,8 @@ def decision(phase,reason,action=None,**extra):
 
 def move_or_act(player,action,reach):
     if distance(player['position'],action['position'])>reach:
-        return {'kind':'move','player':player['name'],'surface':player['surface'],
-                'position':action['position'],'stop_distance':max(0.5,reach-0.5)}
+        from action_library.movement.move_to import move_to
+        return move_to(player,action['position'],max(0.5,reach-0.5))
     return action
 
 
