@@ -60,6 +60,7 @@ def run_brain(actor_id, steps=500, interval=.5, target=100, objective='iron',
                         reason=plan['phase']+(': '+plan['reason'] if plan['phase']!='complete' else '')
                         break
                     store.log('action',action,before['tick'])
+                    watchdog.note_action(action,before)
                     try:
                         with deadline(action_timeout,'action '+action['kind']):
                             result=execute(actor_id,action)
@@ -79,7 +80,7 @@ def run_brain(actor_id, steps=500, interval=.5, target=100, objective='iron',
                     store.outcome(ident,outcome);store.log('outcome',outcome,after['tick'])
                     store.learn(plan['action_key'],result.get('ok',False),reward['total'])
                     print(json.dumps({'step':step,'phase':plan['phase'],**outcome}),flush=True)
-                    before=after;watchdog.check(before,result)
+                    before=after;watchdog.check(before,result,action)
         except (KeyboardInterrupt,RuntimeError,ValueError,OSError) as exc:
             reason=f'{type(exc).__name__}: {exc}'
             store.log('run_stopped',{'reason':reason,'step':step})

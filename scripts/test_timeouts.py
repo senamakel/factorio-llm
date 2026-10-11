@@ -24,3 +24,12 @@ class TimeoutTest(unittest.TestCase):
         watchdog=ProgressWatchdog()
         watchdog.check({}, {'ok':False});watchdog.check({}, {'ok':False})
         with self.assertRaisesRegex(TimeoutError,'consecutive'):watchdog.check({}, {'ok':False})
+
+    def test_back_and_forth_movement_does_not_reset_stall_timeout(self):
+        now=[0];watchdog=ProgressWatchdog(10,clock=lambda:now[0])
+        state={'players':[{'position':{'x':0,'y':0},'inventory':{}}]}
+        action={'kind':'move','position':{'x':10,'y':0}}
+        watchdog.check(state,{'ok':True});watchdog.note_action(action,state)
+        state['players'][0]['position']['x']=1;watchdog.check(state,{'ok':True},action)
+        now[0]=11;state['players'][0]['position']['x']=0
+        with self.assertRaises(TimeoutError):watchdog.check(state,{'ok':True},action)

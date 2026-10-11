@@ -40,13 +40,21 @@ class ProgressWatchdog:
         if stall_seconds<=0 or max_failures<=0:raise ValueError('watchdog limits must be positive')
         self.stall_seconds=stall_seconds;self.max_failures=max_failures;self.clock=clock
         self.last_progress=clock();self.signature=None;self.failures=0
+        self.best_distances={}
 
-    def check(self, state, result):
+    def note_action(self, action, state):
+        """Retain best distance to each movement target so oscillation is not progress."""
+        if action.get('kind')!='move':return
+        from brain.logic import distance
+        player=(state.get('players') or [{}])[0]
+        key=json.dumps(action['position'],sort_keys=True)
+        self.best_distances.setdefault(key,distance(player['position'],action['position']))
+
+    def check(self, state, result, action=None):
         """Raise TimeoutError on lack of meaningful progress or consecutive action failures."""
         player=(state.get('players') or [{}])[0]
         pos=player.get('position',{'x':0,'y':0})
-        signature=json.dumps({'position':{k:round(v,1) for k,v in pos.items()},
-                              'inventory':player.get('inventory'),
+        signature=json.dumps({'inventory':player.get('inventory'),
                               'entities':state.get('entities'),
                               'research':state.get('research_progress'),
                               'technologies':state.get('technologies'),
@@ -58,6 +66,12 @@ class ProgressWatchdog:
             for key in ('energy','status','remaining_burning_fuel'):entity.pop(key,None)
         signature=json.dumps(payload,sort_keys=True)
         if signature!=self.signature:self.signature=signature;self.last_progress=self.clock()
+        if action and action.get('kind')=='move':
+            from brain.logic import distance
+            key=json.dumps(action['position'],sort_keys=True)
+            current=distance(pos,action['position'])
+            previous=self.best_distances.get(key,current)
+            if current<previous-.2:self.best_distances[key]=current;self.last_progress=self.clock()
         self.failures=0 if result.get('ok') else self.failures+1
         if self.failures>=self.max_failures:raise TimeoutError(f'stopped after {self.failures} consecutive action failures')
         if self.clock()-self.last_progress>=self.stall_seconds:raise TimeoutError('no measured progress within stall timeout')

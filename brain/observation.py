@@ -48,9 +48,19 @@ def resource_targets(actor_id, position):
 
 
 def tree_targets(actor_id, position):
-    """Read the current bounded tree candidates."""
-    return read_entities(actor_id,{'type':'tree','position':position,'radius':128},
-                         'name=f.name,position=f.position',64)['entities'] or []
+    """Find nearby harvestable trees using complete bounded results, never a truncated prefix."""
+    radius,empty,crowded=128,0,128
+    fields=('name=f.name,position=f.position,mineable=f.minable,'
+            'wood_yield=(function() local n=0; for _,p in pairs(f.prototype.mineable_properties.products or {}) do '
+            'if p.name=="wood" then n=n+(p.amount or p.amount_min or 1) end end; return n end)()')
+    for attempt in range(20):
+        result=read_entities(actor_id,{'type':'tree','position':position,'radius':radius},fields,128)
+        if not result['truncated'] and (result['entities'] or attempt==0):
+            return [t for t in result['entities'] or [] if t.get('mineable') and t.get('wood_yield',0)>0]
+        if result['truncated']:crowded=radius
+        else:empty=radius
+        radius=(empty+crowded)/2
+    raise RuntimeError('tree search could not obtain complete bounded candidates')
 
 
 def observe(actor_id, name):

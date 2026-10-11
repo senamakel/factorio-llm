@@ -29,7 +29,10 @@ def route(cells, target, stop_distance):
 def waypoint(actor_id, position, target, stop_distance):
     """Query local walkability and return the end of the first straight route segment."""
     tx,ty=target['x']-position['x'],target['y']-position['y']
-    if math.hypot(tx,ty)>128:raise ValueError('route target exceeds local planning range')
+    length=math.hypot(tx,ty)
+    if length>96:
+        tx,ty=tx/length*64,ty/length*64
+        stop_distance=3
     coords=[(x,y) for x in range(min(0,math.floor(tx))-8,max(0,math.ceil(tx))+9)
                   for y in range(min(0,math.floor(ty))-8,max(0,math.ceil(ty))+9)]
     if len(coords)>10000:raise ValueError('route grid exceeds planning budget')
