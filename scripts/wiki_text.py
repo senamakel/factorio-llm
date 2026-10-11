@@ -151,11 +151,11 @@ def format_recipe(value):
 def render_infobox(args, expand):
     """Render an ``{{Infobox|key = value ...}}`` call as a bullet list."""
     _, named = _named(args)
-    lines = ['', '**Infobox**', '']
+    lines = ['', '== Infobox ==', '']
     for key, raw in named.items():
         if key in DROP_INFOBOX_KEYS or not raw:
             continue
-        value = expand(raw)
+        value = expand(re.sub(r'<br\s*/?>', ' / ', raw))
         if key in RECIPE_KEYS or key.endswith('-recipe'):
             value = format_recipe(value)
         elif key == 'technology-trigger':
@@ -167,8 +167,12 @@ def render_infobox(args, expand):
     return '\n'.join(lines) + '\n\n'
 
 
-def render_template(inner, expand, transclude, depth):
-    """Render one template call (contents without the outer braces)."""
+def render_template(inner, expand, transclude, depth, in_infobox=False):
+    """Render one template call (contents without the outer braces).
+
+    ``in_infobox`` selects the verbose quality rendering; elsewhere (tables,
+    prose) only the normal-quality value is kept to stay readable.
+    """
     args = split_args(inner)
     name = args[0].strip()
     lname = name.lower().replace('_', ' ')
@@ -180,13 +184,13 @@ def render_template(inner, expand, transclude, depth):
     rest = args[1:]
     pos, named = _named(rest)
     if lname == 'infobox':
-        return render_infobox(rest, expand)
+        return render_infobox(rest, lambda sub: _expand_templates(sub, transclude, depth, True))
     if lname in DROP_TEMPLATES or lname.endswith('nav') or lname.startswith('#'):
         return ''
     if lname == 'quality':
         vals = [expand(p) for p in pos]
-        if len(vals) <= 1:
-            return ''.join(vals)
+        if len(vals) <= 1 or not in_infobox:
+            return vals[0] if vals else ''
         tiers = ' / '.join(vals)
         return '%s (by quality %s: %s)' % (vals[0], '/'.join(QUALITY_TIERS[:len(vals)]), tiers)
     if lname in ('translation', 'tr'):
@@ -197,8 +201,8 @@ def render_template(inner, expand, transclude, depth):
         item = expand(pos[0])
         return '%s × %s' % (expand(pos[1]), item) if len(pos) > 1 and pos[1] else item
     if lname == 'history':
-        return '\n- Version %s: %s\n' % (expand(pos[0]) if pos else '?',
-                                         expand('|'.join(pos[1:])).strip())
+        return '\nVersion %s:\n%s\n' % (expand(pos[0]) if pos else '?',
+                                       expand('|'.join(pos[1:])).strip())
     if lname in ('dlc', 'space age', 'sa'):
         return '(Space Age)'
     # Unknown template: keep positional text, the most likely carrier of meaning.
@@ -211,10 +215,10 @@ def _strip_noinclude(text):
     return re.sub(r'</?includeonly>', '', text)
 
 
-def _expand_templates(text, transclude, depth=0):
+def _expand_templates(text, transclude, depth=0, in_infobox=False):
     """Replace every ``{{...}}`` call (outermost first, recursively)."""
     def expand(sub):
-        return _expand_templates(sub, transclude, depth)
+        return _expand_templates(sub, transclude, depth, in_infobox)
     out, i = [], 0
     while True:
         j = text.find('{{', i)
@@ -226,7 +230,7 @@ def _expand_templates(text, transclude, depth=0):
             out.append(text[i:])
             return ''.join(out)
         out.append(text[i:j])
-        out.append(render_template(text[j + 2:end - 2], expand, transclude, depth))
+        out.append(render_template(text[j + 2:end - 2], expand, transclude, depth, in_infobox))
         i = end
 
 
@@ -258,7 +262,7 @@ def _cell_text(cell):
     if sep and re.search(r'\w+\s*=\s*', attr) and '[' not in attr:
         cell = content
     cell = re.sub(r'<br\s*/?>', ' / ', cell)
-    return ' '.join(cell.split()).replace('|', '/')
+    return ' '.join(cell.split()).replace('|', '/').strip(' /')
 
 
 def _table_rows(body):
@@ -328,16 +332,17 @@ def wikitext_to_text(text, transclude=None):
     text = _expand_templates(text, transclude)
     text = _convert_links(text)
     text = _convert_tables(text)
-    text = re.sub(r"'''(.+?)'''", r'**\1**', text)
-    text = re.sub(r"''(.+?)''", r'*\1*', text)
-    text = re.sub(r'^(=+)\s*(.*?)\s*\1\s*$',
-                  lambda m: '#' * min(len(m.group(1)), 6) + ' ' + m.group(2), text, flags=re.M)
-    text = re.sub(r'<br\s*/?>', '\n', text)
-    text = re.sub(r'</?(span|div|sup|sub|small|big|center|code|nowiki|p|u|s|font|abbr)[^>]*>', '', text)
+    # Lists before headings/bold: both of those emit '#' or '*' at line start.
     text = re.sub(r'^([*#]+)\s*', lambda m: '  ' * (len(m.group(1)) - 1) +
                   ('1. ' if m.group(1)[-1] == '#' else '- '), text, flags=re.M)
-    text = re.sub(r'^;\s*(.*)$', r'**\1**', text, flags=re.M)
+    text = re.sub(r'^;\s*(.*)$', r"'''\1'''", text, flags=re.M)
     text = re.sub(r'^:+\s*', '', text, flags=re.M)
+    text = re.sub(r'^(=+)\s*(.*?)\s*\1\s*$',
+                  lambda m: '#' * min(len(m.group(1)), 6) + ' ' + m.group(2), text, flags=re.M)
+    text = re.sub(r"'''(.+?)'''", r'**\1**', text)
+    text = re.sub(r"''(.+?)''", r'*\1*', text)
+    text = re.sub(r'<br\s*/?>', '\n', text)
+    text = re.sub(r'</?(span|div|sup|sub|small|big|center|code|nowiki|p|u|s|font|abbr)[^>]*>', '', text)
     text = html.unescape(text).replace('\xa0', ' ')
     lines = [line.rstrip() for line in text.split('\n')]
     return re.sub(r'\n{3,}', '\n\n', '\n'.join(lines)).strip() + '\n'
@@ -347,7 +352,7 @@ def first_sentence(text, limit=180):
     """Return the first prose sentence of converted text, for the index."""
     for line in text.split('\n'):
         s = line.strip()
-        if not s or s[0] in '#|-<>' or s.startswith(('**Infobox', '1. ')) or s[0].isdigit():
+        if not s or s[0] in '#|-<>' or s[0].isdigit():
             continue
         if s.startswith('*') and not s.startswith('**'):
             continue  # italic hatnote such as "For X, see Y."
