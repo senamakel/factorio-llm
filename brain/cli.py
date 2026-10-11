@@ -40,6 +40,7 @@ def main(argv=None):
     p=sub.add_parser('run');p.add_argument('options',nargs=argparse.REMAINDER)
     p=sub.add_parser('history');p.add_argument('--limit',type=int,default=20)
     sub.add_parser('actions')
+    sub.add_parser('status');sub.add_parser('stop')
     p=sub.add_parser('blueprint');p.add_argument('path')
     if argv and argv[0]=='run':
         from brain.runner import main as run
@@ -51,6 +52,9 @@ def main(argv=None):
         return run(options)
     args=parser.parse_args(argv)
     try:
+        if args.command in ('status','stop'):
+            from brain.controller import status,stop
+            print(json.dumps(stop() if args.command=='stop' else status(),indent=2));return
         if args.command=='actions':
             from brain import actions
             print(json.dumps({name:{'signature':str(inspect.signature(getattr(actions,name))),

@@ -68,6 +68,8 @@ def observe(actor_id, name):
     data = actor_rpc(actor_id,
         'local stats=e.force.get_item_production_statistics(s); return {tick=game.tick,surface=s.name,force=e.force.name,'
         'position=e.position,health=e.health,inventory=inv.get_contents(),crafting_queue=e.crafting_queue or {},seed=s.map_gen_settings.seed,'
+        'game_status={speed=game.speed,tick_paused=game.tick_paused,connected_players=#game.connected_players},'
+        'surface_info={name=s.name,seed=s.map_gen_settings.seed,daytime=s.daytime,peaceful=s.peaceful_mode,no_enemies=s.map_gen_settings.no_enemies_mode},'
         'iron_produced=stats.get_input_count("iron-plate"),'
         'copper_produced=stats.get_input_count("copper-plate"),red_produced=stats.get_input_count("automation-science-pack"),'
         'mined={stats.get_input_count("iron-ore"),stats.get_input_count("copper-ore"),stats.get_input_count("coal"),stats.get_input_count("stone")},'
@@ -95,7 +97,7 @@ def observe(actor_id, name):
         'lab_input=f.type=="lab" and f.get_inventory(defines.inventory.lab_input).get_contents() or {}}')
     progression=actor_rpc(actor_id,
         'local recipes,tech={},{}; for _,n in ipairs(a.recipes) do local r=e.force.recipes[n]; '
-        'if r then recipes[n]={enabled=r.enabled,ingredients=r.ingredients,products=r.products,energy=r.energy} end end; '
+        'if r then recipes[n]={enabled=r.enabled,ingredients=r.ingredients,products=r.products,energy=r.energy,categories=r.prototype.categories} end end; '
         'for _,n in ipairs(a.technologies) do local t=e.force.technologies[n]; '
         'tech[n]={researched=t.researched,enabled=t.enabled,count=t.research_unit_count,energy=t.research_unit_energy,'
         'ingredients=t.research_unit_ingredients,trigger=t.prototype.research_trigger} end; '
@@ -112,7 +114,7 @@ def observe(actor_id, name):
     sites = actor_rpc(actor_id,
         'local out={}; for _,pos in ipairs(a) do '
         'if s.can_place_entity{name="stone-furnace",position=pos,force=e.force} then out[#out+1]=pos end end; return out', candidates)
-    return {'tick':data['tick'],
+    return {'schema_version':1,'tick':data['tick'],'game_status':data['game_status'],'surface_info':data['surface_info'],
             'coverage':{'complete':not furnaces['truncated'] and not enemies['truncated'] and not machines['truncated'],
                         'scope':'bounded local resources and enemies; surface furnaces','resource_radii':radii},
             'players':[{'name':name,'surface':surface,'force':data['force'],'position':position,

@@ -23,6 +23,16 @@ def interrupt_run(signum, frame):
 def run_brain(actor_id, steps=500, interval=.5, target=100, objective='iron',
               run_timeout=1800, stall_timeout=120, action_timeout=30, observe_timeout=20,
               max_failures=3):
+    """Own this actor exclusively while running the bounded objective and persistence loop."""
+    from brain.controller import ownership
+    with ownership(actor_id,objective):
+        return _run_brain(actor_id,steps,interval,target,objective,run_timeout,stall_timeout,
+                          action_timeout,observe_timeout,max_failures)
+
+
+def _run_brain(actor_id, steps=500, interval=.5, target=100, objective='iron',
+              run_timeout=1800, stall_timeout=120, action_timeout=30, observe_timeout=20,
+              max_failures=3):
     """Run a bounded objective and return measured completion or an explicit stop reason.
 
     Deadlines include blocking I/O and native action time. Three failed actions or
@@ -117,8 +127,9 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:summary=run_brain(args.actor,args.steps,args.interval,args.target,args.objective,
                          args.run_timeout,args.stall_timeout,args.action_timeout,args.observe_timeout,args.max_failures)
-    except ValueError as exc:parser.error(str(exc))
+    except (ValueError,RuntimeError) as exc:parser.error(str(exc))
     print(json.dumps(summary))
+    return 0 if summary['complete'] else 2
 
 
 if __name__=='__main__':main()

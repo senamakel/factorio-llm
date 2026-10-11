@@ -2,13 +2,17 @@
 import json
 from mcp_server.server import lua_string, run
 from brain.timeouts import deadline
+from rcon_client.client import RconError
 
 
 def rpc(body):
     """Run a Lua API adapter; require structured success and propagate game errors."""
-    with deadline(5,'RCON command'):
-        raw = run('/c local ok,v=pcall(function() ' + body +
-                  ' end); rcon.print(helpers.table_to_json({ok=ok,value=ok and v or nil,error=not ok and tostring(v) or nil}))')
+    try:
+        with deadline(5,'RCON command'):
+            raw = run('/c local ok,v=pcall(function() ' + body +
+                      ' end); rcon.print(helpers.table_to_json({ok=ok,value=ok and v or nil,error=not ok and tostring(v) or nil}))')
+    except RconError as exc:
+        raise RuntimeError('RCON protocol error: '+str(exc)) from exc
     result = json.loads(raw)
     if not result['ok']:
         raise RuntimeError(result['error'])
