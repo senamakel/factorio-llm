@@ -28,6 +28,7 @@ Usage: ./factorio COMMAND [options]
   reload-check Verify saved demo entity references in an isolated server
   episode     Score this checkout's brain on a disposable seeded world (--seed, --wall-secs)
   memory      Shared hive memory in CortexDB: remember / recall / list
+  gates       Run the RSI loop's gates here: honesty check + offline brain tests
 Options for setup: --binary PATH --read-data PATH --port N --game-port N
 EOF
     ;;
@@ -55,6 +56,7 @@ EOF
         ;;
       reload-check) exec "$PY" scripts/verify_reload.py "$@" ;;
       episode) exec "$PY" -m harness.episode "$@" ;;
+      gates) exec "$PY" -m harness.gates "$@" ;;
       memory) exec "$PY" scripts/memory.py "$@" ;;
       *) exec "$PY" scripts/factorio.py "$ACTION" "$@" ;;
     esac
