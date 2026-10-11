@@ -41,8 +41,9 @@ def ensure_plates(state, player, item, target, experience=None):
     output=entity_item_count(furnace,'furnace_result',item)
     needed=max(0,remaining-loaded-output)
     ore_held=inventory_count(player,ore)
-    if needed and ore_held:
+    batch=min(16,needed)
+    if needed and ore_held>=batch:
         return decision('load_'+ore,'Load a smelting batch.',transfer(player,furnace,'furnace_source',ore,min(needed,ore_held)))
     if needed:
-        return mining_decision(state,player,ore,experience,min(16,needed))
+        return mining_decision(state,player,ore,experience,max(1,batch-ore_held))
     return decision('smelting','Wait for a measured output batch.',{'kind':'wait','duration':4})

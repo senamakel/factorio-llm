@@ -72,7 +72,8 @@ def observe(actor_id, name):
                           'name=f.name,position=f.position',64)
     machines=read_entities(actor_id,{'name':['offshore-pump','pipe','boiler','steam-engine','small-electric-pole','lab'],'force':'actor'},
         'name=f.name,type=f.type,unit_number=f.unit_number,position=f.position,surface=s.name,force=f.force.name,'
-        'energy=f.energy,status=f.status,fluids=(function() local out={} for i=1,#f.fluidbox do out[#out+1]=f.fluidbox[i] end return out end)(),'
+        'energy=f.energy,status=f.status,fluids=(function() local out={} if f.type~="lab" and f.type~="electric-pole" then '
+        'for i=1,#f.fluidbox do out[#out+1]=f.fluidbox[i] end end; return out end)(),'
         'inventories={fuel=f.get_fuel_inventory() and f.get_fuel_inventory().get_contents() or {},'
         'lab_input=f.type=="lab" and f.get_inventory(defines.inventory.lab_input).get_contents() or {}}')
     progression=actor_rpc(actor_id,
