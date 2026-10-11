@@ -5,6 +5,7 @@ import unittest
 import uuid
 from brain import execute, observe, rpc
 from brain.logic import entity_item_count
+from brain.research_rules.power import steam_layout
 
 
 @unittest.skipUnless(os.environ.get('FACTORIO_LIVE_TESTS') == '1', 'requires a live Factorio server')
@@ -60,6 +61,21 @@ class NativeActionTest(unittest.TestCase):
         execute(self.actor, {'kind':'take',**furnace,'inventory':'furnace_source','item':'iron-ore','count':2})
         s = observe(self.actor, 'Teeny')
         self.assertEqual(entity_item_count(s['entities'][0], 'furnace_source', 'iron-ore'), 0)
+
+    def test_connected_steam_layout_powers_a_lab(self):
+        from mcp_server.server import lua_string
+        import json
+        rpc('local s=game.surfaces["'+self.surface+'"]; local t={}; '
+            'for x=-16,16 do for y=-16,-10 do t[#t+1]={name="water",position={x,y}} end end; s.set_tiles(t); return true')
+        layout=steam_layout({'x':-10.5,'y':-9.5},'north')
+        payload=lua_string(json.dumps(layout))
+        result=rpc('local s=game.surfaces["'+self.surface+'"]; local a=helpers.json_to_table('+payload+'); '
+            'local ids={}; for _,p in ipairs(a) do local o={name=p.name,position=p.position,direction=defines.direction[p.direction],force="player"}; '
+            'assert(s.can_place_entity(o),"layout blocked: "..p.role); local e=s.create_entity(o); ids[p.role]=e.unit_number; '
+            'if p.role=="boiler" then e.insert{name="coal",count=2} end end; return ids')
+        time.sleep(2)
+        energy=rpc('return game.get_entity_by_unit_number('+str(result['lab'])+').energy')
+        self.assertGreater(energy,0,'lab must receive real steam-engine electricity')
 
 
 if __name__ == '__main__':

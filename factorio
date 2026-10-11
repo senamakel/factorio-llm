@@ -37,7 +37,7 @@ EOF
     case "$ACTION" in
       mcp) exec .venv/bin/python scripts/mcp_entrypoint.py "$@" ;;
       check)
-        .venv/bin/python -m unittest scripts.test_mcp_tools scripts.test_factorio_setup scripts.test_brain scripts.test_brain_actions scripts.test_brain_observation scripts.test_actions scripts.test_goal_score scripts.test_mcp_config
+        .venv/bin/python -m unittest scripts.test_mcp_tools scripts.test_factorio_setup scripts.test_brain scripts.test_brain_actions scripts.test_brain_observation scripts.test_actions scripts.test_goal_score scripts.test_mcp_config scripts.test_research
         .venv/bin/python -m scripts.test_rcon
         .venv/bin/python -m scripts.test_rcon_adversarial
         .venv/bin/python scripts/check_readme_toml.py

@@ -32,7 +32,7 @@ class PolicyTest(unittest.TestCase):
 
     def test_furnace_gets_real_inventory_fuel_and_ore(self):
         furnace={'name':'stone-furnace','type':'furnace','unit_number':1,'surface':'nauvis',
-                 'force':'player','position':{'x':3,'y':0},'inventories':{}}
+                 'force':'player','position':{'x':2,'y':0},'inventories':{}}
         s=state({'iron-ore':16,'coal':4},[furnace])
         self.assertEqual(brain_think(s,player_name='alice')['action']['item'],'coal')
         furnace['inventories']['fuel']=[{'name':'coal','count':4}]
@@ -40,7 +40,7 @@ class PolicyTest(unittest.TestCase):
 
     def test_collects_plates_and_does_not_steal_from_other_forces(self):
         furnace={'name':'stone-furnace','type':'furnace','unit_number':1,'surface':'nauvis',
-                 'force':'player','position':{'x':3,'y':0},
+                 'force':'player','position':{'x':2,'y':0},
                  'inventories':{'furnace_result':[{'name':'iron-plate','count':5}]}}
         d=brain_think(state(entities=[furnace]),player_name='alice')
         self.assertEqual(d['action']['kind'],'take')
