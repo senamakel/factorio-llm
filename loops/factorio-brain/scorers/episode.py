@@ -22,10 +22,9 @@ done = subprocess.run([py, '-m', 'harness.episode', '--brain-root', os.environ['
                        '--seed', os.environ.get('RSI_SEED', '1'), '--out', os.environ['RSI_OUT']], cwd=root, env=env)
 if done.returncode:
     sys.exit(done.returncode)
-result = json.loads((Path(os.environ['RSI_OUT']) / 'result.json').read_text())
-m = result['metrics']
+m = json.loads((Path(os.environ['RSI_OUT']) / 'episode.json').read_text())
 summary = (f"Episode {os.environ.get('RSI_LABEL', '?')} epoch {os.environ.get('RSI_EPOCH', '?')} seed {m['seed']}: "
-           f"score {result['score']:.1f}, red {m['red_spm']}/min, green {m['green_spm']}/min, reached {m['reached']}, "
-           f"next {m['next_goal']}. Top failures: {[f['text'] for f in result['failures'][:3]]}")
+           f"score {m['score']:.1f}, red {m['red_spm']}/min, green {m['green_spm']}/min, reached {m['reached']}, "
+           f"next {m['next_goal']}. Top failures: {m['failures'][:3]}")
 subprocess.run([py, 'scripts/memory.py', 'remember', 'result', summary[:3900], '--tag', f"seed{m['seed']}"],
                cwd=root, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)

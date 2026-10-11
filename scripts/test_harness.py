@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 from harness import honesty, milestones as ladder
-from harness.episode import failures, stage
+from harness.episode import failures, stage, tinyrsi_result
 
 NOTHING = {'researched': [], 'entity_counts': {}, 'assembler_products': 0}
 
@@ -53,6 +53,21 @@ class FailureSummaryTest(unittest.TestCase):
         self.assertIn('1x start_research: returned ok=false', lines)
         self.assertTrue(any(line.startswith('stop reason: TimeoutError') for line in lines))
         self.assertTrue(any('ValueError: boom' in line for line in lines))
+
+
+class ResultShapeTest(unittest.TestCase):
+    def test_tinyrsi_result_has_numeric_metrics_and_status_first(self):
+        detail = {'score': 15.0, 'red_spm': 2.5, 'green_spm': 0, 'milestones': 2, 'reached': ['G1', 'G2'],
+                  'next_goal': ('G3', 'Red packs produced by machines'), 'rates_per_min': {ladder.RED: 2.5},
+                  'game_minutes_played': 30.0, 'researched': ['automation'], 'entity_counts': {'lab': 1},
+                  'seed': 2, 'failures': ['3x build_pipe: site occupied']}
+        result = tinyrsi_result(detail)
+        self.assertEqual(result['score'], 15.0)
+        for name, value in result['metrics'].items():
+            self.assertIsInstance(value, (int, float), name)
+        self.assertEqual(result['failures'][0]['type'], 'status')
+        self.assertIn("next goal ('G3'", result['failures'][0]['text'])
+        self.assertEqual(result['failures'][1], {'id': 'seed2-0', 'type': 'episode', 'text': '3x build_pipe: site occupied'})
 
 
 class StageTest(unittest.TestCase):

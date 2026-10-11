@@ -168,22 +168,42 @@ def run(brain_root, seed, out, wall_secs, speed, window_min, live_data):
         server.rcon('/c game.server_save("episode-end")')
         time.sleep(2)
     reached = ladder.reached(world, rates)
-    result = {
+    detail = {
         'score': ladder.score(rates, reached),
-        'metrics': {
-            'red_spm': round(rates.get(ladder.RED, 0), 2), 'green_spm': round(rates.get(ladder.GREEN, 0), 2),
-            'milestones': sum(reached.values()), 'reached': [k for k, v in reached.items() if v],
-            'next_goal': ladder.next_goal(reached), 'rates_per_min': {k: round(v, 2) for k, v in rates.items()},
-            'game_minutes_played': round((before['tick'] - started['tick']) / TICKS_PER_MINUTE, 1),
-            'produced_while_playing': before['produced'], 'researched': sorted(world['researched']),
-            'entity_counts': world['entity_counts'], 'brain_exit': exit_code, 'actor_halted': halted,
-            'seed': seed, 'wall_secs': wall_secs, 'game_speed': speed,
-        },
-        'failures': [{'id': f'seed{seed}-{i}', 'type': 'episode', 'text': text}
-                     for i, text in enumerate(failures(stdout, stderr))],
+        'red_spm': round(rates.get(ladder.RED, 0), 2), 'green_spm': round(rates.get(ladder.GREEN, 0), 2),
+        'milestones': sum(reached.values()), 'reached': [k for k, v in reached.items() if v],
+        'next_goal': ladder.next_goal(reached), 'rates_per_min': {k: round(v, 2) for k, v in rates.items()},
+        'game_minutes_played': round((before['tick'] - started['tick']) / TICKS_PER_MINUTE, 1),
+        'produced_while_playing': before['produced'], 'researched': sorted(world['researched']),
+        'entity_counts': world['entity_counts'], 'brain_exit': exit_code, 'actor_halted': halted,
+        'seed': seed, 'wall_secs': wall_secs, 'game_speed': speed,
+        'failures': failures(stdout, stderr),
     }
+    (out / 'episode.json').write_text(json.dumps(detail, indent=2))
+    result = tinyrsi_result(detail)
     (out / 'result.json').write_text(json.dumps(result, indent=2))
-    return result
+    return detail
+
+
+def tinyrsi_result(detail):
+    """Shape an episode for tinyrsi: numeric ``metrics`` only, status and errors as ``failures``.
+
+    The milestone status comes first so the hive always sees what was reached
+    and what the next ladder step is, followed by the brain's own failures.
+    """
+    seed = detail['seed']
+    status = (f"seed {seed}: reached {detail['reached'] or 'nothing'}; next goal {detail['next_goal']}; "
+              f"played {detail['game_minutes_played']} game-min; machine output/min {detail['rates_per_min']}; "
+              f"built {detail['entity_counts']}")
+    metrics = {'red_spm': detail['red_spm'], 'green_spm': detail['green_spm'],
+               'milestones': detail['milestones'], 'game_minutes_played': detail['game_minutes_played'],
+               'technologies_researched': len(detail['researched']),
+               'entities_built': sum(detail['entity_counts'].values())}
+    metrics.update({f'rate_{k}': v for k, v in detail['rates_per_min'].items()})
+    failures_out = [{'id': f'seed{seed}-status', 'type': 'status', 'text': status}]
+    failures_out += [{'id': f'seed{seed}-{i}', 'type': 'episode', 'text': text}
+                     for i, text in enumerate(detail['failures'])]
+    return {'score': detail['score'], 'metrics': metrics, 'failures': failures_out}
 
 
 def main(argv=None):
@@ -199,11 +219,11 @@ def main(argv=None):
     args = parser.parse_args(argv)
     out = args.out or str(Path(args.live_data) / 'episodes' / f'{time.strftime("%Y%m%d-%H%M%S")}-seed{args.seed}')
     result = run(args.brain_root, args.seed, out, args.wall_secs, args.game_speed, args.window_min, args.live_data)
-    m = result['metrics']
+    m = result
     print(f"DIAG seed {m['seed']}: {m['game_minutes_played']} game-min played, reached {m['reached']}, next {m['next_goal']}")
     print(f"DIAG rates/min in automation window: {m['rates_per_min']}")
-    for failure in result['failures']:
-        print(f"DIAG failure: {failure['text']}")
+    for text in result['failures']:
+        print(f'DIAG failure: {text}')
     print(f"METRIC red_spm={m['red_spm']}")
     print(f"METRIC green_spm={m['green_spm']}")
     print(f"METRIC milestones={m['milestones']}")
