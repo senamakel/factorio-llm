@@ -28,7 +28,7 @@ async def enrich():
         async with ClientSession(read, write) as session:
             await session.initialize()
             for title in TITLES:
-                result = await session.call_tool('get-page', {'title':'Infobox:' + title, 'metadata':True})
+                result = await asyncio.wait_for(session.call_tool('get-page', {'title':'Infobox:' + title, 'metadata':True}),20)
                 if result.isError:
                     raise RuntimeError('Wiki MCP failed for ' + title)
                 text = '\n'.join(c.text for c in result.content if c.type == 'text')
@@ -48,4 +48,4 @@ async def enrich():
 
 
 if __name__ == '__main__':
-    asyncio.run(enrich())
+    asyncio.run(asyncio.wait_for(enrich(),180))

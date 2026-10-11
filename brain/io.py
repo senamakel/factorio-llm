@@ -1,12 +1,14 @@
 """Small RCON adapter: escaped arguments, actor lookup, structured replies."""
 import json
 from mcp_server.server import lua_string, run
+from brain.timeouts import deadline
 
 
 def rpc(body):
     """Run a Lua API adapter; require structured success and propagate game errors."""
-    raw = run('/c local ok,v=pcall(function() ' + body +
-              ' end); rcon.print(helpers.table_to_json({ok=ok,value=ok and v or nil,error=not ok and tostring(v) or nil}))')
+    with deadline(5,'RCON command'):
+        raw = run('/c local ok,v=pcall(function() ' + body +
+                  ' end); rcon.print(helpers.table_to_json({ok=ok,value=ok and v or nil,error=not ok and tostring(v) or nil}))')
     result = json.loads(raw)
     if not result['ok']:
         raise RuntimeError(result['error'])

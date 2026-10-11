@@ -7,6 +7,7 @@ no upstream implementation is copied. Layout and execution are separate modules.
 from collections import defaultdict
 from fractions import Fraction
 import math
+import time
 
 
 def number(value):
@@ -15,14 +16,16 @@ def number(value):
     return result
 
 
-def linear_minimum(matrix, targets, costs, limit=2000):
+def linear_minimum(matrix, targets, costs, limit=2000, timeout=5):
     """Minimize costs*x under matrix*x=targets and x>=0 using two-phase simplex.
 
     Targets must be nonnegative. Infeasible, unbounded and excessive pivot problems
     raise ValueError rather than returning a plausible but invalid production plan.
     All pivots and comparisons are exact, with Bland ordering to avoid cycling.
     """
+    expires=time.monotonic()+timeout
     rows=len(targets); columns=len(costs)
+    if timeout<=0 or rows>500 or columns>2000:raise ValueError('solver time/size budget exceeded')
     if not rows or any(len(row)!=columns for row in matrix):
         raise ValueError('invalid balance matrix')
     if any(number(b)<0 for b in targets):
@@ -35,6 +38,7 @@ def linear_minimum(matrix, targets, costs, limit=2000):
         scale=tableau[row][column]
         tableau[row]=[v/scale for v in tableau[row]]
         for i in range(len(tableau)):
+            if time.monotonic()>=expires:raise TimeoutError('blueprint solver time budget exceeded')
             if i!=row:
                 factor=tableau[i][column]
                 tableau[i]=[a-factor*b for a,b in zip(tableau[i],tableau[row])]
@@ -49,6 +53,7 @@ def linear_minimum(matrix, targets, costs, limit=2000):
             factor=number(weights[basic])
             objective=[a-factor*b for a,b in zip(objective,row)]
         for _ in range(limit):
+            if time.monotonic()>=expires:raise TimeoutError('blueprint solver time budget exceeded')
             entering=next((j for j,v in enumerate(objective[:-1]) if v<0),None)
             if entering is None:
                 return objective

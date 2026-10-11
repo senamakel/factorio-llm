@@ -1,6 +1,7 @@
 """Python-owned shoreline layout discovery and inventory-costed steam-power construction."""
 import json
 import math
+import time
 from pathlib import Path
 from brain.io import actor_rpc
 from brain.logic import decision, distance, move_or_act
@@ -25,6 +26,7 @@ def steam_layout(position, direction):
 
 def discover_layout(actor_id):
     """Find a collision-free shoreline footprint using short native placement queries."""
+    expires=time.monotonic()+25
     water=actor_rpc(actor_id,
         'local out={}; for _,t in pairs(s.find_tiles_filtered{name={"water","deepwater"},position=e.position,radius=256,limit=8192}) do '
         'out[#out+1]=t.position end; return {tiles=out,position=e.position,seed=s.map_gen_settings.seed,surface=s.name}')
@@ -38,6 +40,7 @@ def discover_layout(actor_id):
                 pos={'x':land[0]+.5,'y':land[1]+.5}
                 coastline.append((distance(pos,water['position']),pos,direction))
     for _,pos,direction in sorted(coastline,key=lambda c:c[0])[:500]:
+        if time.monotonic()>=expires:raise TimeoutError('shoreline blueprint discovery exceeded 25s')
         layout=steam_layout(pos,direction)
         valid=actor_rpc(actor_id,
             'local out={}; for _,p in ipairs(a) do out[#out+1]=s.can_place_entity{name=p.name,position=p.position,'
