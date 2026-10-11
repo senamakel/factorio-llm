@@ -158,7 +158,7 @@ def item_facts(actor_id, names):
     """Return stack size, fuel value and the entity each item places."""
     return actor_rpc(actor_id,
         'local out={}; for _,n in ipairs(a) do local p=prototypes.item[n]; assert(p,"unknown item "..n); '
-        'out[n]={stack_size=p.stack_size,fuel_value=p.fuel_value,fuel_category=p.fuel_category,'
+        'out[n]={stack_size=p.stack_size,fuel_value=p.fuel_value,'
         'place_result=p.place_result and p.place_result.name or nil} end; return out', list(names))
 
 

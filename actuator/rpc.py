@@ -8,6 +8,7 @@ Every call wraps its Lua body in ``pcall`` and returns decoded JSON, raising
 """
 import json
 import os
+import re
 from pathlib import Path
 import threading
 
@@ -69,7 +70,7 @@ def rpc(body, args=None):
     except json.JSONDecodeError as exc:
         raise RuntimeError(f'unexpected console reply: {raw[:200]!r}') from exc
     if not result['ok']:
-        raise RuntimeError(result['error'])
+        raise RuntimeError(re.sub(r'^\[string "[^"]*"\]:\d+: ', '', result['error'] or 'unknown game error'))
     return result.get('value')
 
 
