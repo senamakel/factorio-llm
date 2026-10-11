@@ -194,7 +194,7 @@ def build_index(out_dir):
         match = HEADER_RE.match(text)
         if not match:
             continue
-        body = text.split('\n', 4)[-1]
+        body = text.split('\n\n', 2)[-1]  # skip title and Source/Requested lines
         entries.append((match.group(1), path.name, first_sentence(body)))
     entries.sort(key=lambda e: e[0].lower())
     lines = ['# Factorio wiki cache index', '',
