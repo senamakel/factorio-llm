@@ -18,12 +18,19 @@ assert example['args'][0].endswith('/scripts/mcp_entrypoint.py')
 for format_name in ('openhuman','codex','json'):
     raw = subprocess.check_output([sys.executable,str(root/'scripts/factorio.py'),'mcp-config','--format',format_name],text=True)
     if format_name=='json':
-        srv=json.loads(raw)['mcpServers']['factorio-control']
+        servers=json.loads(raw)['mcpServers']
     elif format_name=='codex':
-        srv=tomllib.loads(raw)['mcp_servers']['factorio-control']
+        servers=tomllib.loads(raw)['mcp_servers']
     else:
-        srv=tomllib.loads(raw)['mcp_client']['servers'][0]
+        servers={s['name']:s for s in tomllib.loads(raw)['mcp_client']['servers']}
+    assert set(servers)==set(json.loads((root/'mcp.json').read_text())['mcpServers'])
+    srv=servers['factorio-control']
+    if format_name=='openhuman':
         assert Path(srv['working_dir'])==root
+    wiki=servers['factorio-wiki']
+    assert wiki['command']=='npx'
+    assert wiki['env']['CONFIG']==str(root/'mediawiki.json')
+    assert wiki['env']['MCP_TRANSPORT']=='stdio'
     assert Path(srv['command']).is_file(), 'venv Python missing'
     assert srv['args']==[str(root/'scripts/mcp_entrypoint.py')]
     assert Path(srv['args'][0]).is_file()

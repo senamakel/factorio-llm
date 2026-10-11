@@ -2,7 +2,10 @@
   "mcpServers": {
     "factorio-control": {
       "command": "./.venv/bin/python",
-      "args": ["./scripts/mcp_entrypoint.py"]
+      "args": ["./scripts/mcp_entrypoint.py"],
+      "env": {
+        "FACTORIO_CONNECTION_FILE": "./worktrees/factorio-mcp-setup/server/data/connection.json"
+      }
     },
     "factorio-wiki": {
       "command": "npx",

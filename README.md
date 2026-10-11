@@ -54,6 +54,8 @@ The wiki server uses `mediawiki.json` and requires Node.js 22.12+ and `npx`.
 The first launch downloads the pinned npm package; no wiki credentials are needed.
 Manifest paths are relative to the repository root. For clients launched elsewhere,
 use the exported configuration, which resolves local paths to absolute paths.
+The control entry currently points at the running sandbox's private connection
+file in `worktrees/factorio-mcp-setup`; its world and credentials stay there.
 
 This registers every server from `mcp.json` in your user-level Codex config.
 Start a new Codex session
@@ -86,8 +88,6 @@ entrypoint; it waits for protocol messages and does not present an interactive U
 
 Try: **“Inspect the area around me and build a small iron smelting line.”**
 Or: **“Put 100 iron plates in that chest, then verify its inventory and save.”**
-
-## Tools
 
 ## Local assistant brain
 
