@@ -26,7 +26,12 @@ class SetupTest(unittest.TestCase):
                 factorio.setup(binary,read)
                 config = root/'server/data/connection.json'
                 pw = json.loads(config.read_text())['password']
+                mod_list=root/'server/data/mods/mod-list.json'
+                mods=json.loads(mod_list.read_text())
+                mods['mods'].append({'name':'space-age','enabled':True})
+                mod_list.write_text(json.dumps(mods))
                 factorio.setup(binary,read)
+                self.assertIn({'name':'space-age','enabled':True},json.loads(mod_list.read_text())['mods'])
                 self.assertEqual(json.loads(config.read_text())['password'],pw)
                 self.assertEqual(config.stat().st_mode & 0o777,0o600)
                 ini = (root/'server/data/config.ini').read_text()
