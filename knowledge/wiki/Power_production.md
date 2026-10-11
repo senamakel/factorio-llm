@@ -23,7 +23,7 @@ The optimal ratio of accumulators per solar panel relies on many values in the g
 
 `\frac{\mathrm{Accumulators}}{\mathrm{SolarPanels}} = \frac{\left( \mathrm{day} + \mathrm{dawn} \right)}{\mathrm{gameday}} \cdot \left( \mathrm{night} + \frac{\mathrm{dawn} \cdot \left( \mathrm{day} + \mathrm{dawn} \right)}{\mathrm{gameday}} \right) \cdot \frac{\mathrm{SolarPower}}{\mathrm{AccumulatorEnergy}}`
 
-which, given the default time lengths of: day = 12500/60 s; dawn or dusk = 5000/60 s; night = 2500/60 s, and the default: Solar_power = 60 kW; Accumulator_energy = 5 MJ = 5000 kJ, gives the optimal ratio of 0.84 accumulators per solar panel. If the player uses mods which change the power generation of solar panels, or the energy storage of accumulators, but <b>not</b> the length of days, a simplified version of this equation can be used.
+which, given the default time lengths of: day = 12500/60 s; dawn or dusk = 5000/60 s; night = 2500/60 s, and the default: Solar_power = 60 kW; Accumulator_energy = 5 MJ = 5000 kJ, gives the optimal ratio of 0.84 accumulators per solar panel. If the player uses mods which change the power generation of solar panels, or the energy storage of accumulators, but not the length of days, a simplified version of this equation can be used.
 
 ```
 Accumulators / Solar_panels = 70 s × Solar_power / Accumulator_energy
