@@ -13,41 +13,12 @@ import time
 from event_store import EventStore
 from goal import IronPlateGoal
 from logic import brain_think
-from mcp_server.server import lua_string, run
+from brain_actions import execute
+from brain_io import rpc
+from brain_observation import observe
 from score import score_transition
 
 ROOT = Path(__file__).resolve().parent
-
-
-def rpc(body):
-    """Run console Lua and require structured success; empty/error replies raise."""
-    raw = run('/c local ok,v=pcall(function() ' + body +
-              ' end); rcon.print(helpers.table_to_json({ok=ok,value=ok and v or nil,error=not ok and tostring(v) or nil}))')
-    result = json.loads(raw)
-    if not result['ok']:
-        raise RuntimeError(result['error'])
-    return result.get('value')
-
-
-def observe(actor_id, name):
-    """Collect complete resources/furnaces on the actor surface and local threats."""
-    source = (ROOT/'scripts/brain_observe.lua').read_text()
-    state = rpc('return (function(...) ' + source + ' end)(' + lua_string(name) + ',' + str(actor_id) + ')')
-    for key in ('players', 'entities', 'enemies'):
-        if state[key] == {}:
-            state[key] = []
-    return state
-
-
-def execute(actor_id, action):
-    """Start a native walking/mining instruction or apply an inventory transfer.
-
-    A returned duration tells the caller how long to let the engine act before
-    sending wait to stop. Callers must stop persistent actions on interruption.
-    """
-    source = (ROOT/'scripts/brain_action.lua').read_text()
-    encoded = lua_string(json.dumps(action))
-    return rpc('return (function(...) ' + source + ' end)(' + str(actor_id) + ',helpers.json_to_table(' + encoded + '))')
 
 
 def interrupt_run(signum, frame):
@@ -62,7 +33,7 @@ def run_brain(actor_id, steps=500, interval=0.5, target=100):
     total = 0
     def measured():
         state = observe(actor_id, goal.player_name)
-        state['resource_drain'] = max(0, baseline['resource_remaining'] - state['resource_remaining']) + max(0, state['fuel_consumed'] - baseline['fuel_consumed'])
+        state['resource_drain'] = max(0, state['resource_mined'] - baseline['resource_mined']) + max(0, state['fuel_consumed'] - baseline['fuel_consumed'])
         return state
     with EventStore() as store:
         before = measured()
