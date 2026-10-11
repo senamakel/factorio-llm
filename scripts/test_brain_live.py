@@ -36,9 +36,9 @@ class NativeActionTest(unittest.TestCase):
         self.assertAlmostEqual(a['x'], b['x'], delta=0.05)
 
     def test_native_mining_accumulates_ore_between_commands(self):
-        rpc('local e=game.get_entity_by_unit_number(' + str(self.actor) + '); '
-            'e.surface.create_entity{name="iron-ore",position={1,0},amount=100}; return true')
-        execute(self.actor, {'kind':'mine','resource':'iron-ore','position':{'x':1,'y':0}})
+        pos = rpc('local e=game.get_entity_by_unit_number(' + str(self.actor) + '); '
+                  'local r=e.surface.create_entity{name="iron-ore",position={1,0},amount=100}; return r.position')
+        execute(self.actor, {'kind':'mine','resource':'iron-ore','position':pos})
         time.sleep(1.5)
         count = rpc('return game.get_entity_by_unit_number(' + str(self.actor) +
                     ').get_inventory(defines.inventory.character_main).get_item_count("iron-ore")')

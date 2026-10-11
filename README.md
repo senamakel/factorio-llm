@@ -102,8 +102,9 @@ using the inspected unit number of an unattached assistant character. Supply
 `FACTORIO_CONNECTION_FILE` if the running server belongs to another checkout.
 The loop stops at completion, danger, or its step limit and records observations,
 decisions, actions, outcomes and learning in ignored `server/data/brain.sqlite3`.
-Movement uses small collision-checked teleports; mining and furnace crafting are
-scripted inventory-costed actions, not native player input. Smelting runs in the
+Walking and mining use continuous native engine instructions for up to two seconds
+between observations; they stop on interruption. Furnace crafting uses scripted
+inventory-costed actions. Smelting runs in the
 actual game furnace. The loop does not restart or modify the running mod.
 
 ## Tools

@@ -1,8 +1,8 @@
 """Bounded local assistant loop: observe, decide, execute, score and persist.
 
-The assistant is an unattached character. Movement is simulated by small,
-collision-checked teleports, and mining/crafting use inventory-costed script
-actions rather than a connected client's input. No LLM or mod restart is needed.
+The assistant is an unattached character. Walking and mining use sustained native
+engine instructions; crafting/building use inventory-costed script actions.
+No LLM or mod restart is needed.
 """
 import argparse
 import json
@@ -39,7 +39,11 @@ def observe(actor_id, name):
 
 
 def execute(actor_id, action):
-    """Apply one bounded inventory-costed action and return its measured transfer."""
+    """Start a native walking/mining instruction or apply an inventory transfer.
+
+    A returned duration tells the caller how long to let the engine act before
+    sending wait to stop. Callers must stop persistent actions on interruption.
+    """
     source = (ROOT/'scripts/brain_action.lua').read_text()
     encoded = lua_string(json.dumps(action))
     return rpc('return (function(...) ' + source + ' end)(' + str(actor_id) + ',helpers.json_to_table(' + encoded + '))')
@@ -66,9 +70,15 @@ def run_brain(actor_id, steps=500, interval=0.5, target=100):
             store.log('action', decision['action'], before['tick'])
             try:
                 result = execute(actor_id, decision['action'])
+                if result.get('duration', 0) > 0:
+                    try:
+                        time.sleep(result['duration'])
+                    finally:
+                        execute(actor_id, {'kind':'wait'})
             except (RuntimeError, ValueError) as exc:
                 result = {'ok':False,'error':str(exc)}
-            time.sleep(interval)
+            if not result.get('duration'):
+                time.sleep(interval)
             after = measured()
             reward = score_transition(before, after, goal)
             total += reward['total']

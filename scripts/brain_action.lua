@@ -1,29 +1,40 @@
--- Inventory-costed assistant actions; movement uses collision-checked small teleports.
+-- Persistent native walking/mining instructions and inventory-costed assistant actions.
 local id, a = ...
 local actor=game.get_entity_by_unit_number(id)
 assert(actor and actor.valid and not actor.player, "assistant missing or controlled by a human")
 local s, inv=actor.surface,actor.get_inventory(defines.inventory.character_main)
+actor.walking_state={walking=false}
+actor.mining_state={mining=false}
 if a.kind=="wait" then return {ok=true} end
 if a.kind=="move" then
     local dx,dy=a.position.x-actor.position.x,a.position.y-actor.position.y
     local distance=math.sqrt(dx*dx+dy*dy)
-    local step=math.min(0.75,math.max(0,distance-(a.stop_distance or 1)))
-    if step==0 then return {ok=true} end
-    local pos={x=actor.position.x+dx/distance*step,y=actor.position.y+dy/distance*step}
-    -- Try a short sideways step when trees/buildings obstruct the direct line.
-    if not s.can_place_entity{name="character",position=pos,force=actor.force} then
-        pos={x=actor.position.x-dy/distance*step,y=actor.position.y+dx/distance*step}
+    local remaining=math.max(0,distance-(a.stop_distance or 1))
+    if remaining==0 then return {ok=true,duration=0} end
+    local direction,leg
+    if math.abs(dx)>2*math.abs(dy) then
+        direction=dx>0 and defines.direction.east or defines.direction.west
+        leg=math.abs(dx)
+    elseif math.abs(dy)>2*math.abs(dx) then
+        direction=dy>0 and defines.direction.south or defines.direction.north
+        leg=math.abs(dy)
+    else
+        if dy>0 then direction=dx>0 and defines.direction.southeast or defines.direction.southwest
+        else direction=dx>0 and defines.direction.northeast or defines.direction.northwest end
+        leg=math.min(math.abs(dx),math.abs(dy))*math.sqrt(2)
     end
-    assert(s.can_place_entity{name="character",position=pos,force=actor.force},"movement blocked")
-    return {ok=actor.teleport(pos),position=actor.position}
+    local speed=actor.character_running_speed*60*game.speed
+    assert(speed>0,"game or actor is not moving")
+    actor.walking_state={walking=true,direction=direction}
+    return {ok=true,duration=math.min(2,math.min(leg,remaining)/speed),direction=direction,position=actor.position}
 end
 if a.kind=="mine" then
     assert((actor.position.x-a.position.x)^2+(actor.position.y-a.position.y)^2<=2.7^2,"resource out of reach")
     local e=s.find_entities_filtered{name=a.resource,position=a.position,radius=0.1}[1]
     assert(e and e.amount>0,"resource depleted")
-    local before=inv.get_item_count(a.resource)
-    assert(e.mine{inventory=inv},"mining failed")
-    return {ok=true,obtained=inv.get_item_count(a.resource)-before}
+    actor.selected=e
+    actor.mining_state={mining=true,position=e.position}
+    return {ok=true,duration=2,resource=a.resource,before_count=inv.get_item_count(a.resource)}
 end
 if a.kind=="craft" then
     assert(a.recipe=="stone-furnace" and a.count==1,"unsupported craft")
