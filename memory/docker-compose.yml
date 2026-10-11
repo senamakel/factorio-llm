@@ -1,8 +1,10 @@
 # Dedicated CortexDB for the recursive-factorio hive (separate from OpenHuman's
 # cortexdb-local). Started by `./factorio memory up`; data lives in the ignored
-# server/data/cortexdb directory. Model calls use one cheap OpenRouter model.
-x-openrouter: &openrouter https://openrouter.ai/api/v1
-x-chat-model: &chat ${FACTORIO_MEMORY_MODEL:-z-ai/glm-5.3-flash}
+# server/data/cortexdb directory. Model and embedding calls go through the local
+# LLM ladder router (surplus marketplace, cheap) — not OpenRouter directly.
+x-llm: &llm ${FACTORIO_MEMORY_LLM_URL:-http://host.docker.internal:6969/v1}
+x-llm-key: &llmkey ${FACTORIO_MEMORY_LLM_KEY:-ladder-local-dev-key}
+x-chat-model: &chat ${FACTORIO_MEMORY_MODEL:-flash}
 name: recursive-factorio-memory
 services:
   cortexdb:
@@ -14,29 +16,32 @@ services:
       CORTEX_V1_API_ADDR: 0.0.0.0:3141
       CORTEX_DATA_DIR: /data
       RUST_LOG: cortexdb=info,cortex_api=info
-      CORTEX_EMBEDDING_URL: *openrouter
-      CORTEX_EMBEDDING_MODEL: openai/text-embedding-3-small
-      CORTEX_EMBEDDING_DIMS: "1536"
-      CORTEX_LLM_URL: *openrouter
+      CORTEX_EMBEDDING_URL: *llm
+      CORTEX_EMBEDDING_MODEL: ${FACTORIO_MEMORY_EMBEDDING_MODEL:-vectors-oai3}
+      CORTEX_EMBEDDING_DIMS: ${FACTORIO_MEMORY_EMBEDDING_DIMS:-3072}
+      CORTEX_EMBEDDING_API_KEY: *llmkey
+      CORTEX_LLM_URL: *llm
       CORTEX_LLM_MODEL: *chat
-      LLM_API_KEY: ${OPENROUTER_API_KEY:?export OPENROUTER_API_KEY}
+      LLM_API_KEY: *llmkey
       CORTEX_ENRICHMENT_DELAY_SECONDS: "0"
-      CORTEX_ENRICHMENT_URL: *openrouter
+      CORTEX_ENRICHMENT_URL: *llm
       CORTEX_ENRICHMENT_MODEL: *chat
-      CORTEX_ENRICHMENT_API_KEY: ${OPENROUTER_API_KEY}
-      CORTEX_ENTITY_API_KEY: ${OPENROUTER_API_KEY}
+      CORTEX_ENRICHMENT_API_KEY: *llmkey
+      CORTEX_ENTITY_API_KEY: *llmkey
       CORTEX_ANSWER_PROVIDER: openai
-      CORTEX_ANSWER_URL: *openrouter
+      CORTEX_ANSWER_URL: *llm
       CORTEX_ANSWER_MODEL: *chat
-      CORTEX_ANSWER_API_KEY: ${OPENROUTER_API_KEY}
-      CORTEX_VERIFIER_URL: *openrouter
+      CORTEX_ANSWER_API_KEY: *llmkey
+      CORTEX_VERIFIER_URL: *llm
       CORTEX_VERIFIER_MODEL: *chat
-      CORTEX_VERIFIER_API_KEY: ${OPENROUTER_API_KEY}
+      CORTEX_VERIFIER_API_KEY: *llmkey
       CORTEX_V1_LAYERS_AUTO: "1"
       CORTEX_V1_LAYERS_TICK_SECS: "60"
       CORTEX_ENTITY_GRAPH: "0"
     volumes:
       - ${FACTORIO_MEMORY_DATA:?set by ./factorio memory up}:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "127.0.0.1:${FACTORIO_MEMORY_PORT:-3142}:3141"
     healthcheck:
