@@ -132,6 +132,17 @@ class NativeActionTest(unittest.TestCase):
         count=rpc('return game.get_entity_by_unit_number('+str(self.actor)+').get_inventory(defines.inventory.character_main).get_item_count("wood")')
         self.assertGreater(count,0)
 
+    def test_incompatible_fuel_transfer_preserves_source_and_existing_fuel(self):
+        furnace=rpc('local e=game.get_entity_by_unit_number('+str(self.actor)+'); '
+            'inv=e.get_inventory(defines.inventory.character_main); inv.insert{name="coal",count=8}; '
+            'local f=e.surface.create_entity{name="boiler",position={4,0},force=e.force}; '
+            'f.insert{name="wood",count=9}; return {unit_number=f.unit_number,position=f.position}')
+        result=execute(self.actor,{'kind':'put',**furnace,'entity_name':'boiler','inventory':'fuel','item':'coal','count':8})
+        self.assertFalse(result['ok'])
+        held=rpc('local e=game.get_entity_by_unit_number('+str(self.actor)+'); '
+                 'local f=e.surface.find_entities_filtered{name="boiler"}[1]; return {coal=e.get_item_count("coal"),wood=f.get_fuel_inventory().get_item_count("wood")}')
+        self.assertEqual(held,{'coal':8,'wood':9})
+
 
 if __name__ == '__main__':
     unittest.main()
