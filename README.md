@@ -47,8 +47,16 @@ For Codex:
 ./factorio register
 ```
 
-This registers `factorio-control` in your user-level Codex config, pointing at
-this checkout's absolute Python and entrypoint paths. Start a new Codex session
+All project MCP servers live in `mcp.json`: `factorio-control` for the live game
+and `factorio-wiki` for read-only access to https://wiki.factorio.com/ through
+[ProfessionalWiki's MediaWiki MCP server](https://github.com/ProfessionalWiki/mediawiki-mcp-server).
+The wiki server uses `mediawiki.json` and requires Node.js 22.12+ and `npx`.
+The first launch downloads the pinned npm package; no wiki credentials are needed.
+Manifest paths are relative to the repository root. For clients launched elsewhere,
+use the exported configuration, which resolves local paths to absolute paths.
+
+This registers every server from `mcp.json` in your user-level Codex config.
+Start a new Codex session
 (or reconnect MCP) so it loads the tools. `./factorio mcp-config --format codex`
 prints the TOML for a project-scoped config instead. Configuration follows the
 [official MCP documentation](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
