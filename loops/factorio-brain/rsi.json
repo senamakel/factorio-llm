@@ -43,7 +43,7 @@
     "temperature": 0.4
   },
   "keys": {
-    "openrouter": "OPENROUTER_API_KEY"
+    "openrouter": "FACTORIO_LLM_KEY"
   },
   "score": {
     "scorers": [
@@ -63,7 +63,8 @@
       ],
       "direction": "maximize",
       "target": 260
-    }
+    },
+    "parallel": 3
   },
   "gate": [
     {
@@ -78,7 +79,19 @@
   "budget": {
     "run_usd": 4,
     "total_usd": 18,
-    "score_reserve_usd": 0
+    "score_reserve_usd": 0,
+    "prices": {
+      "reasoning": {
+        "prompt_per_mtok": 0.5,
+        "completion_per_mtok": 2.0,
+        "provider": "*"
+      },
+      "flash": {
+        "prompt_per_mtok": 0.3,
+        "completion_per_mtok": 1.2,
+        "provider": "*"
+      }
+    }
   },
   "epochs": 3,
   "patience": 2,
@@ -86,5 +99,8 @@
     "EPISODE_WALL_SECS": "600",
     "EPISODE_GAME_SPEED": "4",
     "EPISODE_WINDOW_MIN": "5"
+  },
+  "models": {
+    "default": "reasoning"
   }
 }
