@@ -242,7 +242,9 @@ def _convert_links(text):
         target = target.strip()
         low = target.lower().lstrip(':')
         if low.startswith(('file:', 'image:', 'media:')):
-            return ''
+            # Icons used as table headers name their subject via link=...
+            linked = re.search(r'\|\s*link\s*=\s*([^|\]]+)', match.group(1))
+            return linked.group(1).strip() if linked else ''
         if low.startswith('category:') and not target.startswith(':'):
             return ''
         if re.match(r'^[a-z]{2}(-[a-z]+)?:', low):

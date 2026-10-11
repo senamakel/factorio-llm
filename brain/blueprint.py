@@ -233,7 +233,6 @@ def live_facts(actor_id, recipe_names, machine_names=('stone-furnace','assemblin
     missing=[n for n in recipe_names if n not in recipes]
     if missing:raise RuntimeError(f'unknown recipe {missing}')
     for recipe in recipes.values():
-        recipe['categories']=[recipe.pop('category')]
         recipe['products']=[{'name':p['name'],'type':p['type'],
                              'amount':p.get('amount',(p.get('amount_min',0)+p.get('amount_max',0))/2)*p.get('probability',1)}
                             for p in recipe['products']]

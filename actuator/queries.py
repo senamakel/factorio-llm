@@ -115,10 +115,10 @@ def production(actor_id, items):
 
 
 def recipes(actor_id, names=None):
-    """Return recipe facts (enabled, ingredients, products, energy, category) for names or all."""
+    """Return recipe facts (enabled, ingredients, products, energy, categories list) for names or all."""
     return actor_rpc(actor_id,
         'local out={}; local function add(r) out[r.name]={enabled=r.enabled,ingredients=r.ingredients,'
-        'products=r.products,energy=r.energy,category=r.category,hidden=r.hidden} end; '
+        'products=r.products,energy=r.energy,categories=(function() local c={}; for k,_ in pairs(r.prototype.categories or {}) do c[#c+1]=k end; return c end)(),hidden=r.hidden} end; '
         'if a.names then for _,n in ipairs(a.names) do local r=e.force.recipes[n]; if r then add(r) end end '
         'else for _,r in pairs(e.force.recipes) do if not r.hidden then add(r) end end end; return out',
         {'names': list(names) if names else None})

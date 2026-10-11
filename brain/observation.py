@@ -91,7 +91,7 @@ def observe(actor_id, name):
     progression = queries.technologies(actor_id, TECHNOLOGIES)
     recipes = queries.recipes(actor_id, RECIPES)
     for recipe in recipes.values():
-        recipe['categories'] = {recipe.pop('category'): True}
+        recipe['categories'] = {name: True for name in recipe['categories']}
     fuel = queries.item_facts(actor_id, ('coal','wood','solid-fuel'))
     candidates = [{'x':math.floor(position['x'])+dx,'y':math.floor(position['y'])+dy}
                   for r in range(3,9) for dx,dy in ((r,0),(-r,0),(0,r),(0,-r))
