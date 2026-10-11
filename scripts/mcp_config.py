@@ -1,12 +1,27 @@
 """Load the shared MCP manifest and resolve checkout-relative launch paths."""
 import json
+from pathlib import Path
+import subprocess
+
+
+def venv_python(root):
+    """Return this checkout's venv interpreter, or the primary checkout's for a worktree without one."""
+    local = Path(root) / '.venv/bin/python'
+    if local.exists():
+        return local
+    common = subprocess.run(['git', '-C', str(root), 'rev-parse', '--path-format=absolute', '--git-common-dir'],
+                            capture_output=True, text=True)
+    shared = Path(common.stdout.strip()).parent / '.venv/bin/python' if common.returncode == 0 else local
+    return shared if shared.exists() else local
 
 
 def load_servers(root):
     """Return server entries with absolute local paths; invalid JSON raises ValueError."""
     servers = json.loads((root / "mcp.json").read_text())["mcpServers"]
     for server in servers.values():
-        if server["command"].startswith("./"):
+        if server["command"] == "./.venv/bin/python":
+            server["command"] = str(venv_python(root))
+        elif server["command"].startswith("./"):
             server["command"] = str(root / server["command"][2:])
         server["args"] = [str(root / arg[2:]) if arg.startswith("./") else arg
                           for arg in server.get("args", [])]
