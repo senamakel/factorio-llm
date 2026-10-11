@@ -47,6 +47,12 @@ def resource_targets(actor_id, position):
     return targets, radii
 
 
+def tree_targets(actor_id, position):
+    """Read the current bounded tree candidates."""
+    return read_entities(actor_id,{'type':'tree','position':position,'radius':128},
+                         'name=f.name,position=f.position',64)['entities'] or []
+
+
 def observe(actor_id, name):
     """Assemble actor state, nearby resources/threats and all bounded surface furnaces."""
     data = actor_rpc(actor_id,
@@ -68,8 +74,7 @@ def observe(actor_id, name):
         'furnace_result=f.get_inventory(defines.inventory.crafter_output).get_contents()}')
     enemies = read_entities(actor_id, {'force':'enemy','position':position,'radius':32},
                             'type=f.type,surface=s.name,position=f.position')
-    trees = read_entities(actor_id, {'type':'tree','position':position,'radius':128},
-                          'name=f.name,position=f.position',64)
+    trees = tree_targets(actor_id,position)
     machines=read_entities(actor_id,{'name':['offshore-pump','pipe','boiler','steam-engine','small-electric-pole','lab',
                                           'assembling-machine-1','inserter','iron-chest','transport-belt'],'force':'actor'},
         'name=f.name,type=f.type,unit_number=f.unit_number,position=f.position,surface=s.name,force=f.force.name,'
@@ -103,7 +108,7 @@ def observe(actor_id, name):
                         'health':data['health'],'inventory':data['inventory'],'reach_distance':10,
                         'resource_reach_distance':2.7,'crafting_queue':data['crafting_queue'] or []}],
             'entities':(furnaces['entities'] or [])+(machines['entities'] or []),'enemies':enemies['entities'] or [],
-            'trees':trees['entities'] or [],'recipes':progression['recipes'],'technologies':progression['technologies'],
+            'trees':trees,'recipes':progression['recipes'],'technologies':progression['technologies'],
             'current_research':progression.get('current'),'research_progress':progression['progress'],
             'power_layout':load_layout(data['seed'],surface),
             'world':{'resources':resources},'build_sites':{name:sites or []},
