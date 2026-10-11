@@ -67,7 +67,7 @@ def prepare(workdir, seed, live_data):
         *({'name': name, 'enabled': False} for name in disabled)]}, indent=2))
     (workdir / 'config.ini').write_text(f'[path]\nread-data={read_data}\nwrite-data={workdir}\n')
     (workdir / 'server-settings.json').write_text(json.dumps({
-        'name': f'episode seed {seed}', 'visibility': {'public': False, 'lan': False},
+        'name': f'episode seed {seed}', 'description': 'disposable brain episode', 'visibility': {'public': False, 'lan': False},
         'require_user_verification': False, 'allow_commands': 'true', 'auto_pause': False,
         'autosave_interval': 0, 'max_players': 2}, indent=2))
     (workdir / 'map-gen-settings.json').write_text(json.dumps({**easy_map_settings(), 'seed': seed}, indent=2))
