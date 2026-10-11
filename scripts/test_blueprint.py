@@ -5,6 +5,7 @@ from brain.blueprint_solver import solve
 from brain.blueprint import Blueprint, create, design
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 
 def recipes():
@@ -48,6 +49,18 @@ class SolverTest(unittest.TestCase):
     def test_missing_raw_supply_is_infeasible(self):
         with self.assertRaisesRegex(ValueError,'infeasible'):
             solve({'automation-science-pack':1},recipes(),machines(),raw_inputs=[])
+
+    def test_solver_time_budget_interrupts_before_unbounded_pivots(self):
+        from brain.blueprint_solver import linear_minimum
+        with patch('brain.blueprint_solver.time.monotonic',side_effect=[0,10]):
+            with self.assertRaises(TimeoutError):linear_minimum([[1]],[1],[1],timeout=5)
+
+    def test_cycles_do_not_create_material_from_nothing(self):
+        data={'source':{'energy':1,'ingredients':[{'name':'ore','amount':1}],'products':[{'name':'a','amount':1}]},
+              'a-to-b':{'energy':1,'ingredients':[{'name':'a','amount':2}],'products':[{'name':'b','amount':1}]},
+              'b-to-a':{'energy':1,'ingredients':[{'name':'b','amount':1}],'products':[{'name':'a','amount':1}]}}
+        plan=solve({'b':1},data,[{'name':'assembler','speed':1,'categories':['crafting']}])
+        self.assertEqual(plan['raw_inputs'],{'ore':'2'})
 
 
 class BlueprintTest(unittest.TestCase):

@@ -12,6 +12,7 @@ from html import escape
 import math
 from pathlib import Path
 import zlib
+import time
 
 from brain.logic import decision, distance, move_or_act
 from brain.blueprint_solver import solve
@@ -35,9 +36,11 @@ class Blueprint:
 
     def validate(self):
         """Reject duplicate IDs, invalid geometry, overlapping footprints and excess size."""
+        expires=time.monotonic()+5
         if not self.label or len(self.entities)>5000:raise ValueError('invalid blueprint label or size')
         identifiers=set();boxes=[]
         for e in self.entities:
+            if time.monotonic()>=expires:raise TimeoutError('blueprint validation exceeded 5s')
             ident=e['entity_number']; pos=e['position']
             if not isinstance(ident,int) or ident<=0 or ident in identifiers:raise ValueError('duplicate or invalid entity number')
             identifiers.add(ident)
@@ -82,14 +85,19 @@ class Blueprint:
     def save(self, path):
         """Save validated JSON with placement history; directories are created if needed."""
         self.validate();path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
-        path.write_text(json.dumps({'schema':1,'label':self.label,'entities':self.entities,
-                                   'analysis':self.analysis,'placed':self.placed},indent=2,allow_nan=False)+'\n')
+        from brain.timeouts import deadline
+        with deadline(5,'save blueprint'):
+            path.write_text(json.dumps({'schema':1,'label':self.label,'entities':self.entities,
+                                       'analysis':self.analysis,'placed':self.placed},indent=2,allow_nan=False)+'\n')
         return path
 
     @classmethod
     def load(cls, path):
         """Load and validate a saved plan; unsupported schemas raise ValueError."""
-        data=json.loads(Path(path).read_text())
+        from brain.timeouts import deadline
+        with deadline(5,'load blueprint'):
+            if Path(path).stat().st_size>2_000_000:raise ValueError('saved blueprint exceeds size budget')
+            data=json.loads(Path(path).read_text())
         if data.get('schema')!=1:raise ValueError('unsupported blueprint schema')
         return cls(data['label'],data['entities'],data.get('analysis',{}),data.get('placed',{}))
 
@@ -123,8 +131,10 @@ class Blueprint:
 
     def next_action(self, state, player, anchor=None, allow_existing=False):
         """Plan one real craft/build/recipe operation; protect unadopted existing builds."""
+        expires=time.monotonic()+5
         from brain.research_rules.recipes import ensure_item
         for part in self.positioned(anchor):
+            if time.monotonic()>=expires:raise TimeoutError('blueprint action planning exceeded 5s')
             existing=next((e for e in state.get('entities',[]) if e['name']==part['name'] and
                            e.get('force')==player.get('force','player') and e.get('surface')==player['surface'] and
                            distance(e['position'],part['position'])<.1),None)
@@ -205,7 +215,10 @@ def ideate(targets, recipes, variants):
     """
     from fractions import Fraction
     if not 1<=len(variants)<=20:raise ValueError('supply 1..20 blueprint variants')
-    candidates=[design(targets,recipes,v['machines'],**{k:value for k,value in v.items() if k!='machines'}) for v in variants]
+    expires=time.monotonic()+30;candidates=[]
+    for v in variants:
+        if time.monotonic()>=expires:raise TimeoutError('blueprint ideation exceeded 30s')
+        candidates.append(design(targets,recipes,v['machines'],**{k:value for k,value in v.items() if k!='machines'}))
     return sorted(candidates,key=lambda b:(len(b.entities),Fraction(b.analysis['electric_watts'])))
 
 
