@@ -11,3 +11,6 @@ setup, RCON transport, tool encoding, brain decisions and SQLite persistence.
 `brain_observe.lua` and `brain_action.lua` are sent over RCON by root `brain.py`;
 they collect assistant state and execute inventory-costed actions without a mod
 deployment. `test_goal_score.py` covers the 100-plate objective and reward components.
+`test_brain_live.py` verifies continuous walking, explicit stopping and real mining
+on disposable surfaces. Run it with `FACTORIO_LIVE_TESTS=1` and the appropriate
+`FACTORIO_CONNECTION_FILE`: `.venv/bin/python -m unittest scripts.test_brain_live`.

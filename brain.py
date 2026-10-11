@@ -7,6 +7,7 @@ No LLM or mod restart is needed.
 import argparse
 import json
 from pathlib import Path
+import signal
 import time
 
 from event_store import EventStore
@@ -47,6 +48,11 @@ def execute(actor_id, action):
     source = (ROOT/'scripts/brain_action.lua').read_text()
     encoded = lua_string(json.dumps(action))
     return rpc('return (function(...) ' + source + ' end)(' + str(actor_id) + ',helpers.json_to_table(' + encoded + '))')
+
+
+def interrupt_run(signum, frame):
+    """Convert process termination into an exception so active native inputs stop."""
+    raise KeyboardInterrupt('brain run interrupted')
 
 
 def run_brain(actor_id, steps=500, interval=0.5, target=100):
@@ -94,6 +100,7 @@ def run_brain(actor_id, steps=500, interval=0.5, target=100):
 
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGTERM, interrupt_run)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--actor',type=int,required=True)
     parser.add_argument('--steps',type=int,default=500)

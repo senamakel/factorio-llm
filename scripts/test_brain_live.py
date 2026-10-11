@@ -39,7 +39,7 @@ class NativeActionTest(unittest.TestCase):
         pos = rpc('local e=game.get_entity_by_unit_number(' + str(self.actor) + '); '
                   'local r=e.surface.create_entity{name="iron-ore",position={1,0},amount=100}; return r.position')
         execute(self.actor, {'kind':'mine','resource':'iron-ore','position':pos})
-        time.sleep(1.5)
+        time.sleep(2.5)
         count = rpc('return game.get_entity_by_unit_number(' + str(self.actor) +
                     ').get_inventory(defines.inventory.character_main).get_item_count("iron-ore")')
         execute(self.actor, {'kind':'wait'})
