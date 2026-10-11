@@ -166,14 +166,12 @@ class Blueprint:
 
     def place_ghosts(self, actor_id, anchor=None):
         """Preflight the full footprint, then place build ghosts; no live production is claimed."""
-        from brain.io import actor_rpc
+        from actuator import actions, queries
         rows=self.positioned(anchor)
         for row in rows:
-            d=row.get('direction','north');row['direction']=DIRECTIONS[d] if isinstance(d,str) else d
-        return actor_rpc(actor_id,
-            'for _,p in ipairs(a) do assert(s.can_place_entity{name=p.name,position=p.position,direction=p.direction,force=e.force},"blueprint site occupied") end; '
-            'local out={}; for _,p in ipairs(a) do local g=s.create_entity{name="entity-ghost",inner_name=p.name,position=p.position,direction=p.direction,force=e.force}; '
-            'assert(g,"ghost creation failed"); if p.recipe then g.set_recipe(p.recipe) end; out[#out+1]={name=g.ghost_name,position=g.position} end; return out',rows)
+            d=row.get('direction','north');row['direction']=d if isinstance(d,str) else DIRECTION_NAMES[d]
+        if not all(queries.can_place(actor_id,rows)):raise RuntimeError('blueprint site occupied')
+        return actions.place_ghosts(actor_id,rows)
 
     def measure_rates(self, before, after, seconds, anchor=None):
         """Measure output-buffer stock gains per second, separately from calculated capacity."""
@@ -229,17 +227,21 @@ def live_facts(actor_id, recipe_names, machine_names=('stone-furnace','assemblin
     running mods. The explicit allow_locked flag supports future blueprint ideas;
     it retains original availability and does not unlock or execute anything.
     """
-    from brain.io import actor_rpc
-    facts=actor_rpc(actor_id,
-        'local recipes,machines={},{}; for _,n in ipairs(a.recipes) do local r=e.force.recipes[n]; assert(r,"unknown recipe"); '
-        'local products={}; for i,p in ipairs(r.products) do products[#products+1]={name=p.name,type=p.type,amount=r.prototype.get_product_amount(i,0)} end; '
-        'recipes[n]={enabled=r.enabled,categories=r.prototype.categories,ingredients=r.ingredients,products=products,energy=r.energy} end; '
-        'for _,n in ipairs(a.machines) do local p=prototypes.entity[n]; assert(p,"unknown machine"); '
-        'local box=p.selection_box; machines[#machines+1]={name=n,categories=p.crafting_categories,speed=p.get_crafting_speed("normal"),'
-        'power_w=p.get_max_energy_usage("normal")*60,width=box.right_bottom.x-box.left_top.x,height=box.right_bottom.y-box.left_top.y,'
-        'burner=p.burner_prototype~=nil,available=e.force.recipes[n] and e.force.recipes[n].enabled or false} end; '
-        'return {recipes=recipes,machines=machines,coal_j=prototypes.item.coal.fuel_value,mods=script.active_mods}',
-        {'recipes':list(recipe_names),'machines':list(machine_names)})
+    from actuator import queries
+    recipes=queries.recipes(actor_id,recipe_names)
+    missing=[n for n in recipe_names if n not in recipes]
+    if missing:raise RuntimeError(f'unknown recipe {missing}')
+    for recipe in recipes.values():
+        recipe['categories']=[recipe.pop('category')]
+        recipe['products']=[{'name':p['name'],'type':p['type'],
+                             'amount':p.get('amount',(p.get('amount_min',0)+p.get('amount_max',0))/2)*p.get('probability',1)}
+                            for p in recipe['products']]
+    protos=queries.entity_prototypes(actor_id,machine_names)
+    available=queries.recipes(actor_id,machine_names)
+    machines=[{'name':n,'categories':list(protos[n]['crafting_categories'] or {}),'speed':protos[n]['crafting_speed'],
+               'power_w':protos[n]['energy_w'],'width':protos[n]['width'],'height':protos[n]['height'],
+               'burner':protos[n]['burner'],'available':available.get(n,{}).get('enabled',False)} for n in machine_names]
+    facts={'recipes':recipes,'machines':machines,'coal_j':queries.item_facts(actor_id,['coal'])['coal']['fuel_value']}
     for recipe in facts['recipes'].values():
         recipe['currently_enabled']=recipe['enabled']
         if allow_locked:recipe['enabled']=True

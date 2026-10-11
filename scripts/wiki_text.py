@@ -22,7 +22,8 @@ WIKI_BASE = 'https://wiki.factorio.com/'
 # Templates that carry no information for a text reader.
 DROP_TEMPLATES = {'languages', 'c', 'achievement', 'clear', 'toc', 'main',
                   'see also', 'stub', 'archived', 'notice', 'spoiler',
-                  'collapse', 'tooltip', 'anchor', 'nowrap'}
+                  'collapse', 'tooltip', 'anchor', 'nowrap', 'about', 'icontech',
+                  'hatnote', 'for'}
 # Infobox keys that are purely visual.
 DROP_INFOBOX_KEYS = {'image', 'map-color', 'image2', 'extra-image'}
 QUALITY_TIERS = ('normal', 'uncommon', 'rare', 'epic', 'legendary')
@@ -326,6 +327,15 @@ def wikitext_to_text(text, transclude=None):
     """
     text = _strip_noinclude(text)
     text = re.sub(r'<!--.*?-->', '', text, flags=re.S)
+    # Protect formulas and preformatted blocks from template/link parsing.
+    verbatim = []
+
+    def stash(match):
+        body = match.group(2).strip()
+        verbatim.append('`%s`' % ' '.join(body.split()) if match.group(1) == 'math'
+                        else '\n```\n%s\n```\n' % body)
+        return '\x00%d\x00' % (len(verbatim) - 1)
+    text = re.sub(r'<(math|pre|syntaxhighlight|source)[^>]*>(.*?)</\1>', stash, text, flags=re.S)
     text = re.sub(r'<ref[^>/]*/>|<ref[^>]*>.*?</ref>', '', text, flags=re.S)
     text = re.sub(r'<gallery[^>]*>.*?</gallery>', '', text, flags=re.S)
     text = re.sub(r'__[A-Z]+__', '', text)
@@ -344,6 +354,7 @@ def wikitext_to_text(text, transclude=None):
     text = re.sub(r'<br\s*/?>', '\n', text)
     text = re.sub(r'</?(span|div|sup|sub|small|big|center|code|nowiki|p|u|s|font|abbr)[^>]*>', '', text)
     text = html.unescape(text).replace('\xa0', ' ')
+    text = re.sub(r'\x00(\d+)\x00', lambda m: verbatim[int(m.group(1))], text)
     lines = [line.rstrip() for line in text.split('\n')]
     return re.sub(r'\n{3,}', '\n\n', '\n'.join(lines)).strip() + '\n'
 
