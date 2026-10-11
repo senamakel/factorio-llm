@@ -1,6 +1,6 @@
-"""Python plans native movement; Lua only applies validated game API operations."""
+"""Python plans native movement; the frozen actuator applies honest game actions."""
 import math
-from brain.io import actor_rpc
+from actuator import actions, queries
 
 
 def walking_instruction(position, target, stop_distance, speed, confident=False):
@@ -42,96 +42,72 @@ def route_samples(position, plan, speed):
 
 
 def execute(actor_id, action):
-    """Start a native instruction or apply a costed transfer; caller owns duration/stop."""
+    """Start a native instruction or apply a costed transfer; caller owns duration/stop.
+
+    Every game interaction goes through the frozen ``actuator`` package, which
+    enforces reach, inventory costs and real crafting/mining time.
+    """
     kind = action['kind']
-    stop = 'e.walking_state={walking=false}; e.mining_state={mining=false}; '
     if kind == 'halt':
-        return actor_rpc(actor_id,stop+
-            'if a.cancel_crafting then local q=e.crafting_queue or {}; '
-            'for i=#q,1,-1 do e.cancel_crafting{index=i,count=q[i].count} end end; return {ok=true}',action)
+        return actions.halt(actor_id, action.get('cancel_crafting', False))
     if kind == 'wait':
-        result=actor_rpc(actor_id, stop + 'return {ok=true}')
-        return {**result,'duration':min(8,max(0,action.get('duration',0)))}
+        result = actions.halt(actor_id)
+        return {**result, 'duration': min(8, max(0, action.get('duration', 0)))}
     if kind == 'plan_power':
         from brain.research_rules.power import discover_layout
         return discover_layout(actor_id)
     if kind == 'research':
-        return actor_rpc(actor_id,
-            'assert(not e.force.current_research or e.force.current_research.name==a.technology,"another research is active"); '
-            'local ok=e.force.add_research(a.technology); return {ok=ok}',action)
+        return actions.research(actor_id, action['technology'])
     if kind == 'set_recipe':
-        return actor_rpc(actor_id,
-            'local f=s.find_entities_filtered{name=a.entity_name,position=a.position,radius=.1,force=e.force}[1]; '
-            'assert(f and f.unit_number==a.unit_number,"blueprint machine missing"); '
-            'assert(e.force.recipes[a.recipe] and e.force.recipes[a.recipe].enabled,"recipe unavailable"); '
-            'f.set_recipe(a.recipe); return {ok=f.get_recipe() and f.get_recipe().name==a.recipe}',action)
+        return actions.set_recipe(actor_id, action['position'], action['recipe'], action.get('unit_number'))
     if kind == 'move':
-        current = actor_rpc(actor_id, 'return {position=e.position,speed=e.character_running_speed*60*game.speed}')
-        candidate = walking_instruction(current['position'],action['position'],action.get('stop_distance',1),current['speed'],True)
-        samples = route_samples(current['position'],candidate,current['speed'])
-        checks = actor_rpc(actor_id,
-            'local clear={}; for _,pos in ipairs(a.points) do clear[#clear+1]=s.can_place_entity{name="character",position=pos,force=e.force} end; '
-            'return {clear=clear,enemies=s.count_entities_filtered{force="enemy",position=e.position,radius=a.radius}}',
-            {'points':samples,'radius':candidate['duration']*current['speed']+24})
-        confident = bool(samples) and all(checks['clear']) and checks['enemies']==0
-        target=action['position']; stop_distance=action.get('stop_distance',1)
-        if samples and not all(checks['clear']):
+        state = queries.actor_state(actor_id)
+        speed = state['running_speed'] * 60 * state['game_speed']
+        candidate = walking_instruction(state['position'], action['position'], action.get('stop_distance', 1), speed, True)
+        samples = route_samples(state['position'], candidate, speed)
+        clear = queries.can_place(actor_id, [{'name': 'character', 'position': p} for p in samples])
+        enemies = queries.count_entities(actor_id, {'force': 'enemy', 'position': state['position'],
+                                                    'radius': candidate['duration'] * speed + 24})
+        confident = bool(samples) and all(clear) and enemies == 0
+        target, stop_distance = action['position'], action.get('stop_distance', 1)
+        if samples and not all(clear):
             from brain.navigation import waypoint
-            target=waypoint(actor_id,current['position'],target,stop_distance)
-            stop_distance=0
-            confident=checks['enemies']==0
-        plan = walking_instruction(current['position'],target,stop_distance,current['speed'],confident)
-        result = actor_rpc(actor_id, stop +
-                           'e.walking_state={walking=a.duration>0,direction=defines.direction[a.direction]}; return {ok=true}', plan)
-        return {**result, **plan, 'confidence':'high' if confident else 'low'}
-    if kind in ('mine','mine_tree'):
-        timing = actor_rpc(actor_id,
-            'local r=s.find_entities_filtered{name=a.resource,position=a.position,radius=0.1}[1]; assert(r,"resource missing"); '
-            'return {mining_time=r.prototype.mineable_properties.mining_time,amount=a.kind=="mine_tree" and 1 or r.amount,'
-            'speed=e.prototype.mining_speed*(1+e.character_mining_speed_modifier),progress=e.mining_progress,'
-            'game_speed=game.speed,enemies=s.count_entities_filtered{force="enemy",position=e.position,radius=32},health=e.health}',action)
-        confident = timing['enemies']==0 and timing['health']>=75
-        duration = mining_duration(action.get('count',1),timing['mining_time'],timing['speed'],
-                                   timing['progress'],timing['amount'],timing['game_speed'],confident)
-        result = actor_rpc(actor_id, stop +
-            'assert((e.position.x-a.position.x)^2+(e.position.y-a.position.y)^2<=2.7^2,"resource out of reach"); '
-            'local r=s.find_entities_filtered{name=a.resource,position=a.position,radius=0.1}[1]; '
-            'assert(r and (a.kind=="mine_tree" or r.amount>0),"resource depleted"); e.selected=r; '
-            'e.mining_state={mining=true,position=r.position}; return {ok=true}', action)
-        return {**result, 'duration':duration, 'resource':action['resource'], 'confidence':'high' if confident else 'low'}
+            target = waypoint(actor_id, state['position'], target, stop_distance)
+            stop_distance = 0
+            confident = enemies == 0
+        plan = walking_instruction(state['position'], target, stop_distance, speed, confident)
+        result = actions.walk(actor_id, plan['direction']) if plan['duration'] > 0 else actions.halt(actor_id)
+        return {**result, **plan, 'confidence': 'high' if confident else 'low'}
+    if kind in ('mine', 'mine_tree'):
+        state = queries.actor_state(actor_id)
+        enemies = queries.count_entities(actor_id, {'force': 'enemy', 'position': state['position'], 'radius': 32})
+        result = actions.mine(actor_id, action['position'], action['resource'])
+        confident = enemies == 0 and state['health'] >= 75
+        amount = 1 if kind == 'mine_tree' else result.get('amount') or 1
+        duration = mining_duration(action.get('count', 1), result['mining_time'], state['mining_speed'],
+                                   state['mining_progress'], amount, state['game_speed'], confident)
+        return {**result, 'duration': duration, 'resource': action['resource'], 'confidence': 'high' if confident else 'low'}
     if kind == 'craft':
-        if not isinstance(action.get('count'),int) or not 1<=action['count']<=100:
+        if not isinstance(action.get('count'), int) or not 1 <= action['count'] <= 100:
             raise ValueError('craft count must be 1..100')
-        result=actor_rpc(actor_id,stop+
-            'local r=e.force.recipes[a.recipe]; assert(r and r.enabled,"recipe unavailable"); '
-            'local n=e.begin_crafting{recipe=a.recipe,count=a.count}; assert(n>0,"craft ingredients unavailable"); '
-            'return {ok=true,started=n,seconds=n*r.energy/(1+e.character_crafting_speed_modifier)/game.speed}',action)
-        return {**result,'duration':min(8,result['seconds']+.05)}
-    reach = 'assert((e.position.x-a.position.x)^2+(e.position.y-a.position.y)^2<=100,"entity out of reach"); '
+        actions.halt(actor_id)
+        result = actions.craft(actor_id, action['recipe'], action['count'])
+        speed = queries.tick()['speed']
+        return {**result, 'seconds': result['game_seconds'] / speed, 'duration': min(8, result['game_seconds'] / speed + .05)}
     if kind == 'build':
-        if action.get('item') not in ('stone-furnace','offshore-pump','pipe','boiler','steam-engine','lab','small-electric-pole',
-                                    'assembling-machine-1','inserter','iron-chest','transport-belt'):
-            raise ValueError('unsupported building')
-        return actor_rpc(actor_id, stop + reach +
-            'assert(inv.get_item_count(a.item)>0,"building item missing"); '
-            'local o={name=a.item,position=a.position,direction=defines.direction[a.direction or "north"],force=e.force,raise_built=true}; '
-            'assert(s.can_place_entity(o),"building site occupied"); '
-            'local built=s.create_entity(o); assert(built,"build failed"); '
-            'inv.remove{name=a.item,count=1}; return {ok=true,unit_number=built.unit_number}', action)
-    inventory = {'furnace_source':'crafter_input','furnace_result':'crafter_output','fuel':'fuel','lab_input':'lab_input'}
-    if kind not in ('put','take') or action.get('inventory') not in inventory:
-        raise ValueError('unsupported action or inventory')
-    current=actor_rpc(actor_id,'return e.position')
-    facing=walking_instruction(current,action['position'],0,9)['direction']
-    args = {**action, 'inventory_id':inventory[action['inventory']],'facing':facing}
-    transfer = ('local source,destination=inv,other; ' if kind == 'put' else 'local source,destination=other,inv; ')
-    result=actor_rpc(actor_id, stop + reach +
-        'local f=s.find_entities_filtered{position=a.position,radius=0.1,name=a.entity_name or {"stone-furnace","steel-furnace"},force=e.force}[1]; '
-        'assert(f and f.unit_number==a.unit_number,"furnace missing"); '
-        'e.selected=f; e.direction=defines.direction[a.facing]; '
-        'local other=f.get_inventory(defines.inventory[a.inventory_id]); ' + transfer +
-        'local count=math.min(a.count,source.get_item_count(a.item)); assert(count>0,"transfer source is empty"); '
-        'local n=destination.insert{name=a.item,count=count}; if n==0 then '
-        'return {ok=false,transferred=0,error="destination full or incompatible; existing contents preserved"} end; '
-        'source.remove{name=a.item,count=n}; return {ok=true,transferred=n}', args)
-    return {**result,'duration':min(1.2,.3+.03*result['transferred'])}
+        actions.halt(actor_id)
+        return actions.build(actor_id, action['item'], action['position'], action.get('direction') or 'north')
+    if kind not in ('put', 'take'):
+        raise ValueError('unsupported action')
+    inventory = INVENTORIES.get(action.get('inventory'), action.get('inventory'))
+    actions.halt(actor_id)
+    if kind == 'put':
+        result = actions.put(actor_id, action['position'], action['item'], action['count'], inventory, action.get('unit_number'))
+    else:
+        result = actions.take(actor_id, action['position'], action['item'], action['count'], inventory, action.get('unit_number'))
+    if not result['ok']:
+        result['error'] = 'destination full or incompatible; existing contents preserved'
+    return {**result, 'duration': min(1.2, .3 + .03 * result['transferred'])}
+
+
+INVENTORIES = {'furnace_source': 'crafter_input', 'furnace_result': 'crafter_output'}
