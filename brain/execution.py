@@ -64,7 +64,13 @@ def execute(actor_id, action):
             'return {clear=clear,enemies=s.count_entities_filtered{force="enemy",position=e.position,radius=a.radius}}',
             {'points':samples,'radius':candidate['duration']*current['speed']+24})
         confident = bool(samples) and all(checks['clear']) and checks['enemies']==0
-        plan = walking_instruction(current['position'],action['position'],action.get('stop_distance',1),current['speed'],confident)
+        target=action['position']; stop_distance=action.get('stop_distance',1)
+        if samples and not all(checks['clear']):
+            from brain.navigation import waypoint
+            target=waypoint(actor_id,current['position'],target,stop_distance)
+            stop_distance=0
+            confident=checks['enemies']==0
+        plan = walking_instruction(current['position'],target,stop_distance,current['speed'],confident)
         result = actor_rpc(actor_id, stop +
                            'e.walking_state={walking=a.duration>0,direction=defines.direction[a.direction]}; return {ok=true}', plan)
         return {**result, **plan, 'confidence':'high' if confident else 'low'}
