@@ -123,6 +123,15 @@ class NativeActionTest(unittest.TestCase):
         time.sleep(.1);a=self.position();time.sleep(.2);b=self.position()
         self.assertAlmostEqual(a['x'],b['x'],delta=.05)
 
+    def test_native_tree_harvest_adds_wood_to_the_actor_inventory(self):
+        pos=rpc('local e=game.get_entity_by_unit_number('+str(self.actor)+'); '
+                'local t=e.surface.create_entity{name="tree-01",position={1.5,.5}}; return t.position')
+        result=execute(self.actor,{'kind':'mine_tree','resource':'tree-01','position':pos,'count':1})
+        try:time.sleep(result['duration']+.3)
+        finally:execute(self.actor,{'kind':'halt','cancel_crafting':True})
+        count=rpc('return game.get_entity_by_unit_number('+str(self.actor)+').get_inventory(defines.inventory.character_main).get_item_count("wood")')
+        self.assertGreater(count,0)
+
 
 if __name__ == '__main__':
     unittest.main()
