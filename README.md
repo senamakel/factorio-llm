@@ -91,6 +91,12 @@ Or: **â€œPut 100 iron plates in that chest, then verify its inventory and save.â
 
 ## Local assistant brain
 
+New worlds use an easy sandbox preset: no naturally spawning enemies, peaceful
+mode, 600% resource patch size/richness and 300% frequency. This preset is independent
+of expansion mods; it does not change an existing world's enabled mod list.
+The local server runs headless in the background; the separate desktop client
+connects to it to show and play the world.
+
 `goal.py` defines Teeny's objective: 100 iron plates held in its inventory.
 `actions.py` exports high-level plans such as `mine_coal`, `mine_iron_ore`,
 `build_furnace`, and `make_iron_plates`. Each action lives in its own file under

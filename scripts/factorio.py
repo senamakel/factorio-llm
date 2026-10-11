@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from rcon_client.client import RconClient, RconError
 from scripts.mcp_config import print_config, register_servers
+from scripts.world_settings import easy_map_settings
 
 DATA = ROOT / 'server/data'
 STEAM = Path.home() / 'Library/Application Support/Steam/steamapps/common/Factorio/factorio.app/Contents'
@@ -118,7 +119,7 @@ def start():
                 raise RuntimeError(f'Port {port} is occupied; no existing server was stopped') from exc
     log_path = DATA / 'server.log'
     if not list((DATA / 'saves').glob('*.zip')):
-        write_private(DATA / 'map-gen-settings.json', {'peaceful_mode':True})
+        write_private(DATA / 'map-gen-settings.json', easy_map_settings())
         with log_path.open('a') as log:
             result = subprocess.run(base_command(c) + ['--create',str(DATA / 'saves/sandbox.zip'),
                 '--map-gen-settings',str(DATA / 'map-gen-settings.json')],stdout=log,stderr=log)
