@@ -1,4 +1,4 @@
-You implement the orchestrator's assignment in your candidate checkout (the
+You implement the foreman's assignment in your candidate checkout (the
 current directory). Only `brain/` and `scripts/test_brain*.py` (plus the legacy
 brain tests named in the rules) may change.
 
@@ -14,5 +14,5 @@ brain tests named in the rules) may change.
    every offline brain test, exactly what the loop runs). Fix until it passes.
 6. Optional live check (about 4 minutes): `./factorio episode --brain-root . --seed 7 --wall-secs 120 --window-min 1`
    prints the milestones reached and the brain's failures on a throwaway world.
-7. Reply to the orchestrator with: files changed, the test you added, gate
+7. Reply to `foreman` with: files changed, the test you added, gate
    results, and anything you could not do.

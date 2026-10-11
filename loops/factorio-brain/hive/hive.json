@@ -27,9 +27,9 @@
   ],
   "seats": [
     {
-      "id": "orchestrator",
+      "id": "foreman",
       "role": "orchestrator",
-      "prompt": "seats/orchestrator.md",
+      "prompt": "seats/foreman.md",
       "template": "openhuman",
       "config": {
         "action_dir": "{incumbent}",
@@ -86,9 +86,9 @@
       }
     },
     {
-      "id": "critic",
+      "id": "inspector",
       "role": "critic",
-      "prompt": "seats/critic.md",
+      "prompt": "seats/inspector.md",
       "template": "openhuman",
       "config": {
         "action_dir": "{incumbent}",
@@ -120,9 +120,9 @@
       "name": "Factory floor",
       "description": "climb the production ladder: an honest brain that reaches 100 red + 100 green science packs per minute",
       "members": [
-        "orchestrator",
+        "foreman",
         "builder",
-        "critic"
+        "inspector"
       ],
       "responder_mode": "auto"
     }

@@ -39,9 +39,9 @@ Goal of this campaign: **100 red + 100 green science packs per minute** (G12).
 
 ## Your task
 
-Orchestrator: read the metrics (`next_goal`, `reached`, rates) and the failures,
+Foreman (orchestrator): read the metrics (`next_goal`, `reached`, rates) and the failures,
 recall the hive's memory, and pick the ONE change most likely to reach the next
 milestone or raise packs/min. Facts live in `knowledge/prototypes.json`,
 `knowledge/RATIOS.md` and `knowledge/wiki/`. Have builder implement it with a
-test, have critic check it, and make sure `./factorio gates` passes. Small,
+test, have inspector check it, and make sure `./factorio gates` passes. Small,
 verified steps up the ladder beat big rewrites.
