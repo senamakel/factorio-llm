@@ -28,8 +28,10 @@ def interrupt_run(signum, frame):
 
 def run_brain(actor_id, steps=500, interval=0.5, target=100, objective='iron'):
     """Run at most steps actions, record each outcome, and stop on completion or danger."""
-    goal = FirstResearchGoal() if objective=='research' else IronPlateGoal(target=target)
-    baseline = observe(actor_id, goal.player_name)
+    baseline = observe(actor_id, 'Teeny')
+    tech=baseline.get('technologies',{}).get('automation',{})
+    science_cost=tech.get('count',10)*next((i.get('amount',1) for i in tech.get('ingredients',[]) if i['name']=='automation-science-pack'),1)
+    goal = FirstResearchGoal(target=science_cost) if objective=='research' else IronPlateGoal(target=target)
     total = 0
     def measured():
         state = observe(actor_id, goal.player_name)

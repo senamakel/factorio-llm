@@ -80,7 +80,8 @@ def observe(actor_id, name):
         'local recipes,tech={},{}; for _,n in ipairs(a.recipes) do local r=e.force.recipes[n]; '
         'if r then recipes[n]={enabled=r.enabled,ingredients=r.ingredients,products=r.products,energy=r.energy} end end; '
         'for _,n in ipairs(a.technologies) do local t=e.force.technologies[n]; '
-        'tech[n]={researched=t.researched,enabled=t.enabled,count=t.research_unit_count,energy=t.research_unit_energy} end; '
+        'tech[n]={researched=t.researched,enabled=t.enabled,count=t.research_unit_count,energy=t.research_unit_energy,'
+        'ingredients=t.research_unit_ingredients,trigger=t.prototype.research_trigger} end; '
         'return {recipes=recipes,technologies=tech,current=e.force.current_research and e.force.current_research.name,progress=e.force.research_progress}',
         {'recipes':['stone-furnace','iron-gear-wheel','copper-cable','electronic-circuit','transport-belt','lab',
                     'automation-science-pack','pipe','boiler','offshore-pump','steam-engine','small-electric-pole'],
