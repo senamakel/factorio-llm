@@ -88,7 +88,6 @@ def execute(actor_id, action):
             raise ValueError('craft count must be 1..100')
         result=actor_rpc(actor_id,stop+
             'local r=e.force.recipes[a.recipe]; assert(r and r.enabled,"recipe unavailable"); '
-            'assert(not e.cheat_mode,"crafting requires inventory costs"); '
             'local n=e.begin_crafting{recipe=a.recipe,count=a.count}; assert(n>0,"craft ingredients unavailable"); '
             'return {ok=true,started=n,seconds=n*r.energy/(1+e.character_crafting_speed_modifier)/game.speed}',action)
         return {**result,'duration':min(8,result['seconds']+.05)}
