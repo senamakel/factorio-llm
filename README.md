@@ -92,6 +92,9 @@ Or: **â€œPut 100 iron plates in that chest, then verify its inventory and save.â
 ## Local assistant brain
 
 `goal.py` defines Teeny's objective: 100 iron plates held in its inventory.
+`actions.py` exports high-level plans such as `mine_coal`, `mine_iron_ore`,
+`build_furnace`, and `make_iron_plates`. Each action lives in its own file under
+`action_library/`, grouped into gathering, movement, manufacturing and inventory.
 Python owns the behavior: `brain_observation.py` assembles observations and selects
 resource candidates; `brain_actions.py` plans movement directions and durations;
 `logic.py` chooses tasks; `brain.py` runs and times them. `brain_io.py` sends short
@@ -109,8 +112,12 @@ using the inspected unit number of an unattached assistant character. Supply
 `FACTORIO_CONNECTION_FILE` if the running server belongs to another checkout.
 The loop stops at completion, danger, or its step limit and records observations,
 decisions, actions, outcomes and learning in ignored `server/data/brain.sqlite3`.
-Walking and mining use continuous native engine instructions for up to two seconds
-between observations; they stop on interruption. Furnace crafting uses scripted
+Walking and mining use continuous native engine instructions with adaptive durations.
+Clear, enemy-free walking legs and safe mining batches can last up to eight seconds;
+uncertain actions are capped at two seconds. Python estimates travel time from
+current movement speed and mining time from prototype speed, progress and batch
+count. Routes are sampled for collision checks before using longer legs.
+Actions stop on interruption. Furnace crafting uses scripted
 inventory-costed actions. Smelting runs in the
 actual game furnace. The loop does not restart or modify the running mod.
 

@@ -115,11 +115,7 @@ def brain_think(state,experience=None,player_name='',target_plates=16):
     for furnace in furnaces:
         output=entity_item_count(furnace,'furnace_result','iron-plate')
         if output:
-            action={'kind':'take','player':player['name'],'surface':player['surface'],
-                    'unit_number':furnace['unit_number'],'position':furnace['position'],
-                    'inventory':'furnace_result','item':'iron-plate','count':min(output,target_plates-plates)}
-            return decision('collect','Collect the furnace\'s completed iron plates.',
-                            move_or_act(player,action,player.get('reach_distance',10)))
+            return actions.collect_iron_plates(player,furnace,min(output,target_plates-plates))
     ore=inventory_count(player,'iron-ore')
     batch=min(16,max(1,target_plates-plates))
     loaded=sum(entity_item_count(f,'furnace_source','iron-ore') for f in furnaces)
@@ -131,32 +127,13 @@ def brain_think(state,experience=None,player_name='',target_plates=16):
     if not fuel_name and not fueled:
         return actions.mine_coal(state,player,experience,4)
     if not furnaces:
-        if player.get('crafting_queue'):
-            return decision('crafting','Wait for the queued furnace craft to finish.')
-        if inventory_count(player,'stone-furnace')==0:
-            if inventory_count(player,'stone')<5:
-                return mining_decision(state,player,'stone',experience,5-inventory_count(player,'stone'))
-            return decision('craft_furnace','Craft a stone furnace from five stone.',
-                            {'kind':'craft','player':player['name'],'recipe':'stone-furnace','count':1})
-        sites=state.get('build_sites',{}).get(player['name'],[])
-        actions=[{'kind':'build','player':player['name'],'surface':player['surface'],
-                  'item':'stone-furnace','position':site} for site in sites]
-        if not actions:
-            return decision('find_build_site','No collision-free furnace site is within reach.')
-        action=min(actions,key=lambda a:distance(a['position'],player['position'])+learned_penalty(a,experience))
-        return decision('build_furnace','Place the furnace using one item from the player inventory.',action)
+        return actions.build_furnace(state,player,experience)
     furnace=furnaces[0]
-    base={'player':player['name'],'surface':player['surface'],'unit_number':furnace['unit_number'],
-          'position':furnace['position']}
     if furnace not in fueled:
         if fuel_name:
-            action={'kind':'put',**base,'inventory':'fuel','item':fuel_name,'count':min(4,inventory_count(player,fuel_name))}
-            return decision('fuel_furnace','Transfer fuel from the player into the furnace.',
-                            move_or_act(player,action,player.get('reach_distance',10)))
+            return actions.fuel_furnace(player,furnace,min(4,inventory_count(player,fuel_name)),fuel_name)
     if ore and entity_item_count(furnace,'furnace_source','iron-ore')<batch:
-        action={'kind':'put',**base,'inventory':'furnace_source','item':'iron-ore','count':min(ore,batch)}
-        return decision('load_furnace','Transfer iron ore into the furnace.',
-                        move_or_act(player,action,player.get('reach_distance',10)))
+        return actions.load_iron_ore(player,furnace,min(ore,batch))
     return decision('smelting','The furnace is processing ore; wait and inspect output.',progress=plates)
 
 

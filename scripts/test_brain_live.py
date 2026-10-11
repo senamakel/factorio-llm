@@ -24,7 +24,9 @@ class NativeActionTest(unittest.TestCase):
         return rpc('return game.get_entity_by_unit_number(' + str(self.actor) + ').position')
 
     def test_move_continues_between_commands_and_stops_at_end(self):
-        execute(self.actor, {'kind':'move','position':{'x':12,'y':0},'stop_distance':1})
+        result=execute(self.actor, {'kind':'move','position':{'x':24,'y':0},'stop_distance':1})
+        self.assertGreater(result['duration'],2)
+        self.assertEqual(result['confidence'],'high')
         a = self.position()
         time.sleep(0.3)
         b = self.position()
@@ -39,7 +41,8 @@ class NativeActionTest(unittest.TestCase):
     def test_native_mining_accumulates_ore_between_commands(self):
         pos = rpc('local e=game.get_entity_by_unit_number(' + str(self.actor) + '); '
                   'local r=e.surface.create_entity{name="iron-ore",position={1,0},amount=100}; return r.position')
-        execute(self.actor, {'kind':'mine','resource':'iron-ore','position':pos})
+        result=execute(self.actor, {'kind':'mine','resource':'iron-ore','position':pos,'count':3})
+        self.assertGreater(result['duration'],2)
         time.sleep(2.5)
         count = rpc('return game.get_entity_by_unit_number(' + str(self.actor) +
                     ').get_inventory(defines.inventory.character_main).get_item_count("iron-ore")')
