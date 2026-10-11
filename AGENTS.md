@@ -87,3 +87,22 @@ Core files: `mcp_server/server.py` (tools), `mod/control.lua` (RPC behavior),
 `scripts/factorio.py` (lifecycle), `rcon_client/client.py` (protocol).
 Use `.venv/bin/python` for Python commands. Check the full exit code and output;
 never treat printed smoke output as proof when the tool result contains an error.
+
+## Code and documentation conventions
+
+- Write docstrings for public modules, classes and functions. Explain inputs,
+  outputs, side effects and meaningful failure cases; keep them accurate as code changes.
+- Keep each source file below 500 lines of code, excluding comments, docstrings
+  and blank lines. Split growing files into focused modules before crossing that limit.
+- Prefer small, reusable helper functions and clear module boundaries: observation,
+  decisions, execution and persistence should remain independently testable.
+- Use descriptive names and a simple directory structure. Avoid catch-all utility
+  modules and hidden global state when explicit dependencies work.
+- Maintain a README.md in each substantive code folder describing its purpose,
+  important files, interfaces, commands and verification. Update the root README
+  when behavior or setup changes.
+- Keep credentials in private, ignored .env files and runtime history in ignored
+  SQLite files. Never copy keys or passwords into logs, examples, source or commits.
+- The brain makes local deterministic decisions; no LLM/API call is required.
+  Self-improvement means learning from measured outcomes, not silently rewriting
+  its own source. Log observation, decision, action and outcome separately.
