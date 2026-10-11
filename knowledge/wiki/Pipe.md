@@ -30,7 +30,7 @@ Attempting to build a pipe that would potentially mix two liquids will fail, as 
 ## Alternative recipes
 | Process | Input | Output | Made in | Required technology |
 |---|---|---|---|---|
-| Casting pipe Casting pipe | 1 × Time + 10 × Molten iron | 1 × Pipe | Foundry | Foundry (research) Foundry (research) |
+| Casting pipe Casting pipe | 1 × Time + 10 × Molten iron | 1 × Pipe | Foundry | Foundry (research) |
 
 ## Gallery
 ## History

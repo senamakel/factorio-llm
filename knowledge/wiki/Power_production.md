@@ -8,7 +8,7 @@ Electricity has to be produced before it can be transferred to consumers over th
 ## Steam engine power
 Each steam engine needs 0.5 boilers when running at full capacity. One offshore pump can supply 200 boilers and 400 steam engines.
 
-The above ratio can be calculated from information available in-game: One boiler consumes 1.8MW of fuel and produces energy stored in steam at 100% efficiency. One steam engine consumes 900kW (0.9MW) of energy stored in steam, so each boiler can supply 2 steam engines: <math>\frac{1.8}{0.9} = 2</math>. One boiler consumes 6 units of water to produce 60 units of steam per second, one steam engine consumes 30 steam per second (3 units of water) and one offshore pump produces 1200 water per second, so each offshore pump produces enough water to supply 200 boilers: <math>\frac{1200}{6} = 200</math>. Two steam engines per boiler gives us 400. This produces the 1:200:400 ratio.
+The above ratio can be calculated from information available in-game: One boiler consumes 1.8MW of fuel and produces energy stored in steam at 100% efficiency. One steam engine consumes 900kW (0.9MW) of energy stored in steam, so each boiler can supply 2 steam engines: `\frac{1.8}{0.9} = 2`. One boiler consumes 6 units of water to produce 60 units of steam per second, one steam engine consumes 30 steam per second (3 units of water) and one offshore pump produces 1200 water per second, so each offshore pump produces enough water to supply 200 boilers: `\frac{1200}{6} = 200`. Two steam engines per boiler gives us 400. This produces the 1:200:400 ratio.
 
 ## Solar panels and accumulators
 ### Optimal ratio
@@ -21,20 +21,28 @@ This is taken from Accumulator / Solar Panel Ratio (which calculates this in an 
 ### Calculations
 The optimal ratio of accumulators per solar panel relies on many values in the game. These include the power generation of a solar panel, the energy storage of an accumulator, the length of a day, and the length of a night. There are also times between day and night called dusk and dawn which complicate the calculations. In vanilla factorio, without mods which change any of these values, the optimal ratio will be the same. This ratio is
 
-<math> \frac{\mathrm{Accumulators}}{\mathrm{SolarPanels}} = \frac{\left( \mathrm{day} + \mathrm{dawn} \right)}{\mathrm{gameday}} \cdot \left( \mathrm{night} + \frac{\mathrm{dawn} \cdot \left( \mathrm{day} + \mathrm{dawn} \right)}{\mathrm{gameday}} \right) \cdot \frac{\mathrm{SolarPower}}{\mathrm{AccumulatorEnergy}} </math>
+`\frac{\mathrm{Accumulators}}{\mathrm{SolarPanels}} = \frac{\left( \mathrm{day} + \mathrm{dawn} \right)}{\mathrm{gameday}} \cdot \left( \mathrm{night} + \frac{\mathrm{dawn} \cdot \left( \mathrm{day} + \mathrm{dawn} \right)}{\mathrm{gameday}} \right) \cdot \frac{\mathrm{SolarPower}}{\mathrm{AccumulatorEnergy}}`
 
 which, given the default time lengths of: day = 12500/60 s; dawn or dusk = 5000/60 s; night = 2500/60 s, and the default: Solar_power = 60 kW; Accumulator_energy = 5 MJ = 5000 kJ, gives the optimal ratio of 0.84 accumulators per solar panel. If the player uses mods which change the power generation of solar panels, or the energy storage of accumulators, but <b>not</b> the length of days, a simplified version of this equation can be used.
+
+```
 Accumulators / Solar_panels = 70 s × Solar_power / Accumulator_energy
+```
 
 This equation could also be used to remember the vanilla optimal ratio given its simplicity. If the only effect the mod has on the game is it changes the total length of one day, without changing the ratio of dusk : day : dawn : night, then the equation can be simplified as
+
+```
 Accumulators / Solar_panels = 0.002016 /s × game_day
+```
 
 where game_day is the number of seconds in the game day which is 25000/60 s by default.
 
 ### Vulcanus
 In Space Age, the day/night cycle on Vulcanus is 90 seconds with each phase of that cycle proportionally smaller: day = 45 s; dawn or dusk = 18 s; night = 9 s. The formula above simplifies to:
 
+```
 Accumulators / Solar_panels = 15.2 s × Solar_power / Accumulator_energy
+```
 
 Additionally, solar power production in Vulcanus atmosphere is 400% of that of Nauvis. With normal quality solar panels and accumulators, the ratio is 0.72576 accumulator per solar panel. 3 accumulators per 4 panel is pretty close.
 
@@ -90,25 +98,25 @@ Fusion reactors consume the power cells, cold fluoroketone, and electricity to p
 Because ammonia, which is needed to produce the power cells cannot be barrelled, production of them is confined to Aquilo. However, as the cold and hot fluoroketone *can* be barreled, it and the power cells can be shipped to other planets with relative ease.
 
 ### Ratio calculations
-Fusion reactors produce plasma at a base temperature of <math>1.0\,M^\circ \text{C}</math>. Each directly connected reactor adds an additional <math>1.0\,M^\circ \text{C}</math> to the maximum achievable plasma temperature. The actual plasma temperature depends on the neighbor bonuses, which are determined by the arrangement of reactors and their current plasma production rate. For example, if a reactor produces plasma at its maximum rate, all reactors connected to this reactor receive a 100% neighbor bonus. The temperature used by generators is the average plasma temperature of all reactors in the setup.
+Fusion reactors produce plasma at a base temperature of `1.0\,M^\circ \text{C}`. Each directly connected reactor adds an additional `1.0\,M^\circ \text{C}` to the maximum achievable plasma temperature. The actual plasma temperature depends on the neighbor bonuses, which are determined by the arrangement of reactors and their current plasma production rate. For example, if a reactor produces plasma at its maximum rate, all reactors connected to this reactor receive a 100% neighbor bonus. The temperature used by generators is the average plasma temperature of all reactors in the setup.
 
 The optimal ratio of fusion reactors to generators can be calculated in a single step:
 
-<math>G = (R + N) \cdot \frac{P_{O}}{P_{C}}</math>
+`G = (R + N) \cdot \frac{P_{O}}{P_{C}}`
 
 where:
 
-- <math>G</math> is the optimal number of fusion generators for the given reactor setup
-- <math>R</math> is the number of fusion reactors
-- <math>N</math> is the sum of the neighbor bonuses of all reactors (expressed as an integer)
-- <math>P_O</math> is the maximum plasma output of a reactor
-- <math>P_C</math> is the maximum plasma consumption of a generator
+- `G` is the optimal number of fusion generators for the given reactor setup
+- `R` is the number of fusion reactors
+- `N` is the sum of the neighbor bonuses of all reactors (expressed as an integer)
+- `P_O` is the maximum plasma output of a reactor
+- `P_C` is the maximum plasma consumption of a generator
 
-Thus, the optimal reactor-to-generator ratio is <math>R:G</math>
+Thus, the optimal reactor-to-generator ratio is `R:G`
 
 If the fusion reactors and generators have the same quality tier (e.g. normal), then the formula simplifies to:
 
-<math>G = 2 \cdot (R + N)</math>
+`G = 2 \cdot (R + N)`
 
 **Note**:
 

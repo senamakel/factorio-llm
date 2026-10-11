@@ -28,7 +28,7 @@ Comprehensive information on fluid distribution can be found on the fluid system
 ## Alternative recipes
 | Process | Input | Output | Made in | Required technology |
 |---|---|---|---|---|
-| Casting pipe to ground Casting pipe to ground | 1 × Time + 10 × Pipe + 50 × Molten iron | 2 × Pipe to ground | Foundry | Foundry (research) Foundry (research) |
+| Casting pipe to ground Casting pipe to ground | 1 × Time + 10 × Pipe + 50 × Molten iron | 2 × Pipe to ground | Foundry | Foundry (research) |
 
 ## Notes
 - While pipe to ground is the developer name for the entity, the community has taken to simply referring to this entity as "underground pipe". This is the most common reference.
