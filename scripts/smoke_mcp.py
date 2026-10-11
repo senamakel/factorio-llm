@@ -10,11 +10,14 @@ import uuid
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from scripts.mcp_config import load_servers
 
 ROOT = Path(__file__).resolve().parents[1]
 
 async def smoke(edits):
-    params = StdioServerParameters(command=sys.executable,args=[str(ROOT/'scripts/mcp_entrypoint.py')])
+    server = load_servers(ROOT)['factorio-control']
+    params = StdioServerParameters(command=server['command'],args=server['args'],env=server['env'])
     async with stdio_client(params) as (read, write):
         async with ClientSession(read,write) as session:
             await session.initialize()
