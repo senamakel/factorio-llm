@@ -108,6 +108,10 @@ class NativeActionTest(unittest.TestCase):
                   'local code=inv[1].import_stack('+value+'); assert(code==0,"blueprint import rejected"); '
                   'local n=#inv[1].get_blueprint_entities(); inv.destroy(); return n')
         self.assertEqual(count,1)
+        ghosts=bp.place_ghosts(self.actor)
+        self.assertEqual(ghosts[0]['name'],'iron-chest')
+        count=rpc('return game.surfaces["'+self.surface+'"].count_entities_filtered{type="entity-ghost"}')
+        self.assertEqual(count,1)
 
     def test_timeout_halt_stops_native_walking(self):
         from brain.timeouts import deadline
@@ -118,10 +122,6 @@ class NativeActionTest(unittest.TestCase):
         finally:execute(self.actor,{'kind':'halt','cancel_crafting':True})
         time.sleep(.1);a=self.position();time.sleep(.2);b=self.position()
         self.assertAlmostEqual(a['x'],b['x'],delta=.05)
-        ghosts=bp.place_ghosts(self.actor)
-        self.assertEqual(ghosts[0]['name'],'iron-chest')
-        count=rpc('return game.surfaces["'+self.surface+'"].count_entities_filtered{type="entity-ghost"}')
-        self.assertEqual(count,1)
 
 
 if __name__ == '__main__':
