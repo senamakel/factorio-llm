@@ -74,7 +74,7 @@ class NativeActionTest(unittest.TestCase):
             'assert(s.can_place_entity(o),"layout blocked: "..p.role); local e=s.create_entity(o); ids[p.role]=e.unit_number; '
             'if p.role=="boiler" then e.insert{name="coal",count=2} end end; return ids')
         time.sleep(2)
-        energy=rpc('return game.get_entity_by_unit_number('+str(result['lab'])+').energy')
+        energy=rpc('return game.surfaces["'+self.surface+'"].find_entities_filtered{name="lab"}[1].energy')
         self.assertGreater(energy,0,'lab must receive real steam-engine electricity')
 
 
