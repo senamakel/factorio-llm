@@ -26,6 +26,9 @@ be ready for review when complete.
 - `./factorio mcp` — stdio protocol server; never print diagnostics on stdout
 - `./factorio check` — offline tests and read-only live MCP checks
 - `./factorio check --edits` — disposable-surface live mutation/save tests
+- `./factorio episode [--seed N] [--wall-secs S]` — score a brain on a disposable seeded world
+- `./factorio gates` — the RSI loop's gates: honesty check + offline brain tests
+- `./factorio memory up|remember|recall|list` — shared hive memory (dedicated CortexDB)
 - `./factorio stop` — save and gracefully stop this checkout's server
 
 `setup` detects the Steam installation on macOS; other installations may need
@@ -83,6 +86,10 @@ collision rejection, inventory read-back, recipe changes, removal and a new save
 on a temporary surface. Optional `reload-check` tests saved demo references on a
 second server with automatically selected free ports; it requires demo.json.
 
+RSI files: `actuator/` (honest game access), `harness/` (episode servers,
+scoring, gates), `knowledge/` (wiki cache, live prototypes), `memory/`
+(CortexDB), `loops/factorio-brain/` (tinyrsi loop: manifest, hive, scorer).
+
 Core files: `mcp_server/server.py` (tools), `mod/control.lua` (RPC behavior),
 `scripts/factorio.py` (lifecycle), `rcon_client/client.py` (protocol).
 Use `.venv/bin/python` for Python commands. Check the full exit code and output;
@@ -103,6 +110,13 @@ never treat printed smoke output as proof when the tool result contains an error
   when behavior or setup changes.
 - Keep credentials in private, ignored .env files and runtime history in ignored
   SQLite files. Never copy keys or passwords into logs, examples, source or commits.
-- The brain makes local deterministic decisions; no LLM/API call is required.
-  Self-improvement means learning from measured outcomes, not silently rewriting
-  its own source. Log observation, decision, action and outcome separately.
+- The brain makes local deterministic decisions; no LLM/API call is made at
+  runtime. Self-improvement happens offline in the tinyrsi loop
+  (`loops/factorio-brain`): a hive edits `brain/` in candidate worktrees, the
+  frozen harness scores each candidate on disposable seeded worlds, and only
+  candidates that pass the gates and win the paired seed test are promoted to
+  `rsi/main`. Never silently rewrite the brain outside that loop.
+- The brain reaches the game only through the frozen `actuator` package
+  (`actions`, `queries`); `harness/honesty.py` enforces this. Do not add Lua,
+  RCON, sockets or subprocesses to `brain/`. `actuator/`, `harness/`,
+  `knowledge/` and `loops/` change only by human-reviewed PRs.
