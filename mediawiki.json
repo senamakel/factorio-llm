@@ -1,0 +1,13 @@
+{
+  "defaultWiki": "wiki.factorio.com",
+  "allowWikiManagement": false,
+  "wikis": {
+    "wiki.factorio.com": {
+      "sitename": "Official Factorio Wiki",
+      "server": "https://wiki.factorio.com",
+      "articlepath": "/$1",
+      "scriptpath": "",
+      "readOnly": true
+    }
+  }
+}

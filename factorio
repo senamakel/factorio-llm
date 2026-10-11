@@ -19,7 +19,7 @@ Usage: ./factorio COMMAND [options]
   join        Open the game client with the server's mods and connect
   status      Query the live world
   stop        Save and gracefully stop this checkout's server
-  register    Register factorio-control in Codex
+  register    Register all servers from mcp.json in Codex
   mcp         Start stdio MCP (for LLM clients)
   mcp-config  Print OpenHuman TOML; --format codex or json also supported
   client-mod  Install the mod into the desktop client's normal mods directory

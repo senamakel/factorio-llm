@@ -15,6 +15,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from rcon_client.client import RconClient, RconError
+from scripts.mcp_config import print_config, register_servers
 
 DATA = ROOT / 'server/data'
 STEAM = Path.home() / 'Library/Application Support/Steam/steamapps/common/Factorio/factorio.app/Contents'
@@ -165,14 +166,8 @@ def stop():
 
 
 def mcp_config(format_name):
-    command = str(ROOT/".venv/bin/python")
-    entrypoint = str(ROOT/"scripts/mcp_entrypoint.py")
-    if format_name == "json":
-        print(json.dumps({"mcpServers":{"factorio-control":{"command":command,"args":[entrypoint]}}},indent=2))
-    elif format_name == "codex":
-        print("[mcp_servers.factorio-control]\ncommand = " + json.dumps(command) + "\nargs = [" + json.dumps(entrypoint) + "]")
-    else:
-        print("[[mcp_client.servers]]\nname = \"factorio-control\"\ncommand = " + json.dumps(command) + "\nargs = [" + json.dumps(entrypoint) + "]\nworking_dir = " + json.dumps(str(ROOT)))
+    """Print every server from mcp.json in the requested client format."""
+    print_config(ROOT, format_name)
 
 
 def main():
@@ -195,8 +190,7 @@ def main():
         elif args.action == 'status':
             print(command(connection(),'/c rcon.print(helpers.table_to_json(remote.call("control-bridge","status")))'))
         elif args.action == 'register':
-            result = subprocess.run(['codex','mcp','add','factorio-control','--',str(ROOT/'.venv/bin/python'),str(ROOT/'scripts/mcp_entrypoint.py')])
-            return result.returncode
+            return register_servers(ROOT)
         elif args.action == 'mcp-config':
             mcp_config(args.format)
         elif args.action == 'client-mod':

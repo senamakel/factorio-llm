@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "factorio-control": {
+      "command": "./.venv/bin/python",
+      "args": ["./scripts/mcp_entrypoint.py"]
+    },
+    "factorio-wiki": {
+      "command": "npx",
+      "args": ["-y", "@professional-wiki/mediawiki-mcp-server@0.19.0"],
+      "env": {
+        "CONFIG": "./mediawiki.json",
+        "MCP_TRANSPORT": "stdio",
+        "MCP_LOG_LEVEL": "warning"
+      }
+    }
+  }
+}
