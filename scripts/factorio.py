@@ -68,7 +68,15 @@ def setup(binary=None, read_data=None, port=27015, game_port=34197):
         link.symlink_to(ROOT / 'mod', target_is_directory=True)
     if link.resolve() != (ROOT / 'mod').resolve():
         raise RuntimeError('Existing mod directory points elsewhere')
-    write_private(mods / 'mod-list.json', {'mods':[{'name':'base','enabled':True}, {'name':'control-bridge','enabled':True}]})
+    mod_list = mods / 'mod-list.json'
+    enabled = json.loads(mod_list.read_text()) if mod_list.exists() else {'mods':[]}
+    for name in ('base','control-bridge'):
+        entry = next((m for m in enabled['mods'] if m['name']==name),None)
+        if entry is None:
+            enabled['mods'].append({'name':name,'enabled':True})
+        else:
+            entry['enabled']=True
+    write_private(mod_list, enabled)
     (DATA / 'config.ini').write_text(f'[path]\nread-data={read_data}\nwrite-data={DATA}\n')
     write_private(DATA / 'server-settings.json', {
         'name':'LLM Factorio sandbox', 'description':'Local MCP-controlled sandbox',
