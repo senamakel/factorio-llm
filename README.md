@@ -92,10 +92,17 @@ Or: **â€œPut 100 iron plates in that chest, then verify its inventory and save.â
 ## Local assistant brain
 
 `goal.py` defines Teeny's objective: 100 iron plates held in its inventory.
+Python owns the behavior: `brain_observation.py` assembles observations and selects
+resource candidates; `brain_actions.py` plans movement directions and durations;
+`logic.py` chooses tasks; `brain.py` runs and times them. `brain_io.py` sends short
+Lua API adapters to read state or apply an instruction. It does not upload Lua
+files, install a new mod, or run policy/scoring logic inside Factorio.
 `score.py` rewards measured inventory gains, goal progress and plates produced
 per game second. It penalizes depleted resources, consumed fuel, elapsed game
 time, nearby enemies and damage. Production/fuel counters currently cover the
 actor's force on its surface, so another factory can contribute to those scores.
+Resource reads are bounded and local, with adaptive query radii recorded in each
+observation; unknown distant resources are not treated as observed.
 
 Run `.venv/bin/python brain.py --actor UNIT_NUMBER --steps 1200 --target 100`
 using the inspected unit number of an unattached assistant character. Supply
