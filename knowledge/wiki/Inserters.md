@@ -93,9 +93,9 @@ The extension-speed is normally not visible (only when compared to other inserte
 ### Chest to chest
 **Note:** Experimental data from 2.0.26, recorded in this doc Chest to chest transfer transfers the entire hand size during a single tick, so most of the time is spent during the swing to and from.
 
-| Type | Arm cycles per second (ticks per cycle) | Items/second at capacity bonus level (stack size) |  |  |  |  |  |  |  |
+| Type | Arm cycles per second (ticks per cycle) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) |
 |---|---|---|---|---|---|---|---|---|---|
-| No capacity bonus | Capacity bonus 2 | Capacity bonus 7 | Transport belt stacking (Space Age) |  |  |  |  |  |  |
+|  |  | No capacity bonus | No capacity bonus | Capacity bonus 2 | Capacity bonus 2 | Capacity bonus 7 | Capacity bonus 7 | Transport belt stacking (Space Age) | Transport belt stacking (Space Age) |
 | Burner inserter | 0.79 (76 ticks) | 0.79 | (1) | 1.58 | (2) | 2.37 | (3) | 3.16 | (4) |
 | Inserter | 0.86 (70 ticks) | 0.86 | (1) | 1.71 | (2) | 2.57 | (3) | 3.43 | (4) |
 | Long-handed inserter | 1.25 (48 ticks) | 1.25 | (1) | 2.5 | (2) | 3.75 | (3) | 5 | (4) |
@@ -110,9 +110,9 @@ In these measurements inserters move items onto an empty belt. Values are given 
 
 **Note:** Experimental data from 2.0
 
-| Type | Items/second at capacity bonus level (stack size) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Type | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| No capacity bonus | Capacity Bonus 2 | Capacity bonus 7 | Transport belt stacking (Space Age) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  | No capacity bonus | No capacity bonus | No capacity bonus | No capacity bonus | No capacity bonus | Capacity Bonus 2 | Capacity Bonus 2 | Capacity Bonus 2 | Capacity Bonus 2 | Capacity Bonus 2 | Capacity bonus 7 | Capacity bonus 7 | Capacity bonus 7 | Capacity bonus 7 | Capacity bonus 7 | Transport belt stacking (Space Age) | Transport belt stacking (Space Age) | Transport belt stacking (Space Age) | Transport belt stacking (Space Age) | Transport belt stacking (Space Age) |
 | Burner inserter | 0.78 | 0.78 | 0.78 | 0.78 | (1) | 1.57 | 1.57 | 1.57 | 1.57 | (2) | 2.15 | 2.25 | 2.3 | 2.3 | (3) | 2.6 | 2.87 | 2.93 | 3 | (4) |
 | Inserter | 0.85 | 0.85 | 0.85 | 0.85 | (1) | 1.7 | 1.7 | 1.7 | 1.7 | (2) | 2.3 | 2.45 | 2.5 | 2.5 | (3) | 2.8 | 3.07 | 3.2 | 3.27 | (4) |
 | Long-handed inserter | 1.2 | 1.2 | 1.2 | 1.2 | (1) | 2.33 | 2.33 | 2.33 | 2.33 | (2) | 3.1 | 3.35 | 3.45 | 3.45 | (3) | 3.65 | 4.13 | 4.33 | 4.47 | (4) |
@@ -138,10 +138,10 @@ When picking items from a belt, many more factors come into play besides belt fu
 
 The test setup used below is with an inserter taking items from a perpendicular belt with items on the far lane only. The belt is fully compressed and timings are both for items that move at full speed and queued up as much as possible. Values are given for the stack sizes at three different capacity bonus levels.
 
-| Type | Items/second at capacity bonus level (stack size) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Type | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) | Items/second at capacity bonus level (stack size) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| No capacity bonus | Capacity bonus 2 | Capacity bonus 7 |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Items at / belt speed | Items / queued / up |  | Items at / belt speed | Items / queued / up |  | Items at / belt speed | Items / queued / up |  |  |  |  |  |  |  |  |
+|  | No capacity bonus | No capacity bonus | No capacity bonus | No capacity bonus | No capacity bonus | Capacity bonus 2 | Capacity bonus 2 | Capacity bonus 2 | Capacity bonus 2 | Capacity bonus 2 | Capacity bonus 7 | Capacity bonus 7 | Capacity bonus 7 | Capacity bonus 7 | Capacity bonus 7 |
+|  | Items at / belt speed | Items at / belt speed | Items at / belt speed | Items / queued / up |  | Items at / belt speed | Items at / belt speed | Items at / belt speed | Items / queued / up |  | Items at / belt speed | Items at / belt speed | Items at / belt speed | Items / queued / up |  |
 | Burner inserter | 0.60 | **0.65** | 0.50 | 0.64 | (1) | 1.11 | **1.20** | 1.13 | 1.26 | (2) | 1.61 | 1.61 | **1.65** | 1.71 / / 1.73 / / 1.86 * | (3) |
 | Inserter | **0.94** | **0.94** | **0.94** | 0.88 | (1) | **1.67** | **1.67** | 1.50 | 1.74 | (2) | **2.50** | 2.25 | 2.33 | 2.37 / / 2.37 / / 2.54 * | (3) |
 | Long-handed inserter | 1.18 | 1.18 | **1.25** | 1.20 | (1) | 2.20 | 2.31 | **2.40** | 2.40 | (2) | 3.21 | 3.21 | **3.46** | 3.40 | (3) |
