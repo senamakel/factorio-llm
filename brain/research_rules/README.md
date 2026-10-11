@@ -6,5 +6,5 @@
 and validates a connected shoreline footprint, storing it privately with map
 seed/surface identity. All decisions are Python; Lua only applies game API calls.
 
-Wiki provenance is in root `knowledge/red_science.json`; live data overrides
+Wiki provenance is in `brain/knowledge/red_science.json`; live data overrides
 assumptions. Verify with `scripts.test_research` and `scripts.test_brain_live`.

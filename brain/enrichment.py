@@ -39,7 +39,7 @@ async def enrich():
                                 'facts':{k:v for k,v in fields.items() if k in (
                                     'technology-trigger','recipe','total-raw','cost','cost-multiplier',
                                     'energy','power-output','required-technologies')}})
-    path = ROOT/'knowledge/red_science.json'
+    path = ROOT/'brain/knowledge/red_science.json'
     path.parent.mkdir(exist_ok=True)
     path.write_text(json.dumps({'source':'Factorio Wiki via factorio-wiki MCP',
                                'runtime_rule':'Live recipes and technology state override wiki assumptions.',
