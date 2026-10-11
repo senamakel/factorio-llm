@@ -79,7 +79,8 @@ def world_facts(server):
     return server.lua(
         'local f=game.forces.player; local r={}; for n,t in pairs(f.technologies) do if t.researched then r[#r+1]=n end end; '
         'local counts,made={},0; for _,e in pairs(game.surfaces[1].find_entities_filtered{force=f}) do '
-        'counts[e.name]=(counts[e.name] or 0)+1; if e.type=="assembling-machine" then made=made+e.products_finished end end; '
+        'if e.type~="character" then counts[e.name]=(counts[e.name] or 0)+1 end; '
+        'if e.type=="assembling-machine" then made=made+e.products_finished end end; '
         'return {researched=r,entity_counts=counts,assembler_products=made}')
 
 
