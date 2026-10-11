@@ -70,10 +70,13 @@ def observe(actor_id, name):
                             'type=f.type,surface=s.name,position=f.position')
     trees = read_entities(actor_id, {'type':'tree','position':position,'radius':128},
                           'name=f.name,position=f.position',64)
-    machines=read_entities(actor_id,{'name':['offshore-pump','pipe','boiler','steam-engine','small-electric-pole','lab'],'force':'actor'},
+    machines=read_entities(actor_id,{'name':['offshore-pump','pipe','boiler','steam-engine','small-electric-pole','lab',
+                                          'assembling-machine-1','inserter','iron-chest','transport-belt'],'force':'actor'},
         'name=f.name,type=f.type,unit_number=f.unit_number,position=f.position,surface=s.name,force=f.force.name,'
         'energy=f.energy,status=f.status,fluids=f.get_fluid_contents(),'
+        'recipe=f.type=="assembling-machine" and f.get_recipe() and f.get_recipe().name or nil,'
         'inventories={fuel=f.get_fuel_inventory() and f.get_fuel_inventory().get_contents() or {},'
+        'chest=f.type=="container" and f.get_inventory(defines.inventory.chest).get_contents() or {},'
         'lab_input=f.type=="lab" and f.get_inventory(defines.inventory.lab_input).get_contents() or {}}')
     progression=actor_rpc(actor_id,
         'local recipes,tech={},{}; for _,n in ipairs(a.recipes) do local r=e.force.recipes[n]; '
@@ -83,7 +86,8 @@ def observe(actor_id, name):
         'ingredients=t.research_unit_ingredients,trigger=t.prototype.research_trigger} end; '
         'return {recipes=recipes,technologies=tech,current=e.force.current_research and e.force.current_research.name,progress=e.force.research_progress}',
         {'recipes':['stone-furnace','iron-gear-wheel','copper-cable','electronic-circuit','transport-belt','lab',
-                    'automation-science-pack','pipe','boiler','offshore-pump','steam-engine','small-electric-pole'],
+                    'automation-science-pack','pipe','boiler','offshore-pump','steam-engine','small-electric-pole',
+                    'assembling-machine-1','inserter','iron-chest','iron-plate','copper-plate'],
          'technologies':['steam-power','electronics','automation-science-pack','automation']})
     candidates = [{'x':math.floor(position['x'])+dx,'y':math.floor(position['y'])+dy}
                   for r in range(3,9) for dx,dy in ((r,0),(-r,0),(0,r),(0,-r))

@@ -47,7 +47,10 @@ class Blueprint:
             if code not in DIRECTIONS.values():raise ValueError('unsupported entity direction')
             w,h=DIMENSIONS.get(e['name'],(1,1))
             if code in (4,12):w,h=h,w
-            box=(pos['x']-w/2,pos['y']-h/2,pos['x']+w/2,pos['y']+h/2)
+            ox,oy=0,0
+            if e['name']=='offshore-pump':
+                ox,oy={0:(0,-.5),4:(.5,0),8:(0,.5),12:(-.5,0)}.get(code,(0,0))
+            box=(pos['x']+ox-w/2,pos['y']+oy-h/2,pos['x']+ox+w/2,pos['y']+oy+h/2)
             for other in boxes:
                 if box[0]<other[2]-1e-8 and box[2]>other[0]+1e-8 and box[1]<other[3]-1e-8 and box[3]>other[1]+1e-8:
                     raise ValueError('blueprint footprints overlap')
@@ -176,3 +179,15 @@ def design(targets, recipes, machines, **options):
                  'required_connections':['supply raw input buffers','transfer intermediate outputs between cells','connect electrical supply'],
                  'layout_type':'buffer-fed production cells'})
     return create(options.get('label','Calculated production cells'),entities,plan)
+
+
+def ideate(targets, recipes, variants):
+    """Compare explicit machine/supply/inserter configurations for the same output target.
+
+    Variants contain machines and optional design arguments. Results are ranked by
+    entity count then electricity, with complete assumptions retained for review.
+    """
+    from fractions import Fraction
+    if not 1<=len(variants)<=20:raise ValueError('supply 1..20 blueprint variants')
+    candidates=[design(targets,recipes,v['machines'],**{k:value for k,value in v.items() if k!='machines'}) for v in variants]
+    return sorted(candidates,key=lambda b:(len(b.entities),Fraction(b.analysis['electric_watts'])))

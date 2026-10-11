@@ -55,6 +55,12 @@ def execute(actor_id, action):
         return actor_rpc(actor_id,
             'assert(not e.force.current_research or e.force.current_research.name==a.technology,"another research is active"); '
             'local ok=e.force.add_research(a.technology); return {ok=ok}',action)
+    if kind == 'set_recipe':
+        return actor_rpc(actor_id,
+            'local f=s.find_entities_filtered{name=a.entity_name,position=a.position,radius=.1,force=e.force}[1]; '
+            'assert(f and f.unit_number==a.unit_number,"blueprint machine missing"); '
+            'assert(e.force.recipes[a.recipe] and e.force.recipes[a.recipe].enabled,"recipe unavailable"); '
+            'f.set_recipe(a.recipe); return {ok=f.get_recipe() and f.get_recipe().name==a.recipe}',action)
     if kind == 'move':
         current = actor_rpc(actor_id, 'return {position=e.position,speed=e.character_running_speed*60*game.speed}')
         candidate = walking_instruction(current['position'],action['position'],action.get('stop_distance',1),current['speed'],True)
@@ -99,7 +105,8 @@ def execute(actor_id, action):
         return {**result,'duration':min(8,result['seconds']+.05)}
     reach = 'assert((e.position.x-a.position.x)^2+(e.position.y-a.position.y)^2<=100,"entity out of reach"); '
     if kind == 'build':
-        if action.get('item') not in ('stone-furnace','offshore-pump','pipe','boiler','steam-engine','lab','small-electric-pole'):
+        if action.get('item') not in ('stone-furnace','offshore-pump','pipe','boiler','steam-engine','lab','small-electric-pole',
+                                    'assembling-machine-1','inserter','iron-chest','transport-belt'):
             raise ValueError('unsupported building')
         return actor_rpc(actor_id, stop + reach +
             'assert(inv.get_item_count(a.item)>0,"building item missing"); '

@@ -43,6 +43,9 @@ def discover_layout(actor_id):
             'local out={}; for _,p in ipairs(a) do out[#out+1]=s.can_place_entity{name=p.name,position=p.position,'
             'direction=defines.direction[p.direction],force=e.force} end; return out',layout)
         if all(valid):
+            from brain.blueprint import create
+            create('First research steam and lab',layout,{'layout_type':'connected steam power and lab',
+                   'required_connections':['coal in boiler','science in lab']}).save(LAYOUT_FILE.with_name('power-blueprint.json'))
             record={'seed':water['seed'],'surface':water['surface'],'entities':layout}
             LAYOUT_FILE.write_text(json.dumps(record,indent=2)+'\n')
             return {'ok':True,'layout':record}
@@ -67,13 +70,6 @@ def build_power(state, player, experience=None):
     parts=state['power_layout']['entities']
     order=[p for p in parts if p['name']=='offshore-pump' or p['name']=='pipe']
     order += [p for p in parts if p['name'] not in ('offshore-pump','pipe')]
-    for part in order:
-        if find_role(state,part['role']):
-            continue
-        needed=ensure_item(state,player,part['name'],1,experience)
-        if needed:
-            return needed
-        action={'kind':'build','item':part['name'],'position':part['position'],
-                'direction':part['direction'],'player':player['name'],'surface':player['surface']}
-        return decision('build_'+part['name'],'Build the planned '+part['name'],move_or_act(player,action,2.7))
-    return None
+    from brain.blueprint import create
+    blueprint=create('First research steam and lab',order)
+    return blueprint.next_action(state,player,allow_existing=True)

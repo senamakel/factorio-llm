@@ -2,6 +2,9 @@
 from fractions import Fraction
 import unittest
 from brain.blueprint_solver import solve
+from brain.blueprint import Blueprint, create, design
+import tempfile
+from pathlib import Path
 
 
 def recipes():
@@ -45,3 +48,32 @@ class SolverTest(unittest.TestCase):
     def test_missing_raw_supply_is_infeasible(self):
         with self.assertRaisesRegex(ValueError,'infeasible'):
             solve({'automation-science-pack':1},recipes(),machines(),raw_inputs=[])
+
+
+class BlueprintTest(unittest.TestCase):
+    def test_designed_cells_are_nonoverlapping_and_expose_supply_requirements(self):
+        bp=design({'automation-science-pack':'.1'},recipes(),machines())
+        self.assertTrue(bp.validate())
+        self.assertFalse(bp.analysis['automatic_material_routing'])
+        self.assertTrue(bp.analysis['ports'])
+
+    def test_save_and_exchange_string_preserve_entity_recipes(self):
+        bp=design({'automation-science-pack':'.1'},recipes(),machines())
+        with tempfile.TemporaryDirectory() as tmp:
+            path=bp.save(Path(tmp)/'factory.json')
+            loaded=Blueprint.load(path)
+        self.assertEqual(loaded.understand(),bp.understand())
+        imported=Blueprint.from_factorio_string(bp.factorio_string())
+        self.assertEqual(imported.understand()['recipes'],bp.understand()['recipes'])
+
+    def test_overlapping_entities_are_rejected(self):
+        with self.assertRaisesRegex(ValueError,'overlap'):
+            create('collision',[{'name':'iron-chest','position':{'x':0,'y':0}},
+                                {'name':'iron-chest','position':{'x':0,'y':0}}])
+
+    def test_existing_factory_requires_explicit_adoption(self):
+        bp=create('one chest',[{'name':'iron-chest','position':{'x':0,'y':0}}])
+        state={'entities':[{'name':'iron-chest','position':{'x':0,'y':0},'force':'player','surface':'nauvis','unit_number':1}]}
+        player={'name':'Teeny','surface':'nauvis','force':'player'}
+        self.assertEqual(bp.next_action(state,player)['phase'],'blocked')
+        self.assertIsNone(bp.next_action(state,player,allow_existing=True))
