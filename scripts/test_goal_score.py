@@ -1,8 +1,8 @@
 """Goal and reward behavior using measured inventory and cumulative counters."""
 from copy import deepcopy
 import unittest
-from goal import IronPlateGoal
-from score import score_transition
+from brain.goal import IronPlateGoal
+from brain.score import score_transition
 from scripts.test_brain import state
 
 

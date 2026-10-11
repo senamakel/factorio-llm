@@ -4,7 +4,7 @@ import time
 import unittest
 import uuid
 from brain import execute, observe, rpc
-from logic import entity_item_count
+from brain.logic import entity_item_count
 
 
 @unittest.skipUnless(os.environ.get('FACTORIO_LIVE_TESTS') == '1', 'requires a live Factorio server')

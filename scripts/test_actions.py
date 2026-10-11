@@ -1,6 +1,6 @@
 """Public high-level actions preserve batch requirements and inventory costs."""
 import unittest
-import actions
+from brain import actions
 from scripts.test_brain import state
 
 

@@ -3,8 +3,8 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from logic import brain_think
-from event_store import EventStore
+from brain.logic import brain_think
+from brain.event_store import EventStore
 
 
 def state(items=None, entities=None, enemies=None):

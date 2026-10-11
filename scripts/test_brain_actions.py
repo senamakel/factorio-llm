@@ -1,6 +1,6 @@
 """Python navigation planning stays bounded and does not overshoot axis changes."""
 import unittest
-from brain_actions import walking_instruction
+from brain.execution import walking_instruction
 
 
 class WalkingPlanTest(unittest.TestCase):
@@ -9,7 +9,7 @@ class WalkingPlanTest(unittest.TestCase):
         self.assertEqual(plan['duration'],8)
 
     def test_mining_duration_estimates_only_the_requested_batch(self):
-        from brain_actions import mining_duration
+        from brain.execution import mining_duration
         self.assertAlmostEqual(mining_duration(3,1,.5,0,100,1,True),6.05)
         self.assertEqual(mining_duration(16,1,.5,0,100,1,False),2)
 

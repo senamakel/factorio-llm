@@ -97,23 +97,23 @@ of expansion mods; it does not change an existing world's enabled mod list.
 The local server runs headless in the background; the separate desktop client
 connects to it to show and play the world.
 
-`goal.py` defines Teeny's objective: 100 iron plates held in its inventory.
-`actions.py` exports high-level plans such as `mine_coal`, `mine_iron_ore`,
+`brain/goal.py` defines Teeny's objective: 100 iron plates held in its inventory.
+`brain/actions.py` exports high-level plans such as `mine_coal`, `mine_iron_ore`,
 `build_furnace`, and `make_iron_plates`. Each action lives in its own file under
-`action_library/`, grouped into gathering, movement, manufacturing and inventory.
-Python owns the behavior: `brain_observation.py` assembles observations and selects
-resource candidates; `brain_actions.py` plans movement directions and durations;
-`logic.py` chooses tasks; `brain.py` runs and times them. `brain_io.py` sends short
+`brain/action_library/`, grouped into gathering, movement, manufacturing and inventory.
+Python owns the behavior: `brain/observation.py` assembles observations and selects
+resource candidates; `brain/execution.py` plans movement directions and durations;
+`brain/logic.py` chooses tasks; `brain/runner.py` runs and times them. `brain/io.py` sends short
 Lua API adapters to read state or apply an instruction. It does not upload Lua
 files, install a new mod, or run policy/scoring logic inside Factorio.
-`score.py` rewards measured inventory gains, goal progress and plates produced
+`brain/score.py` rewards measured inventory gains, goal progress and plates produced
 per game second. It penalizes depleted resources, consumed fuel, elapsed game
 time, nearby enemies and damage. Production/fuel counters currently cover the
 actor's force on its surface, so another factory can contribute to those scores.
 Resource reads are bounded and local, with adaptive query radii recorded in each
 observation; unknown distant resources are not treated as observed.
 
-Run `.venv/bin/python brain.py --actor UNIT_NUMBER --steps 1200 --target 100`
+Run `.venv/bin/python -m brain --actor UNIT_NUMBER --steps 1200 --target 100`
 using the inspected unit number of an unattached assistant character. Supply
 `FACTORIO_CONNECTION_FILE` if the running server belongs to another checkout.
 The loop stops at completion, danger, or its step limit and records observations,
