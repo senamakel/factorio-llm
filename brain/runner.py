@@ -8,7 +8,7 @@ from brain.event_store import EventStore
 from brain.goal import IronPlateGoal, FirstResearchGoal
 from brain.actions import make_iron_plates, first_research
 from brain.execution import execute
-from brain.io import rpc, show_status
+from actuator.actions import save, show_status
 from brain.observation import observe
 from brain.score import score_transition
 from brain.logic import distance, get_player
@@ -103,7 +103,7 @@ def _run_brain(actor_id, steps=500, interval=.5, target=100, objective='iron',
         summary=({**goal.evaluate(before)} if goal and before else {'complete':False})
         summary.update(score=total,tick=before.get('tick') if before else None,stop_reason=reason)
         store.log('run_summary',summary,summary['tick'])
-        if summary['complete']:rpc('game.server_save("teeny-'+objective+'-complete"); return true')
+        if summary['complete']:save('teeny-'+objective+'-complete')
         else:
             try:show_status(actor_id,'Teeny: stopped | '+reason[:90])
             except (RuntimeError,ValueError,OSError):pass

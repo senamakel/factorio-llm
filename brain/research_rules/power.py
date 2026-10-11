@@ -3,7 +3,7 @@ import json
 import math
 import time
 from pathlib import Path
-from brain.io import actor_rpc
+from actuator import queries
 from brain.logic import decision, distance, move_or_act
 from brain.research_rules.recipes import ensure_item
 
@@ -27,9 +27,9 @@ def steam_layout(position, direction):
 def discover_layout(actor_id):
     """Find a collision-free shoreline footprint using short native placement queries."""
     expires=time.monotonic()+25
-    water=actor_rpc(actor_id,
-        'local out={}; for _,t in pairs(s.find_tiles_filtered{name={"water","deepwater"},position=e.position,radius=256,limit=8192}) do '
-        'out[#out+1]=t.position end; return {tiles=out,position=e.position,seed=s.map_gen_settings.seed,surface=s.name}')
+    state=queries.actor_state(actor_id)
+    water={**queries.find_tiles(actor_id,('water','deepwater'),state['position'],256),
+           'position':state['position'],'seed':state['seed'],'surface':state['surface']}
     tiles=water['tiles'] or []
     known={(t['x'],t['y']) for t in tiles}
     coastline=[]
@@ -42,9 +42,7 @@ def discover_layout(actor_id):
     for _,pos,direction in sorted(coastline,key=lambda c:c[0])[:500]:
         if time.monotonic()>=expires:raise TimeoutError('shoreline blueprint discovery exceeded 25s')
         layout=steam_layout(pos,direction)
-        valid=actor_rpc(actor_id,
-            'local out={}; for _,p in ipairs(a) do out[#out+1]=s.can_place_entity{name=p.name,position=p.position,'
-            'direction=defines.direction[p.direction],force=e.force} end; return out',layout)
+        valid=queries.can_place(actor_id,layout)
         if all(valid):
             from brain.blueprint import create
             create('First research steam and lab',layout,{'layout_type':'connected steam power and lab',

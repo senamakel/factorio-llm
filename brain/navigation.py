@@ -1,7 +1,7 @@
 """Python grid routing around trees, water and existing factory structures."""
 import heapq
 import math
-from brain.io import actor_rpc
+from actuator import queries
 
 
 def route(cells, target, stop_distance):
@@ -37,7 +37,7 @@ def waypoint(actor_id, position, target, stop_distance):
                   for y in range(min(0,math.floor(ty))-8,max(0,math.ceil(ty))+9)]
     if len(coords)>10000:raise ValueError('route grid exceeds planning budget')
     points=[{'x':position['x']+x,'y':position['y']+y} for x,y in coords]
-    flags=actor_rpc(actor_id,'local out={}; for _,pos in ipairs(a) do out[#out+1]=s.can_place_entity{name="character",position=pos,force=e.force} end; return out',points)
+    flags=queries.can_place(actor_id,[{'name':'character','position':p} for p in points])
     cells=dict(zip(coords,flags));cells[(0,0)]=True
     path=route(cells,(tx,ty),stop_distance)
     if not path:return position
