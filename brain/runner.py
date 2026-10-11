@@ -100,7 +100,7 @@ def run_brain(actor_id, steps=500, interval=.5, target=100, objective='iron',
         return summary
 
 
-def main():
+def main(argv=None):
     """Parse objective/deadline controls and run the assistant in the main thread."""
     signal.signal(signal.SIGTERM,interrupt_run)
     parser=argparse.ArgumentParser(description=__doc__)
@@ -114,7 +114,7 @@ def main():
     parser.add_argument('--action-timeout',type=float,default=30)
     parser.add_argument('--observe-timeout',type=float,default=20)
     parser.add_argument('--max-failures',type=int,default=3)
-    args=parser.parse_args()
+    args=parser.parse_args(argv)
     try:summary=run_brain(args.actor,args.steps,args.interval,args.target,args.objective,
                          args.run_timeout,args.stall_timeout,args.action_timeout,args.observe_timeout,args.max_failures)
     except ValueError as exc:parser.error(str(exc))

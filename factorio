@@ -21,6 +21,7 @@ Usage: ./factorio COMMAND [options]
   stop        Save and gracefully stop this checkout's server
   register    Register all servers from mcp.json in Codex
   mcp         Start stdio MCP (for LLM clients)
+  brain       Inspect, plan, stream, run, or review the local agent brain
   mcp-config  Print OpenHuman TOML; --format codex or json also supported
   client-mod  Install the mod into the desktop client's normal mods directory
   check       Run offline tests plus read-only live MCP check; --edits tests mutations
@@ -36,6 +37,7 @@ EOF
     shift
     case "$ACTION" in
       mcp) exec .venv/bin/python scripts/mcp_entrypoint.py "$@" ;;
+      brain) exec .venv/bin/python -m brain "$@" ;;
       check)
         .venv/bin/python -m unittest scripts.test_mcp_tools scripts.test_factorio_setup scripts.test_brain scripts.test_brain_actions scripts.test_brain_observation scripts.test_actions scripts.test_goal_score scripts.test_mcp_config scripts.test_research scripts.test_navigation scripts.test_blueprint scripts.test_timeouts scripts.test_tree_search
         .venv/bin/python -m scripts.test_rcon

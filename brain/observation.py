@@ -88,7 +88,7 @@ def observe(actor_id, name):
     machines=read_entities(actor_id,{'name':['offshore-pump','pipe','boiler','steam-engine','small-electric-pole','lab',
                                           'assembling-machine-1','inserter','iron-chest','transport-belt'],'force':'actor'},
         'name=f.name,type=f.type,unit_number=f.unit_number,position=f.position,surface=s.name,force=f.force.name,'
-        'energy=f.energy,status=f.status,fluids=f.get_fluid_contents(),'
+        'energy=f.energy,status=f.status,fluids=f.get_fluid_contents(),remaining_burning_fuel=f.burner and f.burner.remaining_burning_fuel or 0,'
         'recipe=f.type=="assembling-machine" and f.get_recipe() and f.get_recipe().name or nil,'
         'inventories={fuel=f.get_fuel_inventory() and f.get_fuel_inventory().get_contents() or {},'
         'chest=f.type=="container" and f.get_inventory(defines.inventory.chest).get_contents() or {},'
@@ -99,7 +99,8 @@ def observe(actor_id, name):
         'for _,n in ipairs(a.technologies) do local t=e.force.technologies[n]; '
         'tech[n]={researched=t.researched,enabled=t.enabled,count=t.research_unit_count,energy=t.research_unit_energy,'
         'ingredients=t.research_unit_ingredients,trigger=t.prototype.research_trigger} end; '
-        'return {recipes=recipes,technologies=tech,current=e.force.current_research and e.force.current_research.name,progress=e.force.research_progress}',
+        'return {recipes=recipes,technologies=tech,current=e.force.current_research and e.force.current_research.name,progress=e.force.research_progress,'
+        'fuel_values={coal=prototypes.item.coal.fuel_value,wood=prototypes.item.wood.fuel_value,["solid-fuel"]=prototypes.item["solid-fuel"].fuel_value}}',
         {'recipes':['stone-furnace','iron-gear-wheel','copper-cable','electronic-circuit','transport-belt','lab',
                     'automation-science-pack','pipe','boiler','offshore-pump','steam-engine','small-electric-pole',
                     'assembling-machine-1','inserter','iron-chest','iron-plate','copper-plate'],
@@ -119,7 +120,7 @@ def observe(actor_id, name):
                         'resource_reach_distance':2.7,'crafting_queue':data['crafting_queue'] or []}],
             'entities':(furnaces['entities'] or [])+(machines['entities'] or []),'enemies':enemies['entities'] or [],
             'trees':trees,'recipes':progression['recipes'],'technologies':progression['technologies'],
-            'current_research':progression.get('current'),'research_progress':progression['progress'],
+            'current_research':progression.get('current'),'research_progress':progression['progress'],'fuel_values':progression['fuel_values'],
             'power_layout':load_layout(data['seed'],surface),
             'world':{'resources':resources},'build_sites':{name:sites or []},
             'iron_produced':data['iron_produced'],'copper_produced':data['copper_produced'],'red_produced':data['red_produced'],'resource_mined':sum(data['mined']),

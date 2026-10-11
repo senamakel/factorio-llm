@@ -1,7 +1,7 @@
 """Wiki-enriched early unlocks, red-science production and first lab research."""
 from brain.logic import decision, get_player, inventory_count, nearby_enemies, entity_item_count
 from brain.research_rules.recipes import ensure_item
-from brain.research_rules.smelting import ensure_plates, transfer
+from brain.research_rules.smelting import ensure_plates, transfer, refuel
 from brain.research_rules.power import build_power, find_role
 
 
@@ -27,11 +27,8 @@ def first_research(state, experience=None, player_name='Teeny'):
     if construction:
         return construction
     boiler=find_role(state,'boiler')
-    if entity_item_count(boiler,'fuel','coal')<4:
-        needed=ensure_item(state,player,'coal',8,experience)
-        if needed:
-            return needed
-        return decision('fuel_boiler','Load enough coal to keep the lab powered.',transfer(player,boiler,'fuel','coal',8))
+    fueling=refuel(state,player,boiler,experience)
+    if fueling:return fueling
     lab=find_role(state,'lab')
     if lab.get('energy',0)<=0:
         return decision('check_power','Wait for real steam generation and lab electricity.',{'kind':'wait','duration':2})

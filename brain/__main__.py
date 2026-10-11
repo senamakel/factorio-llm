@@ -1,3 +1,3 @@
 """Run the local brain using python -m brain."""
-import runpy
-runpy.run_module("brain.runner", run_name="__main__")
+from brain.cli import main
+main()

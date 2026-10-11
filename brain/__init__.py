@@ -1,4 +1,7 @@
 """Deterministic Factorio brain: observations, actions, goals, rules and persistence."""
-from brain.execution import execute
-from brain.io import rpc
-from brain.observation import observe
+def __getattr__(name):
+    """Lazily expose runtime helpers so pure planning imports need no live connection."""
+    from importlib import import_module
+    modules={'execute':'execution','rpc':'io','observe':'observation'}
+    if name not in modules:raise AttributeError(name)
+    return getattr(import_module('brain.'+modules[name]),name)

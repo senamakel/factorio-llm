@@ -130,6 +130,8 @@ def execute(actor_id, action):
         'assert(f and f.unit_number==a.unit_number,"furnace missing"); '
         'e.selected=f; e.direction=defines.direction[a.facing]; '
         'local other=f.get_inventory(defines.inventory[a.inventory_id]); ' + transfer +
-        'local n=destination.insert{name=a.item,count=math.min(a.count,source.get_item_count(a.item))}; '
-        'source.remove{name=a.item,count=n}; return {ok=n>0,transferred=n}', args)
+        'local count=math.min(a.count,source.get_item_count(a.item)); assert(count>0,"transfer source is empty"); '
+        'local n=destination.insert{name=a.item,count=count}; if n==0 then '
+        'return {ok=false,transferred=0,error="destination full or incompatible; existing contents preserved"} end; '
+        'source.remove{name=a.item,count=n}; return {ok=true,transferred=n}', args)
     return {**result,'duration':min(1.2,.3+.03*result['transferred'])}
