@@ -1,0 +1,148 @@
+{
+  "$schema": "https://tinyhumans.ai/schemas/hive/v1",
+  "version": 1,
+  "id": "factorio-brain",
+  "name": "Recursive Factorio hive",
+  "roles": [
+    {
+      "id": "orchestrator",
+      "charter": "roles/orchestrator.md"
+    },
+    {
+      "id": "builder",
+      "charter": "roles/builder.md"
+    },
+    {
+      "id": "critic",
+      "charter": "roles/critic.md"
+    },
+    {
+      "id": "researcher",
+      "charter": "roles/researcher.md"
+    },
+    {
+      "id": "toolsmith",
+      "charter": "roles/toolsmith.md"
+    }
+  ],
+  "seats": [
+    {
+      "id": "orchestrator",
+      "role": "orchestrator",
+      "prompt": "seats/orchestrator.md",
+      "template": "openhuman",
+      "config": {
+        "action_dir": "{incumbent}",
+        "max_iterations": 30
+      },
+      "tools": {
+        "allow": [
+          "file_read",
+          "grep",
+          "glob",
+          "list",
+          "shell",
+          "read_diff"
+        ],
+        "deny": [
+          "wait",
+          "wait_loop",
+          "spawn_subagent",
+          "spawn_async_subagent",
+          "spawn_parallel_agents",
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "id": "builder",
+      "role": "builder",
+      "prompt": "seats/builder.md",
+      "template": "openhuman",
+      "config": {
+        "action_dir": "{candidate}",
+        "max_iterations": 60
+      },
+      "tools": {
+        "allow": [
+          "file_read",
+          "grep",
+          "glob",
+          "list",
+          "shell",
+          "read_diff",
+          "file_write",
+          "edit",
+          "apply_patch"
+        ],
+        "deny": [
+          "wait",
+          "wait_loop",
+          "spawn_subagent",
+          "spawn_async_subagent",
+          "spawn_parallel_agents",
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "id": "critic",
+      "role": "critic",
+      "prompt": "seats/critic.md",
+      "template": "openhuman",
+      "config": {
+        "action_dir": "{incumbent}",
+        "max_iterations": 20
+      },
+      "tools": {
+        "allow": [
+          "file_read",
+          "grep",
+          "glob",
+          "list",
+          "shell",
+          "read_diff"
+        ],
+        "deny": [
+          "wait",
+          "wait_loop",
+          "spawn_subagent",
+          "spawn_async_subagent",
+          "spawn_parallel_agents",
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "desks": [
+    {
+      "id": "factory",
+      "name": "Factory floor",
+      "description": "climb the production ladder: an honest brain that reaches 100 red + 100 green science packs per minute",
+      "members": [
+        "orchestrator",
+        "builder",
+        "critic"
+      ],
+      "responder_mode": "auto"
+    }
+  ],
+  "context": [
+    "context/rules.md",
+    "context/knowledge.md"
+  ],
+  "policies": {
+    "routing": {
+      "round_width": 3
+    },
+    "division": {
+      "round_width": 3
+    },
+    "episode": {
+      "turn_budget": 36
+    }
+  },
+  "coordinator": {
+    "round_width": 3
+  }
+}

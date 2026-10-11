@@ -1,0 +1,9 @@
+{
+  "hard_constraints": [
+    "edit only brain/ and scripts/test_brain*.py (plus the listed legacy brain tests) in the candidate checkout",
+    "reach the game only through actuator.actions and actuator.queries; never import sockets, subprocess, rcon_client, mcp, harness or actuator.rpc",
+    "never edit or game the scorer, harness, actuator, knowledge or loop folder",
+    "every change ships with a test that pins the new behaviour",
+    "no LLM or network calls from the brain; it stays a deterministic local program"
+  ]
+}
