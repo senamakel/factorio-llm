@@ -45,6 +45,10 @@ def execute(actor_id, action):
     """Start a native instruction or apply a costed transfer; caller owns duration/stop."""
     kind = action['kind']
     stop = 'e.walking_state={walking=false}; e.mining_state={mining=false}; '
+    if kind == 'halt':
+        return actor_rpc(actor_id,stop+
+            'if a.cancel_crafting then local q=e.crafting_queue or {}; '
+            'for i=#q,1,-1 do e.cancel_crafting{index=i,count=q[i].count} end end; return {ok=true}',action)
     if kind == 'wait':
         result=actor_rpc(actor_id, stop + 'return {ok=true}')
         return {**result,'duration':min(8,max(0,action.get('duration',0)))}
