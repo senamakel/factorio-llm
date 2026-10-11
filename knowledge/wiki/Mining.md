@@ -47,9 +47,9 @@ Note that the Burner mining drill's size matches its coverage (both being 2x2), 
 Mining drills can only be placed if its mining area would touch a mineable resource. When all resources in its mining area are exhausted, the drill will shutdown and an icon will appear on it.
 
 ## Output
-| Resource | Burner / mining drill | Electric / mining drill | Big / mining drill |  |
+| Resource | Resource | Burner / mining drill | Electric / mining drill | Big / mining drill |
 |---|---|---|---|---|
-| **Speed**: 0.25 | **Speed**: 0.5 | **Speed**: 2.5 |  |  |
+|  |  | **Speed**: 0.25 | **Speed**: 0.5 | **Speed**: 2.5 |
 | Scrap | Time: **0.5** | 0.5/s × scrap | 1/s × scrap | 5/s × scrap |
 | Iron | Time: **1** | 0.25/s × Iron ore | 0.5/s × Iron ore | 2.5/s × Iron ore |
 | Copper | Time: **1** | 0.25/s × Copper ore | 0.5/s × Copper ore | 2.5/s × Copper ore |

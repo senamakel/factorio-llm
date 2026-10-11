@@ -28,7 +28,7 @@ Automated crafting is done outside of the player's inventory, allowing for multi
 
 Key structures in automated crafting are:
 
-| Resource extraction |  |
+| Resource extraction | Resource extraction |
 |---|---|
 | Burner mining drill | Mines solid resources from surface deposits. |
 | Electric mining drill |  |
@@ -37,14 +37,14 @@ Key structures in automated crafting are:
 | Pumpjack | Extracts crude oil and other fluids(Space Age) from natural deposits. |
 | Agricultural tower | Plants seeds and harvests mature plants. |
 | Captive biter spawner | Produces biter eggs. |
-| Furnaces |  |
+| Furnaces | Furnaces |
 | Stone furnace | Processes raw minerals to their base metal, by smelting. |
 | Steel furnace |  |
 | Electric furnace |  |
 | Foundry | Produces molten metal from lava (with stone as a byproduct) or ore. |
-| Fabricates items from molten metal. |  |
+|  | Fabricates items from molten metal. |
 | Recycler | Recycles items into their ingredients. |
-| Production |  |
+| Production | Production |
 | Assembling machine 1 | Cannot handle fluid ingredients. |
 | Assembling machine 2 | Can handle recipes requiring fluid ingredients. |
 | Assembling machine 3 |  |

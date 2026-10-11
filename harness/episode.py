@@ -128,6 +128,16 @@ def failures(stdout_path, stderr_path, limit=8):
     return out
 
 
+def default_live_data():
+    """Find the configured sandbox: this checkout's ``server/data``, else the primary checkout's."""
+    local = ROOT / 'server/data'
+    if (local / 'connection.json').exists():
+        return local
+    common = subprocess.run(['git', '-C', str(ROOT), 'rev-parse', '--path-format=absolute', '--git-common-dir'],
+                            capture_output=True, text=True)
+    return Path(common.stdout.strip()).parent / 'server/data' if common.returncode == 0 else local
+
+
 def run(brain_root, seed, out, wall_secs, speed, window_min, live_data):
     """Play and measure one episode; returns the result dict written to ``out/result.json``."""
     out = Path(out).resolve()
@@ -184,7 +194,7 @@ def main(argv=None):
     parser.add_argument('--wall-secs', type=float, default=float(os.environ.get('EPISODE_WALL_SECS', '1200')))
     parser.add_argument('--game-speed', type=float, default=float(os.environ.get('EPISODE_GAME_SPEED', '4')))
     parser.add_argument('--window-min', type=float, default=float(os.environ.get('EPISODE_WINDOW_MIN', '5')))
-    parser.add_argument('--live-data', default=os.environ.get('FACTORIO_EPISODE_LIVE_DATA', str(ROOT / 'server/data')))
+    parser.add_argument('--live-data', default=os.environ.get('FACTORIO_EPISODE_LIVE_DATA') or str(default_live_data()))
     args = parser.parse_args(argv)
     out = args.out or str(Path(args.live_data) / 'episodes' / f'{time.strftime("%Y%m%d-%H%M%S")}-seed{args.seed}')
     result = run(args.brain_root, args.seed, out, args.wall_secs, args.game_speed, args.window_min, args.live_data)

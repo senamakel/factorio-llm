@@ -19,7 +19,7 @@ An in-game day on Nauvis lasts 25200 ticks or 7 in-game minutes.
 
 The light varies throughout the day in a cycle consisting of 4 phases:
 
-| Phase Name | Internal name | Behaviour | Time of day at start | Time of day at end | Duration (in ticks) // Duration (in seconds) |  |
+| Phase Name | Internal name | Behaviour | Time of day at start | Time of day at end | Duration (in ticks) | Duration (in seconds) |
 |---|---|---|---|---|---|---|
 | day | dawn | fully light | 0.75 | 0.25 | 12600 | 210 |
 | sunset | dusk | darkening | 0.25 | 0.45 | 5040 | 84 |
