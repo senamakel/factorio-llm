@@ -192,6 +192,7 @@ worktree: both runtime data and registered MCP paths belong to that checkout.
 - `mod/` — `control-bridge` 0.2.0 for Factorio 2.1
 - `rcon_client/` — stdlib RCON protocol client and CLI
 - `scripts/` — offline tests and live MCP/save verification
+- `knowledge/` — frozen offline wiki cache (`knowledge/wiki/`, `RATIOS.md`) for brain-writing agents; refresh with `.venv/bin/python scripts/fetch_wiki.py`
 - `docker/` — optional containerized MCP bridge to an existing Factorio server
 
 Docker does not run Factorio. Supply RCON credentials and use stdio attachment

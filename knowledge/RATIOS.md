@@ -163,6 +163,7 @@ using the recipe and speed facts above.
 ## Not found in the cached pages
 
 - Player hand-crafting speed as a number (the cached pages give none).
-- Character reach distance in 2.x: [Player.md] history says only "Increased
-  player reach from 6 to 10", with no version shown.
+- Character reach in 2.x: the only figure is from [Player.md] history (0.17.0:
+  "Increased player reach from 6 to 10"). Character run speed is 8.9 tiles/s
+  [Player.md].
 - Inserter belt-pickup rates measured on 2.x; the cached ones are labelled 1.1.

@@ -15,3 +15,8 @@ short Lua API adapters over RCON. No Lua script files are uploaded.
 `test_brain_live.py` verifies continuous walking, explicit stopping and real mining
 on disposable surfaces. Run it with `FACTORIO_LIVE_TESTS=1` and the appropriate
 `FACTORIO_CONNECTION_FILE`: `.venv/bin/python -m unittest scripts.test_brain_live`.
+
+`fetch_wiki.py` rebuilds the frozen wiki cache in `knowledge/wiki/` via the
+MediaWiki API (stdlib only; `--pages` for a subset, `--index-only` for the
+index). `wiki_text.py` converts wikitext to Markdown-ish text and maps titles
+to file slugs; `test_fetch_wiki.py` covers both offline.

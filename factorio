@@ -39,7 +39,7 @@ EOF
       mcp) exec .venv/bin/python scripts/mcp_entrypoint.py "$@" ;;
       brain) exec .venv/bin/python -m brain "$@" ;;
       check)
-        .venv/bin/python -m unittest scripts.test_mcp_tools scripts.test_factorio_setup scripts.test_brain scripts.test_brain_actions scripts.test_brain_observation scripts.test_actions scripts.test_goal_score scripts.test_mcp_config scripts.test_research scripts.test_navigation scripts.test_blueprint scripts.test_timeouts scripts.test_tree_search
+        .venv/bin/python -m unittest scripts.test_mcp_tools scripts.test_factorio_setup scripts.test_brain scripts.test_brain_actions scripts.test_brain_observation scripts.test_actions scripts.test_goal_score scripts.test_mcp_config scripts.test_research scripts.test_navigation scripts.test_blueprint scripts.test_timeouts scripts.test_tree_search scripts.test_fetch_wiki
         .venv/bin/python -m scripts.test_rcon
         .venv/bin/python -m scripts.test_rcon_adversarial
         .venv/bin/python scripts/check_readme_toml.py
