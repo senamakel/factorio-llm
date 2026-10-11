@@ -21,7 +21,7 @@ The **iron gear wheel** is an intermediate product crafted from two iron plates,
 ## Alternative recipes
 | Process | Input | Output | Made in | Required technology |
 |---|---|---|---|---|
-| Casting iron gear wheel Casting iron gear wheel | 1 × time + 10 × molten iron | 1 × iron gear wheel | Foundry | Foundry (research) Foundry (research) |
+| Casting iron gear wheel Casting iron gear wheel | 1 × time + 10 × molten iron | 1 × iron gear wheel | Foundry | Foundry (research) |
 
 ## History
 Version 2.0.7:

@@ -23,8 +23,8 @@ Because the recipe for steel contains a ratio of 5 iron : 1 steel, it requires l
 ## Alternative recipes
 | Process | Input | Output | Made in | Required technology |
 |---|---|---|---|---|
-| Casting steel Casting steel | 3.2 × time + 30 × molten iron | 1 × steel plate | Foundry | Foundry (research) Foundry (research) |
-| Scrap recycling | 0.2 × Time + scrap | 0.03 × Advanced circuit + 0.04 × Battery + 0.06 × Concrete + 0.03 × Copper cable + 0.01 × Holmium ore + 0.05 × Ice + 0.2 × Iron gear wheel + 0.01 × Low density structure + 0.02 × Processing unit + 0.07 × Solid fuel + 0.04 × Steel plate + 0.04 × Stone | recyclerPlayer | Recycling (research) Recycling (research) |
+| Casting steel Casting steel | 3.2 × time + 30 × molten iron | 1 × steel plate | Foundry | Foundry (research) |
+| Scrap recycling | 0.2 × Time + scrap | 0.03 × Advanced circuit + 0.04 × Battery + 0.06 × Concrete + 0.03 × Copper cable + 0.01 × Holmium ore + 0.05 × Ice + 0.2 × Iron gear wheel + 0.01 × Low density structure + 0.02 × Processing unit + 0.07 × Solid fuel + 0.04 × Steel plate + 0.04 × Stone | recyclerPlayer | Recycling (research) |
 
 ## History
 Version 2.0.7:

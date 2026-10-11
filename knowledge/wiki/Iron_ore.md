@@ -29,5 +29,5 @@ In the Space Age(Space Age) expansion, each surface has its own way of obtaining
 ## Alternative recipes
 | Process | Input | Output | Made in | Required technology |
 |---|---|---|---|---|
-| Metallic asteroid crushing Metallic asteroid crushing | 2 × Time + 1 × Metallic asteroid chunk | 20 × Iron ore + 0.3 × Metallic asteroid chunk | Crusher | Space platform (research) Space platform (research) |
-| Advanced metallic asteroid crushing Advanced metallic asteroid crushing | 5 × Time + 1 × Metallic asteroid chunk | 10 × Iron ore + 4 × Copper ore + 0.1 × Metallic asteroid chunk | Crusher | Advanced asteroid processing (research) Advanced asteroid processing (research) |
+| Metallic asteroid crushing Metallic asteroid crushing | 2 × Time + 1 × Metallic asteroid chunk | 20 × Iron ore + 0.3 × Metallic asteroid chunk | Crusher | Space platform (research) |
+| Advanced metallic asteroid crushing Advanced metallic asteroid crushing | 5 × Time + 1 × Metallic asteroid chunk | 10 × Iron ore + 4 × Copper ore + 0.1 × Metallic asteroid chunk | Crusher | Advanced asteroid processing (research) |

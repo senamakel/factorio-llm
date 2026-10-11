@@ -21,7 +21,7 @@ Source: https://wiki.factorio.com/Copper_plate (revision 210515)
 ## Alternative recipes
 | Process | Input | Output | Made in | Required technology |
 |---|---|---|---|---|
-| Casting copper Casting copper | 3.2 × time + 20 × molten copper | 2 × copper plate | Foundry | Foundry (research) Foundry (research) |
+| Casting copper Casting copper | 3.2 × time + 20 × molten copper | 2 × copper plate | Foundry | Foundry (research) |
 
 ## History
 Version 2.0.7:

@@ -24,7 +24,7 @@ When starting a new freeplay game, the player starts out with 8 iron plates, alo
 ## Alternative recipes
 | Process | Input | Output | Made in | Required technology |
 |---|---|---|---|---|
-| Casting iron Casting iron | 3.2 × time + 20 × molten iron | 2 × iron plate | Foundry | Foundry (research) Foundry (research) |
+| Casting iron Casting iron | 3.2 × time + 20 × molten iron | 2 × iron plate | Foundry | Foundry (research) |
 
 ## Achievements
 ## History

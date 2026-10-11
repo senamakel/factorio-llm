@@ -21,7 +21,7 @@ Source: https://wiki.factorio.com/Iron_stick (revision 213603)
 ## Alternative recipes
 | Process | Input | Output | Made in | Required technology |
 |---|---|---|---|---|
-| Casting iron stick Casting iron stick | 1 × time + 20 × molten iron | 4 × iron stick | Foundry | Foundry (research) Foundry (research) |
+| Casting iron stick Casting iron stick | 1 × time + 20 × molten iron | 4 × iron stick | Foundry | Foundry (research) |
 
 ## Version history
 Version 2.0.11:
