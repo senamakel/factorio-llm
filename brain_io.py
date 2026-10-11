@@ -23,3 +23,11 @@ def actor_rpc(actor_id, body, args=None):
     if args is not None:
         prefix += 'local a=helpers.json_to_table(' + lua_string(json.dumps(args, allow_nan=False)) + '); '
     return rpc(prefix + body)
+
+
+def show_status(actor_id, text):
+    """Display the Python-selected task and measured progress above the assistant."""
+    return actor_rpc(actor_id,
+        'if storage.teeny_label and storage.teeny_label.valid then storage.teeny_label.text=a.text '
+        'else storage.teeny_label=rendering.draw_text{text=a.text,surface=s,target=e,'
+        'color={r=0.1,g=0.8,b=1},alignment="center",target_offset={0,-3.5}} end; return true', {'text':text})

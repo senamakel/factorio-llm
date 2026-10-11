@@ -20,13 +20,19 @@ def resource_targets(actor_id, position):
     """
     targets, radii = [], {}
     for name in ('iron-ore','coal','stone'):
-        radius = 256
-        while True:
+        radius, empty_radius, crowded_radius = 256, 0, 256
+        for attempt in range(20):
             result = read_entities(actor_id, {'name':name,'type':'resource','position':position,'radius':radius},
                                    'name=f.name,position=f.position,amount=f.amount')
-            if not result['truncated'] or radius <= 2:
+            if not result['truncated'] and (result['entities'] or attempt == 0):
                 break
-            radius /= 2
+            if result['truncated']:
+                crowded_radius = radius
+            else:
+                empty_radius = radius
+            radius = (empty_radius + crowded_radius) / 2
+        else:
+            raise RuntimeError('could not bound a nonempty resource query')
         if result['truncated']:
             raise RuntimeError('resource query remains truncated')
         radii[name] = radius
