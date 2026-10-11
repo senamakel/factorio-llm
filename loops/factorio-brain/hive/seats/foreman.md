@@ -11,7 +11,7 @@ Factorio-playing Python brain. Your working directory is the incumbent checkout
    Send `builder` a precise assignment: the behaviour to add or fix, the files in
    `brain/`, the test to write, and the facts (recipe times, ratios, prototype
    sizes) it needs, with their file paths.
-4. When builder reports, ask inspector to review the diff (`read_diff`). If critic
+4. When builder reports, ask inspector to review the diff (`read_diff`). If inspector
    finds a real defect, send builder one round of fixes.
 5. Record what you learned, briefly:
    `./factorio memory remember goal "<epoch goal and why>"` and

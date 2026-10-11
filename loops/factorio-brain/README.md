@@ -8,7 +8,7 @@ disposable Factorio worlds. Only measured improvements are promoted to `rsi/main
 | --- | --- |
 | `rsi.json` | Manifest. Git subject `../..` on branch `rsi/main`. The hive may edit `brain/` and the brain tests; `actuator/`, `harness/`, `knowledge/`, `loops/` and the rest are frozen. Paired seed test on seeds 1–3, target 260. Budget $4 per run, $18 total (the other $2 of the $20 cap is left for CortexDB enrichment). |
 | `brief.md` | The brief each epoch: the ladder, the score and the task. |
-| `hive/` | tinyhivemind package. Seats: `orchestrator` (lead, read-only), `builder` (edits a candidate), `critic` (read-only reviewer). Roles `researcher` and `toolsmith` are declared for v2. Context: rules, knowledge and memory commands. |
+| `hive/` | tinyhivemind package. Seats: `foreman` (orchestrator role, lead, read-only), `builder` (edits a candidate), `inspector` (critic role, read-only). OpenHuman reserves the ids `orchestrator`, `critic`, `planner` and other built-in agent names, so seat ids must differ from them. Roles `researcher` and `toolsmith` are declared for v2. Context: rules, knowledge and memory commands. |
 | `scorers/episode.py` | Runs the incumbent's `harness.episode` on `$RSI_CANDIDATE` for `$RSI_SEED`, then writes the outcome to hive memory. |
 | `gates/` | `honesty.py` and `green.py`, both delegating to `harness.gates`. |
 
