@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import signal
 import subprocess
+import shlex
 
 DATA=Path(__file__).resolve().parents[1]/'server/data'
 
@@ -13,6 +14,7 @@ DATA=Path(__file__).resolve().parents[1]/'server/data'
 @contextmanager
 def ownership(actor_id, objective):
     """Hold a private nonblocking lock so two agents cannot control the same actor."""
+    if not isinstance(actor_id,int) or actor_id<=0:raise ValueError('actor must be a positive integer')
     DATA.mkdir(parents=True,exist_ok=True)
     path=DATA/f'brain-{actor_id}.lock'
     with path.open('a+') as lock:
@@ -32,7 +34,15 @@ def status():
     if not path.exists():return {'running':False}
     info=json.loads(path.read_text())
     result=subprocess.run(['ps','-p',str(info['pid']),'-o','command='],capture_output=True,text=True,timeout=2)
-    info['running']=result.returncode==0 and '-m brain' in result.stdout
+    args=shlex.split(result.stdout)
+    module=args[args.index('-m')+1] if '-m' in args and args.index('-m')+1<len(args) else None
+    held=False
+    lock_path=DATA/f"brain-{info['actor']}.lock"
+    if lock_path.exists():
+        with lock_path.open('r') as lock:
+            try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB);fcntl.flock(lock,fcntl.LOCK_UN)
+            except BlockingIOError:held=True
+    info['running']=result.returncode==0 and module=='brain' and held
     return info
 
 
