@@ -1,0 +1,104 @@
+{
+  "source": "Factorio Wiki via factorio-wiki MCP",
+  "runtime_rule": "Live recipes and technology state override wiki assumptions.",
+  "entries": [
+    {
+      "title": "Steam power (research)",
+      "url": "https://wiki.factorio.com/Infobox:Steam_power_(research)",
+      "revision": 203564,
+      "facts": {
+        "technology-trigger": "craft-item: Iron plate, 50"
+      }
+    },
+    {
+      "title": "Electronics (research)",
+      "url": "https://wiki.factorio.com/Infobox:Electronics_(research)",
+      "revision": 203561,
+      "facts": {
+        "technology-trigger": "craft-item: Copper plate, 10"
+      }
+    },
+    {
+      "title": "Automation science pack (research)",
+      "url": "https://wiki.factorio.com/Infobox:Automation_science_pack_(research)",
+      "revision": 203560,
+      "facts": {
+        "technology-trigger": "craft-item: Lab, 1",
+        "required-technologies": "Electronics + Steam power"
+      }
+    },
+    {
+      "title": "Automation (research)",
+      "url": "https://wiki.factorio.com/Infobox:Automation_(research)",
+      "revision": 201378,
+      "facts": {
+        "required-technologies": "Automation science pack",
+        "cost": "Time, 10 + Automation science pack, 1",
+        "cost-multiplier": "10"
+      }
+    },
+    {
+      "title": "Automation science pack",
+      "url": "https://wiki.factorio.com/Infobox:Automation_science_pack",
+      "revision": 210289,
+      "facts": {
+        "required-technologies": "Automation science pack",
+        "recipe": "Time, 5 + Copper plate, 1 + Iron gear wheel, 1",
+        "total-raw": "Time, 5.5 + Copper plate, 1 + Iron plate, 2"
+      }
+    },
+    {
+      "title": "Lab",
+      "url": "https://wiki.factorio.com/Infobox:Lab",
+      "revision": 210442,
+      "facts": {
+        "required-technologies": "Electronics",
+        "energy": "60 kW electric",
+        "recipe": "Time, 2 + Electronic circuit, 10 + Iron gear wheel, 10 + Transport belt, 4",
+        "total-raw": "Time, 21.5 + Copper plate, 15 + Iron plate, 36"
+      }
+    },
+    {
+      "title": "Boiler",
+      "url": "https://wiki.factorio.com/Infobox:Boiler",
+      "revision": 217117,
+      "facts": {
+        "required-technologies": "Steam power",
+        "energy": "{{Quality|1.8&nbsp;{{Translation|MW}}|2.34&nbsp;{{Translation|MW}}|2.88&nbsp;{{Translation|MW}}|3.42&nbsp;{{Translation|MW}}|4.5&nbsp;{{Translation|MW}}}} burner",
+        "recipe": "Time, 0.5 + Pipe, 4 + Stone furnace, 1",
+        "total-raw": "Time, 3 + Iron plate, 4 + Stone, 5"
+      }
+    },
+    {
+      "title": "Steam engine",
+      "url": "https://wiki.factorio.com/Infobox:Steam_engine",
+      "revision": 214560,
+      "facts": {
+        "required-technologies": "Steam power",
+        "power-output": "{{Quality|900 {{Translation|kW}}|1.17 {{Translation|MW}}|1.44 {{Translation|MW}}|1.71 {{Translation|MW}}|2.25 {{Translation|MW}}}}",
+        "recipe": "Time, 0.5 + Iron gear wheel, 8 + Iron plate, 10 + Pipe, 5",
+        "total-raw": "Time, 7 + Iron plate, 31"
+      }
+    },
+    {
+      "title": "Offshore pump",
+      "url": "https://wiki.factorio.com/Infobox:Offshore_pump",
+      "revision": 208547,
+      "facts": {
+        "required-technologies": "Steam power",
+        "recipe": "Time, 0.5 + Iron gear wheel, 2 + Pipe, 3",
+        "total-raw": "Time, 3 + Iron plate, 7"
+      }
+    },
+    {
+      "title": "Small electric pole",
+      "url": "https://wiki.factorio.com/Infobox:Small_electric_pole",
+      "revision": 210215,
+      "facts": {
+        "required-technologies": "Electronics",
+        "recipe": "Time, 0.5 + Copper cable, 2 + Wood, 1 = Small electric pole, 2",
+        "total-raw": "Time, 1 + Copper plate, 1 + Wood, 1"
+      }
+    }
+  ]
+}

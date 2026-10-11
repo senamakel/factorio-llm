@@ -10,4 +10,4 @@ def fuel_furnace(player, furnace, count, item="coal"):
             "unit_number":furnace["unit_number"],"position":furnace["position"],
             "inventory":"fuel","item":item,"count":count}
     return decision("fuel_furnace","fuel furnace.",
-                    move_or_act(player,action,player.get("reach_distance",10)))
+                    move_or_act(player,action,2.7))

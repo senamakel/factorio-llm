@@ -5,7 +5,7 @@ from logic import decision, inventory_count, entity_item_count, own_entities, di
 def transfer(player, entity, inventory, item, count, kind='put'):
     """Approach a machine and plan a paced, inventory-costed transfer."""
     return move_or_act(player,{'kind':kind,'player':player['name'],'surface':player['surface'],
-        'unit_number':entity['unit_number'],'position':entity['position'],'inventory':inventory,
+        'unit_number':entity['unit_number'],'position':entity['position'],'inventory':inventory,'entity_name':entity['name'],
         'item':item,'count':count},2.7)
 
 

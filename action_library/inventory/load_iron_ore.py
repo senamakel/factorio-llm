@@ -10,4 +10,4 @@ def load_iron_ore(player, furnace, count):
             "unit_number":furnace["unit_number"],"position":furnace["position"],
             "inventory":"furnace_source","item":'iron-ore',"count":count}
     return decision("load_furnace","load iron ore.",
-                    move_or_act(player,action,player.get("reach_distance",10)))
+                    move_or_act(player,action,2.7))

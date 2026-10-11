@@ -10,4 +10,4 @@ def collect_iron_plates(player, furnace, count):
             "unit_number":furnace["unit_number"],"position":furnace["position"],
             "inventory":"furnace_result","item":'iron-plate',"count":count}
     return decision("collect","collect iron plates.",
-                    move_or_act(player,action,player.get("reach_distance",10)))
+                    move_or_act(player,action,2.7))

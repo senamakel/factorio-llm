@@ -46,7 +46,15 @@ def execute(actor_id, action):
     kind = action['kind']
     stop = 'e.walking_state={walking=false}; e.mining_state={mining=false}; '
     if kind == 'wait':
-        return actor_rpc(actor_id, stop + 'return {ok=true}')
+        result=actor_rpc(actor_id, stop + 'return {ok=true}')
+        return {**result,'duration':min(8,max(0,action.get('duration',0)))}
+    if kind == 'plan_power':
+        from research_rules.power import discover_layout
+        return discover_layout(actor_id)
+    if kind == 'research':
+        return actor_rpc(actor_id,
+            'assert(not e.force.current_research or e.force.current_research.name==a.technology,"another research is active"); '
+            'local ok=e.force.add_research(a.technology); return {ok=ok}',action)
     if kind == 'move':
         current = actor_rpc(actor_id, 'return {position=e.position,speed=e.character_running_speed*60*game.speed}')
         candidate = walking_instruction(current['position'],action['position'],action.get('stop_distance',1),current['speed'],True)
@@ -60,10 +68,10 @@ def execute(actor_id, action):
         result = actor_rpc(actor_id, stop +
                            'e.walking_state={walking=a.duration>0,direction=defines.direction[a.direction]}; return {ok=true}', plan)
         return {**result, **plan, 'confidence':'high' if confident else 'low'}
-    if kind == 'mine':
+    if kind in ('mine','mine_tree'):
         timing = actor_rpc(actor_id,
             'local r=s.find_entities_filtered{name=a.resource,position=a.position,radius=0.1}[1]; assert(r,"resource missing"); '
-            'return {mining_time=r.prototype.mineable_properties.mining_time,amount=r.amount,'
+            'return {mining_time=r.prototype.mineable_properties.mining_time,amount=a.kind=="mine_tree" and 1 or r.amount,'
             'speed=e.prototype.mining_speed*(1+e.character_mining_speed_modifier),progress=e.mining_progress,'
             'game_speed=game.speed,enemies=s.count_entities_filtered{force="enemy",position=e.position,radius=32},health=e.health}',action)
         confident = timing['enemies']==0 and timing['health']>=75
@@ -72,33 +80,40 @@ def execute(actor_id, action):
         result = actor_rpc(actor_id, stop +
             'assert((e.position.x-a.position.x)^2+(e.position.y-a.position.y)^2<=2.7^2,"resource out of reach"); '
             'local r=s.find_entities_filtered{name=a.resource,position=a.position,radius=0.1}[1]; '
-            'assert(r and r.amount>0,"resource depleted"); e.selected=r; '
+            'assert(r and (a.kind=="mine_tree" or r.amount>0),"resource depleted"); e.selected=r; '
             'e.mining_state={mining=true,position=r.position}; return {ok=true}', action)
         return {**result, 'duration':duration, 'resource':action['resource'], 'confidence':'high' if confident else 'low'}
     if kind == 'craft':
-        if action.get('recipe') != 'stone-furnace' or action.get('count') != 1:
-            raise ValueError('unsupported craft')
-        return actor_rpc(actor_id, stop +
-            'assert(inv.get_item_count("stone")>=5 and inv.can_insert{name="stone-furnace",count=1},"craft inventory unavailable"); '
-            'inv.remove{name="stone",count=5}; inv.insert{name="stone-furnace",count=1}; return {ok=true,crafted=1}')
+        if not isinstance(action.get('count'),int) or not 1<=action['count']<=100:
+            raise ValueError('craft count must be 1..100')
+        result=actor_rpc(actor_id,stop+
+            'local r=e.force.recipes[a.recipe]; assert(r and r.enabled,"recipe unavailable"); '
+            'assert(not e.cheat_mode,"crafting requires inventory costs"); '
+            'local n=e.begin_crafting{recipe=a.recipe,count=a.count}; assert(n>0,"craft ingredients unavailable"); '
+            'return {ok=true,started=n,seconds=n*r.energy/(1+e.character_crafting_speed_modifier)/game.speed}',action)
+        return {**result,'duration':min(8,result['seconds']+.05)}
     reach = 'assert((e.position.x-a.position.x)^2+(e.position.y-a.position.y)^2<=100,"entity out of reach"); '
     if kind == 'build':
-        if action.get('item') != 'stone-furnace':
+        if action.get('item') not in ('stone-furnace','offshore-pump','pipe','boiler','steam-engine','lab','small-electric-pole'):
             raise ValueError('unsupported building')
         return actor_rpc(actor_id, stop + reach +
             'assert(inv.get_item_count(a.item)>0,"building item missing"); '
-            'local o={name=a.item,position=a.position,force=e.force,raise_built=true}; '
+            'local o={name=a.item,position=a.position,direction=defines.direction[a.direction or "north"],force=e.force,raise_built=true}; '
             'assert(s.can_place_entity(o),"building site occupied"); '
             'local built=s.create_entity(o); assert(built,"build failed"); '
             'inv.remove{name=a.item,count=1}; return {ok=true,unit_number=built.unit_number}', action)
-    inventory = {'furnace_source':'crafter_input','furnace_result':'crafter_output','fuel':'fuel'}
+    inventory = {'furnace_source':'crafter_input','furnace_result':'crafter_output','fuel':'fuel','lab_input':'lab_input'}
     if kind not in ('put','take') or action.get('inventory') not in inventory:
         raise ValueError('unsupported action or inventory')
-    args = {**action, 'inventory_id':inventory[action['inventory']]}
+    current=actor_rpc(actor_id,'return e.position')
+    facing=walking_instruction(current,action['position'],0,9)['direction']
+    args = {**action, 'inventory_id':inventory[action['inventory']],'facing':facing}
     transfer = ('local source,destination=inv,other; ' if kind == 'put' else 'local source,destination=other,inv; ')
-    return actor_rpc(actor_id, stop + reach +
-        'local f=s.find_entities_filtered{position=a.position,radius=0.1,type="furnace",force=e.force}[1]; '
+    result=actor_rpc(actor_id, stop + reach +
+        'local f=s.find_entities_filtered{position=a.position,radius=0.1,name=a.entity_name or {"stone-furnace","steel-furnace"},force=e.force}[1]; '
         'assert(f and f.unit_number==a.unit_number,"furnace missing"); '
+        'e.selected=f; e.direction=defines.direction[a.facing]; '
         'local other=f.get_inventory(defines.inventory[a.inventory_id]); ' + transfer +
         'local n=destination.insert{name=a.item,count=math.min(a.count,source.get_item_count(a.item))}; '
         'source.remove{name=a.item,count=n}; return {ok=n>0,transferred=n}', args)
+    return {**result,'duration':min(1.2,.3+.03*result['transferred'])}
