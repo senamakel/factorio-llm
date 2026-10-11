@@ -53,7 +53,10 @@ if a.kind=="build" then
 end
 local e=s.find_entities_filtered{position=a.position,radius=0.1,type="furnace",force=actor.force}[1]
 assert(e and e.unit_number==a.unit_number,"furnace missing")
-local other=e.get_inventory(defines.inventory[a.inventory]); assert(other,"inventory missing")
+local inventory_ids={furnace_source=defines.inventory.crafter_input,
+    furnace_result=defines.inventory.crafter_output,fuel=defines.inventory.fuel}
+local inventory_id=inventory_ids[a.inventory]; assert(inventory_id,"unsupported inventory")
+local other=e.get_inventory(inventory_id); assert(other,"inventory missing")
 local source,destination
 if a.kind=="put" then source,destination=inv,other
 elseif a.kind=="take" then source,destination=other,inv

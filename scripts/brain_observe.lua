@@ -24,8 +24,8 @@ for _,e in pairs(s.find_entities_filtered{type="furnace",force=force}) do
         surface=s.name,force=force.name,position=e.position,
         remaining_burning_fuel=e.burner and e.burner.remaining_burning_fuel or 0,
         inventories={fuel=items(e.get_inventory(defines.inventory.fuel)),
-            furnace_source=items(e.get_inventory(defines.inventory.furnace_source)),
-            furnace_result=items(e.get_inventory(defines.inventory.furnace_result))}}
+            furnace_source=items(e.get_inventory(defines.inventory.crafter_input)),
+            furnace_result=items(e.get_inventory(defines.inventory.crafter_output))}}
 end
 for _,e in pairs(s.find_entities_filtered{force="enemy",position=actor.position,radius=32}) do
     enemies[#enemies+1]={type=e.type,surface=s.name,position=e.position}
