@@ -1,0 +1,51 @@
+{
+  "$schema": "https://tinyhumans.ai/schemas/rsi/v1",
+  "version": 1,
+  "name": "factorio-brain",
+  "subject": {
+    "kind": "git",
+    "path": "../..",
+    "branch": "rsi/main",
+    "editable": [
+      "brain/",
+      "scripts/test_brain",
+      "scripts/test_actions.py",
+      "scripts/test_goal_score.py",
+      "scripts/test_research.py",
+      "scripts/test_navigation.py",
+      "scripts/test_blueprint.py",
+      "scripts/test_timeouts.py",
+      "scripts/test_tree_search.py"
+    ],
+    "frozen": [
+      "actuator/",
+      "harness/",
+      "knowledge/",
+      "loops/",
+      "memory/",
+      "mod/",
+      "mcp_server/",
+      "rcon_client/",
+      "scripts/test_actuator.py",
+      "scripts/test_harness.py",
+      "factorio"
+    ],
+    "require_test_change": true
+  },
+  "brief": "brief.md",
+  "hive": { "package": "hive", "lead": "orchestrator", "wall_secs": 2400, "turn_secs": 1200 },
+  "creativity": { "temperature": 0.4 },
+  "keys": { "openrouter": "OPENROUTER_API_KEY" },
+  "score": {
+    "scorers": [ { "id": "episode", "run": "python3 scorers/episode.py", "timeout_secs": 1800 } ],
+    "decide": { "on": "episode", "test": "seeds", "seeds": [1, 2, 3], "direction": "maximize", "target": 260 }
+  },
+  "gate": [
+    { "run": "python3 gates/honesty.py", "timeout_secs": 60 },
+    { "run": "python3 gates/green.py", "timeout_secs": 600 }
+  ],
+  "budget": { "run_usd": 4, "total_usd": 18, "score_reserve_usd": 0 },
+  "epochs": 3,
+  "patience": 2,
+  "env": { "EPISODE_WALL_SECS": "600", "EPISODE_GAME_SPEED": "4", "EPISODE_WINDOW_MIN": "5" }
+}
