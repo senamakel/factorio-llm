@@ -8,6 +8,7 @@ import base64
 from collections import Counter
 from dataclasses import dataclass, field
 import json
+from html import escape
 import math
 from pathlib import Path
 import zlib
@@ -62,6 +63,21 @@ class Blueprint:
         return {'label':self.label,'entities':len(self.entities),'construction_items':dict(Counter(e['name'] for e in self.entities)),
                 'recipes':sorted({e['recipe'] for e in self.entities if e.get('recipe')}),
                 'analysis':self.analysis,'placed':len(self.placed)}
+
+    def render_svg(self, path):
+        """Render a portable layout preview with entity/recipe descriptions in hover titles."""
+        if not self.entities:raise ValueError('empty blueprint has no layout preview')
+        xs=[e['position']['x'] for e in self.entities];ys=[e['position']['y'] for e in self.entities]
+        left,top=min(xs)-4,min(ys)-4;width=max(xs)-left+4;height=max(ys)-top+4
+        scale=28;colors={'production':'#3977c4','input_buffer':'#f4b54b','output_buffer':'#62b98b','power':'#c9a4ef'}
+        svg=[f'<svg xmlns="http://www.w3.org/2000/svg" width="{width*scale}" height="{height*scale+40}" viewBox="0 0 {width*scale} {height*scale+40}">',
+             '<rect width="100%" height="100%" fill="#f5f7fa"/>',f'<text x="12" y="24" font-family="sans-serif" font-size="16">{escape(self.label)}</text>']
+        for e in self.entities:
+            w,h=DIMENSIONS.get(e['name'],(1,1));x=(e['position']['x']-left-w/2)*scale;y=(e['position']['y']-top-h/2)*scale+35
+            color=colors.get(e.get('role'),'#8a9ba8')
+            description=escape(e['name']+' '+e.get('recipe','')+' '+e.get('role',''))
+            svg.append(f'<rect x="{x}" y="{y}" width="{w*scale}" height="{h*scale}" rx="3" fill="{color}" stroke="#263445"><title>{description}</title></rect>')
+        svg.append('</svg>');path=Path(path);path.parent.mkdir(parents=True,exist_ok=True);path.write_text(''.join(svg));return path
 
     def save(self, path):
         """Save validated JSON with placement history; directories are created if needed."""

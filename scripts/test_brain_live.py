@@ -88,6 +88,31 @@ class NativeActionTest(unittest.TestCase):
         observed=observe(self.actor,'Teeny')
         self.assertTrue(any(e['name']=='lab' and e['energy']>0 for e in observed['entities']))
 
+    def test_navigation_walks_around_a_furnace_without_teleporting(self):
+        rpc('local e=game.get_entity_by_unit_number('+str(self.actor)+'); '
+            'e.surface.create_entity{name="stone-furnace",position={4,0},force=e.force}; return true')
+        for _ in range(12):
+            pos=self.position()
+            if (pos['x']-12)**2+pos['y']**2<=2.2**2:break
+            result=execute(self.actor,{'kind':'move','position':{'x':12,'y':0},'stop_distance':1.5})
+            time.sleep(result['duration']);execute(self.actor,{'kind':'wait'})
+        pos=self.position()
+        self.assertLess((pos['x']-12)**2+pos['y']**2,2.2**2)
+
+    def test_factorio_imports_exchange_string_and_places_only_ghosts(self):
+        from brain.blueprint import create
+        from mcp_server.server import lua_string
+        bp=create('one buffer',[{'name':'iron-chest','position':{'x':3.5,'y':3.5}}])
+        value=lua_string(bp.factorio_string())
+        count=rpc('local inv=game.create_inventory(1); inv[1].set_stack{name="blueprint",count=1}; '
+                  'local code=inv[1].import_stack('+value+'); assert(code==0,"blueprint import rejected"); '
+                  'local n=#inv[1].get_blueprint_entities(); inv.destroy(); return n')
+        self.assertEqual(count,1)
+        ghosts=bp.place_ghosts(self.actor)
+        self.assertEqual(ghosts[0]['name'],'iron-chest')
+        count=rpc('return game.surfaces["'+self.surface+'"].count_entities_filtered{type="entity-ghost"}')
+        self.assertEqual(count,1)
+
 
 if __name__ == '__main__':
     unittest.main()
