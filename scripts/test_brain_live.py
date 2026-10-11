@@ -62,6 +62,15 @@ class NativeActionTest(unittest.TestCase):
         s = observe(self.actor, 'Teeny')
         self.assertEqual(entity_item_count(s['entities'][0], 'furnace_source', 'iron-ore'), 0)
 
+    def test_unattached_character_crafts_with_real_ingredient_costs(self):
+        rpc('local e=game.get_entity_by_unit_number('+str(self.actor)+'); '
+            'e.get_inventory(defines.inventory.character_main).insert{name="iron-plate",count=2}; return true')
+        execute(self.actor,{'kind':'craft','recipe':'iron-gear-wheel','count':1})
+        time.sleep(1)
+        inv=rpc('local i=game.get_entity_by_unit_number('+str(self.actor)+').get_inventory(defines.inventory.character_main); '
+                'return {plates=i.get_item_count("iron-plate"),gears=i.get_item_count("iron-gear-wheel")}')
+        self.assertEqual(inv,{'plates':0,'gears':1})
+
     def test_connected_steam_layout_powers_a_lab(self):
         from mcp_server.server import lua_string
         import json
