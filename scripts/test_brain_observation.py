@@ -12,5 +12,5 @@ class ResourceSearchTest(unittest.TestCase):
                     [{'name':filters['name'],'position':{'x':80,'y':0},'amount':100}]}
         with patch('brain_observation.read_entities',side_effect=query):
             targets, radii=resource_targets(72,{'x':0,'y':0})
-        self.assertEqual({r['name'] for r in targets},{'iron-ore','coal','stone'})
+        self.assertEqual({r['name'] for r in targets},{'iron-ore','copper-ore','coal','stone'})
         self.assertTrue(all(80<=radius<=90 for radius in radii.values()))

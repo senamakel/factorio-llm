@@ -14,5 +14,8 @@ from action_library.manufacturing.build_furnace import build_furnace
 from action_library.inventory.fuel_furnace import fuel_furnace
 from action_library.inventory.load_iron_ore import load_iron_ore
 from action_library.inventory.collect_iron_plates import collect_iron_plates
+from action_library.gathering.mine_copper_ore import mine_copper_ore
+from action_library.gathering.mine_wood import mine_wood
+from action_library.research.first_research import first_research
 
-__all__ = ['mine_iron_ore', 'mine_coal', 'mine_stone', 'move_to', 'make_iron_plates', 'craft_furnace', 'build_furnace', 'fuel_furnace', 'load_iron_ore', 'collect_iron_plates']
+__all__ = ['mine_iron_ore', 'mine_coal', 'mine_stone', 'move_to', 'make_iron_plates', 'craft_furnace', 'build_furnace', 'fuel_furnace', 'load_iron_ore', 'collect_iron_plates','mine_copper_ore','mine_wood','first_research']
