@@ -3,7 +3,8 @@ import os
 import time
 import unittest
 import uuid
-from brain import execute, rpc
+from brain import execute, observe, rpc
+from logic import entity_item_count
 
 
 @unittest.skipUnless(os.environ.get('FACTORIO_LIVE_TESTS') == '1', 'requires a live Factorio server')
@@ -44,6 +45,18 @@ class NativeActionTest(unittest.TestCase):
                     ').get_inventory(defines.inventory.character_main).get_item_count("iron-ore")')
         execute(self.actor, {'kind':'wait'})
         self.assertGreater(count, 0)
+
+    def test_furnace_inputs_and_outputs_can_be_observed_and_transferred(self):
+        furnace = rpc('local a=game.get_entity_by_unit_number(' + str(self.actor) + '); '
+                      'a.get_inventory(defines.inventory.character_main).insert{name="iron-ore",count=2}; '
+                      'local e=a.surface.create_entity{name="stone-furnace",position={4,0},force=a.force}; '
+                      'return {unit_number=e.unit_number,position=e.position}')
+        execute(self.actor, {'kind':'put',**furnace,'inventory':'furnace_source','item':'iron-ore','count':2})
+        s = observe(self.actor, 'Teeny')
+        self.assertEqual(entity_item_count(s['entities'][0], 'furnace_source', 'iron-ore'), 2)
+        execute(self.actor, {'kind':'take',**furnace,'inventory':'furnace_source','item':'iron-ore','count':2})
+        s = observe(self.actor, 'Teeny')
+        self.assertEqual(entity_item_count(s['entities'][0], 'furnace_source', 'iron-ore'), 0)
 
 
 if __name__ == '__main__':
