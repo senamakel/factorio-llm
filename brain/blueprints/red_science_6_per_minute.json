@@ -1,0 +1,545 @@
+{
+  "schema": 1,
+  "label": "Red science: 6 packs/min, buffer-fed cells",
+  "entities": [
+    {
+      "name": "assembling-machine-1",
+      "position": {
+        "x": 4.5,
+        "y": 4.5
+      },
+      "recipe": "automation-science-pack",
+      "role": "production",
+      "entity_number": 1
+    },
+    {
+      "name": "inserter",
+      "position": {
+        "x": 2.5,
+        "y": 3.5
+      },
+      "direction": "east",
+      "role": "input_arm",
+      "entity_number": 2
+    },
+    {
+      "name": "iron-chest",
+      "position": {
+        "x": 1.5,
+        "y": 3.5
+      },
+      "role": "input_buffer",
+      "entity_number": 3
+    },
+    {
+      "name": "inserter",
+      "position": {
+        "x": 6.5,
+        "y": 3.5
+      },
+      "direction": "east",
+      "role": "output_arm",
+      "entity_number": 4
+    },
+    {
+      "name": "iron-chest",
+      "position": {
+        "x": 7.5,
+        "y": 3.5
+      },
+      "role": "output_buffer",
+      "entity_number": 5
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 4.5,
+        "y": 2.5
+      },
+      "role": "power",
+      "entity_number": 6
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 4.5,
+        "y": 6.5
+      },
+      "role": "power",
+      "entity_number": 7
+    },
+    {
+      "name": "stone-furnace",
+      "position": {
+        "x": 14.0,
+        "y": 4.0
+      },
+      "recipe": "copper-plate",
+      "role": "production",
+      "entity_number": 8
+    },
+    {
+      "name": "inserter",
+      "position": {
+        "x": 12.5,
+        "y": 3.5
+      },
+      "direction": "east",
+      "role": "input_arm",
+      "entity_number": 9
+    },
+    {
+      "name": "iron-chest",
+      "position": {
+        "x": 11.5,
+        "y": 3.5
+      },
+      "role": "input_buffer",
+      "entity_number": 10
+    },
+    {
+      "name": "inserter",
+      "position": {
+        "x": 15.5,
+        "y": 3.5
+      },
+      "direction": "east",
+      "role": "output_arm",
+      "entity_number": 11
+    },
+    {
+      "name": "iron-chest",
+      "position": {
+        "x": 16.5,
+        "y": 3.5
+      },
+      "role": "output_buffer",
+      "entity_number": 12
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 14.0,
+        "y": 2.5
+      },
+      "role": "power",
+      "entity_number": 13
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 14.0,
+        "y": 5.5
+      },
+      "role": "power",
+      "entity_number": 14
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 9.0,
+        "y": 2.5
+      },
+      "role": "power_relay",
+      "entity_number": 15
+    },
+    {
+      "name": "assembling-machine-1",
+      "position": {
+        "x": 24.5,
+        "y": 4.5
+      },
+      "recipe": "iron-gear-wheel",
+      "role": "production",
+      "entity_number": 16
+    },
+    {
+      "name": "inserter",
+      "position": {
+        "x": 22.5,
+        "y": 3.5
+      },
+      "direction": "east",
+      "role": "input_arm",
+      "entity_number": 17
+    },
+    {
+      "name": "iron-chest",
+      "position": {
+        "x": 21.5,
+        "y": 3.5
+      },
+      "role": "input_buffer",
+      "entity_number": 18
+    },
+    {
+      "name": "inserter",
+      "position": {
+        "x": 26.5,
+        "y": 3.5
+      },
+      "direction": "east",
+      "role": "output_arm",
+      "entity_number": 19
+    },
+    {
+      "name": "iron-chest",
+      "position": {
+        "x": 27.5,
+        "y": 3.5
+      },
+      "role": "output_buffer",
+      "entity_number": 20
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 24.5,
+        "y": 2.5
+      },
+      "role": "power",
+      "entity_number": 21
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 24.5,
+        "y": 6.5
+      },
+      "role": "power",
+      "entity_number": 22
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 19.5,
+        "y": 2.5
+      },
+      "role": "power_relay",
+      "entity_number": 23
+    },
+    {
+      "name": "stone-furnace",
+      "position": {
+        "x": 34.0,
+        "y": 4.0
+      },
+      "recipe": "iron-plate",
+      "role": "production",
+      "entity_number": 24
+    },
+    {
+      "name": "inserter",
+      "position": {
+        "x": 32.5,
+        "y": 3.5
+      },
+      "direction": "east",
+      "role": "input_arm",
+      "entity_number": 25
+    },
+    {
+      "name": "iron-chest",
+      "position": {
+        "x": 31.5,
+        "y": 3.5
+      },
+      "role": "input_buffer",
+      "entity_number": 26
+    },
+    {
+      "name": "inserter",
+      "position": {
+        "x": 35.5,
+        "y": 3.5
+      },
+      "direction": "east",
+      "role": "output_arm",
+      "entity_number": 27
+    },
+    {
+      "name": "iron-chest",
+      "position": {
+        "x": 36.5,
+        "y": 3.5
+      },
+      "role": "output_buffer",
+      "entity_number": 28
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 34.0,
+        "y": 2.5
+      },
+      "role": "power",
+      "entity_number": 29
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 34.0,
+        "y": 5.5
+      },
+      "role": "power",
+      "entity_number": 30
+    },
+    {
+      "name": "small-electric-pole",
+      "position": {
+        "x": 29.0,
+        "y": 2.5
+      },
+      "role": "power_relay",
+      "entity_number": 31
+    }
+  ],
+  "analysis": {
+    "targets": {
+      "automation-science-pack": "1/10"
+    },
+    "recipes": [
+      {
+        "recipe": "automation-science-pack",
+        "machine": "assembling-machine-1",
+        "crafts_per_second": "1/10",
+        "machines": 1,
+        "utilization": "1",
+        "capacity_crafts_per_second": "1/10",
+        "inputs": {
+          "iron-gear-wheel": "1/10",
+          "copper-plate": "1/10"
+        },
+        "outputs": {
+          "automation-science-pack": "1/10"
+        },
+        "ingredients": [
+          {
+            "name": "iron-gear-wheel",
+            "amount": 1
+          },
+          {
+            "name": "copper-plate",
+            "amount": 1
+          }
+        ],
+        "products": [
+          {
+            "name": "automation-science-pack",
+            "amount": 1
+          }
+        ],
+        "width": 3,
+        "height": 3
+      },
+      {
+        "recipe": "copper-plate",
+        "machine": "stone-furnace",
+        "crafts_per_second": "1/10",
+        "machines": 1,
+        "utilization": "8/25",
+        "capacity_crafts_per_second": "5/16",
+        "inputs": {
+          "copper-ore": "1/10",
+          "coal": "9/1250"
+        },
+        "outputs": {
+          "copper-plate": "1/10"
+        },
+        "ingredients": [
+          {
+            "name": "copper-ore",
+            "amount": 1
+          }
+        ],
+        "products": [
+          {
+            "name": "copper-plate",
+            "amount": 1
+          }
+        ],
+        "width": 2,
+        "height": 2
+      },
+      {
+        "recipe": "iron-gear-wheel",
+        "machine": "assembling-machine-1",
+        "crafts_per_second": "1/10",
+        "machines": 1,
+        "utilization": "1/10",
+        "capacity_crafts_per_second": "1",
+        "inputs": {
+          "iron-plate": "1/5"
+        },
+        "outputs": {
+          "iron-gear-wheel": "1/10"
+        },
+        "ingredients": [
+          {
+            "name": "iron-plate",
+            "amount": 2
+          }
+        ],
+        "products": [
+          {
+            "name": "iron-gear-wheel",
+            "amount": 1
+          }
+        ],
+        "width": 3,
+        "height": 3
+      },
+      {
+        "recipe": "iron-plate",
+        "machine": "stone-furnace",
+        "crafts_per_second": "1/5",
+        "machines": 1,
+        "utilization": "16/25",
+        "capacity_crafts_per_second": "5/16",
+        "inputs": {
+          "iron-ore": "1/5",
+          "coal": "9/625"
+        },
+        "outputs": {
+          "iron-plate": "1/5"
+        },
+        "ingredients": [
+          {
+            "name": "iron-ore",
+            "amount": 1
+          }
+        ],
+        "products": [
+          {
+            "name": "iron-plate",
+            "amount": 1
+          }
+        ],
+        "width": 2,
+        "height": 2
+      }
+    ],
+    "raw_inputs": {
+      "coal": "27/1250",
+      "copper-ore": "1/10",
+      "iron-ore": "1/5"
+    },
+    "surplus": {},
+    "electric_watts": "82500",
+    "assumptions": [
+      "steady-state rates",
+      "effective machine facts supplied by caller",
+      "transport and startup inventory must be validated separately"
+    ],
+    "reference": "https://github.com/KirkMcDonald/kirkmcdonald.github.io/tree/349ebfb5f0fe09145169b4b47bc1771f55c1a896",
+    "ports": [
+      {
+        "recipe": "automation-science-pack",
+        "machine_index": 0,
+        "direction": "input",
+        "position": {
+          "x": 1.5,
+          "y": 3.5
+        },
+        "rates": {
+          "iron-gear-wheel": "1/10",
+          "copper-plate": "1/10"
+        }
+      },
+      {
+        "recipe": "automation-science-pack",
+        "machine_index": 0,
+        "direction": "output",
+        "position": {
+          "x": 7.5,
+          "y": 3.5
+        },
+        "rates": {
+          "automation-science-pack": "1/10"
+        }
+      },
+      {
+        "recipe": "copper-plate",
+        "machine_index": 0,
+        "direction": "input",
+        "position": {
+          "x": 11.5,
+          "y": 3.5
+        },
+        "rates": {
+          "copper-ore": "1/10",
+          "coal": "9/1250"
+        }
+      },
+      {
+        "recipe": "copper-plate",
+        "machine_index": 0,
+        "direction": "output",
+        "position": {
+          "x": 16.5,
+          "y": 3.5
+        },
+        "rates": {
+          "copper-plate": "1/10"
+        }
+      },
+      {
+        "recipe": "iron-gear-wheel",
+        "machine_index": 0,
+        "direction": "input",
+        "position": {
+          "x": 21.5,
+          "y": 3.5
+        },
+        "rates": {
+          "iron-plate": "1/5"
+        }
+      },
+      {
+        "recipe": "iron-gear-wheel",
+        "machine_index": 0,
+        "direction": "output",
+        "position": {
+          "x": 27.5,
+          "y": 3.5
+        },
+        "rates": {
+          "iron-gear-wheel": "1/10"
+        }
+      },
+      {
+        "recipe": "iron-plate",
+        "machine_index": 0,
+        "direction": "input",
+        "position": {
+          "x": 31.5,
+          "y": 3.5
+        },
+        "rates": {
+          "iron-ore": "1/5",
+          "coal": "9/625"
+        }
+      },
+      {
+        "recipe": "iron-plate",
+        "machine_index": 0,
+        "direction": "output",
+        "position": {
+          "x": 36.5,
+          "y": 3.5
+        },
+        "rates": {
+          "iron-plate": "1/5"
+        }
+      }
+    ],
+    "automatic_material_routing": false,
+    "required_connections": [
+      "supply raw input buffers",
+      "transfer intermediate outputs between cells",
+      "connect electrical supply"
+    ],
+    "layout_type": "buffer-fed production cells"
+  },
+  "placed": {}
+}
