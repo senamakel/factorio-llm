@@ -41,6 +41,19 @@ HELPERS = (
     'if p.name=="wood" then n=n+(p.amount or p.amount_min or 1) end end; return n end; ')
 
 
+def as_list(value):
+    """Lua encodes an empty table as ``{}``; return a list for list-typed fields."""
+    return [] if value in ({}, None) else value
+
+
+def _lists(record, keys):
+    """Normalise the named list-typed keys of a dict in place and return it."""
+    for key in keys:
+        if key in record:
+            record[key] = as_list(record[key])
+    return record
+
+
 def fields_lua(fields):
     """Build a Lua table constructor from allowlisted field names."""
     unknown = [name for name in fields if name not in FIELDS]
@@ -51,6 +64,10 @@ def fields_lua(fields):
 
 def actor_state(actor_id):
     """Return the actor's tick, position, inventory, crafting queue, reach and speeds."""
+    return _lists(_actor_state(actor_id), ('inventory', 'crafting_queue'))
+
+
+def _actor_state(actor_id):
     return actor_rpc(actor_id,
         'local p=e.prototype; return {tick=game.tick,surface=s.name,force=e.force.name,seed=s.map_gen_settings.seed,'
         'position=e.position,health=e.health,inventory=inv.get_contents(),crafting_queue=e.crafting_queue or {},'
@@ -75,11 +92,11 @@ def find_entities(actor_id, filters, fields=DEFAULT_FIELDS, limit=512):
         raise ValueError(f'unsupported filters: {sorted(set(filters) - allowed)}')
     if not 1 <= limit <= 5000:
         raise ValueError('limit must be 1..5000')
-    return actor_rpc(actor_id, HELPERS +
+    return _lists(actor_rpc(actor_id, HELPERS +
         'local q=a.q; if q.force=="actor" then q.force=e.force end; q.limit=a.limit+1; '
         'local found=s.find_entities_filtered(q); local out={}; '
         'for i,f in ipairs(found) do if i<=a.limit then out[#out+1]=' + fields_lua(fields) + ' end end; '
-        'return {entities=out,truncated=#found>a.limit}', {'q': dict(filters), 'limit': limit})
+        'return {entities=out,truncated=#found>a.limit}', {'q': dict(filters), 'limit': limit}), ('entities',))
 
 
 def count_entities(actor_id, filters):
@@ -90,11 +107,11 @@ def count_entities(actor_id, filters):
 
 def find_tiles(actor_id, names, position, radius, limit=8192):
     """Return positions of named tiles (e.g. water) near a position, flagged if truncated."""
-    return actor_rpc(actor_id,
+    return _lists(actor_rpc(actor_id,
         'local t=s.find_tiles_filtered{name=a.names,position=a.position,radius=a.radius,limit=a.limit+1}; '
         'local out={}; for i,x in ipairs(t) do if i<=a.limit then out[#out+1]=x.position end end; '
         'return {tiles=out,truncated=#t>a.limit}',
-        {'names': list(names), 'position': position, 'radius': radius, 'limit': limit})
+        {'names': list(names), 'position': position, 'radius': radius, 'limit': limit}), ('tiles',))
 
 
 def can_place(actor_id, rows):
@@ -103,7 +120,7 @@ def can_place(actor_id, rows):
         return []
     return actor_rpc(actor_id,
         'local out={}; for _,p in ipairs(a) do out[#out+1]=s.can_place_entity{name=p.name,position=p.position,'
-        'direction=defines.direction[p.direction or "north"],force=e.force} end; return out', list(rows))
+        'direction=defines.direction[p.direction or "north"],force=e.force} end; return out', list(rows)) or []
 
 
 def production(actor_id, items):
@@ -116,17 +133,18 @@ def production(actor_id, items):
 
 def recipes(actor_id, names=None):
     """Return recipe facts (enabled, ingredients, products, energy, categories list) for names or all."""
-    return actor_rpc(actor_id,
+    found = actor_rpc(actor_id,
         'local out={}; local function add(r) out[r.name]={enabled=r.enabled,ingredients=r.ingredients,'
         'products=r.products,energy=r.energy,categories=(function() local c={}; for k,v in pairs(r.prototype.categories or {}) do c[#c+1]=type(k)=="number" and v or k end; return c end)(),hidden=r.hidden} end; '
         'if a.names then for _,n in ipairs(a.names) do local r=e.force.recipes[n]; if r then add(r) end end '
         'else for _,r in pairs(e.force.recipes) do if not r.hidden then add(r) end end end; return out',
         {'names': list(names) if names else None})
+    return {name: _lists(r, ('ingredients', 'products', 'categories')) for name, r in as_list(found) and found.items() or ()}
 
 
 def technologies(actor_id, names=None):
     """Return technology state, cost, trigger and prerequisites, plus current research."""
-    return actor_rpc(actor_id,
+    found = actor_rpc(actor_id,
         'local out={}; local function add(t) local pre={}; for k,_ in pairs(t.prerequisites) do pre[#pre+1]=k end; '
         'local eff={}; for _,x in pairs(t.prototype.effects or {}) do if x.type=="unlock-recipe" then eff[#eff+1]=x.recipe end end; '
         'out[t.name]={researched=t.researched,enabled=t.enabled,count=t.research_unit_count,'
@@ -138,6 +156,9 @@ def technologies(actor_id, names=None):
         'progress=e.force.research_progress,queue=(function() local q={}; '
         'for _,t in pairs(e.force.research_queue or {}) do q[#q+1]=t.name end; return q end)()}',
         {'names': list(names) if names else None})
+    techs = found['technologies'] if found['technologies'] != [] else {}
+    found['technologies'] = {n: _lists(t, ('ingredients', 'prerequisites', 'unlocks')) for n, t in techs.items()}
+    return _lists(found, ('queue',))
 
 
 def entity_prototypes(actor_id, names):

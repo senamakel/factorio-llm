@@ -116,8 +116,8 @@ def failures(stdout_path, stderr_path, limit=8):
         except json.JSONDecodeError:
             continue
         result = row.get('result') if isinstance(row, dict) else None
-        if isinstance(result, dict) and result.get('error'):
-            errors[f"{row.get('phase', '?')}: {result['error']}"[:200]] += 1
+        if isinstance(result, dict) and (result.get('error') or result.get('ok') is False):
+            errors[f"{row.get('phase', '?')}: {result.get('error') or 'returned ok=false'}"[:200]] += 1
         if isinstance(row, dict) and 'stop_reason' in row:
             stop = row['stop_reason']
     out = [f'{count}x {text}' for text, count in errors.most_common(limit)]
