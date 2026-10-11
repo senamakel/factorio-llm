@@ -179,7 +179,8 @@ def run(brain_root, seed, out, wall_secs, speed, window_min, live_data):
             'entity_counts': world['entity_counts'], 'brain_exit': exit_code, 'actor_halted': halted,
             'seed': seed, 'wall_secs': wall_secs, 'game_speed': speed,
         },
-        'failures': failures(stdout, stderr),
+        'failures': [{'id': f'seed{seed}-{i}', 'type': 'episode', 'text': text}
+                     for i, text in enumerate(failures(stdout, stderr))],
     }
     (out / 'result.json').write_text(json.dumps(result, indent=2))
     return result
@@ -201,8 +202,8 @@ def main(argv=None):
     m = result['metrics']
     print(f"DIAG seed {m['seed']}: {m['game_minutes_played']} game-min played, reached {m['reached']}, next {m['next_goal']}")
     print(f"DIAG rates/min in automation window: {m['rates_per_min']}")
-    for line in result['failures']:
-        print(f'DIAG failure: {line}')
+    for failure in result['failures']:
+        print(f"DIAG failure: {failure['text']}")
     print(f"METRIC red_spm={m['red_spm']}")
     print(f"METRIC green_spm={m['green_spm']}")
     print(f"METRIC milestones={m['milestones']}")
