@@ -18,7 +18,7 @@ Frozen offline copy of wiki.factorio.com pages (Factorio 2.x). One file per page
 - [Burner mining drill](Burner_mining_drill.md) — The burner mining drill is the first type of drill accessible to the player.
 - [Chemical science pack](Chemical_science_pack.md) — Chemical science pack (also referred to as "blue science") is the third tier of science pack.
 - [Coal](Coal.md) — Coal is a resource found on Nauvis and Vulcanus(Space Age).
-- [Copper cable](Copper_cable.md) — the intermediate product the tool for connecting electric poles copper wire
+- [Copper cable](Copper_cable.md) — Copper cables are an intermediate product made from copper plates, or can be cast from a foundry(Space Age).
 - [Copper ore](Copper_ore.md) — Copper ore is a basic resource found in resource patches throughout the world.
 - [Copper plate](Copper_plate.md) — Copper plate is a material that can be made by smelting copper ore in a furnace, or cast by a foundry(Space Age).
 - [Crafting](Crafting.md) — The process of 'crafting' is to produce an end product off of input products using a recipe.
