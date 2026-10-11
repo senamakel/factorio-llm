@@ -307,25 +307,28 @@
         "utilization": "1",
         "capacity_crafts_per_second": "1/10",
         "inputs": {
-          "iron-gear-wheel": "1/10",
-          "copper-plate": "1/10"
+          "copper-plate": "1/10",
+          "iron-gear-wheel": "1/10"
         },
         "outputs": {
           "automation-science-pack": "1/10"
         },
         "ingredients": [
           {
-            "name": "iron-gear-wheel",
+            "type": "item",
+            "name": "copper-plate",
             "amount": 1
           },
           {
-            "name": "copper-plate",
+            "type": "item",
+            "name": "iron-gear-wheel",
             "amount": 1
           }
         ],
         "products": [
           {
             "name": "automation-science-pack",
+            "type": "item",
             "amount": 1
           }
         ],
@@ -348,6 +351,7 @@
         },
         "ingredients": [
           {
+            "type": "item",
             "name": "copper-ore",
             "amount": 1
           }
@@ -355,6 +359,7 @@
         "products": [
           {
             "name": "copper-plate",
+            "type": "item",
             "amount": 1
           }
         ],
@@ -376,6 +381,7 @@
         },
         "ingredients": [
           {
+            "type": "item",
             "name": "iron-plate",
             "amount": 2
           }
@@ -383,6 +389,7 @@
         "products": [
           {
             "name": "iron-gear-wheel",
+            "type": "item",
             "amount": 1
           }
         ],
@@ -405,6 +412,7 @@
         },
         "ingredients": [
           {
+            "type": "item",
             "name": "iron-ore",
             "amount": 1
           }
@@ -412,6 +420,7 @@
         "products": [
           {
             "name": "iron-plate",
+            "type": "item",
             "amount": 1
           }
         ],
@@ -442,8 +451,8 @@
           "y": 3.5
         },
         "rates": {
-          "iron-gear-wheel": "1/10",
-          "copper-plate": "1/10"
+          "copper-plate": "1/10",
+          "iron-gear-wheel": "1/10"
         }
       },
       {
@@ -539,7 +548,21 @@
       "transfer intermediate outputs between cells",
       "connect electrical supply"
     ],
-    "layout_type": "buffer-fed production cells"
+    "layout_type": "buffer-fed production cells",
+    "live_mods": {
+      "base": "2.1.21",
+      "control-bridge": "0.2.0",
+      "elevated-rails": "2.1.21",
+      "recycler": "2.1.21",
+      "quality": "2.1.21",
+      "space-age": "2.1.21"
+    },
+    "planning_locked_recipes": [
+      "automation-science-pack"
+    ],
+    "planning_locked_machines": [
+      "assembling-machine-1"
+    ]
   },
   "placed": {}
 }
