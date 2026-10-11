@@ -106,9 +106,11 @@ facts with `.venv/bin/python scripts/wiki_enrichment.py`.
 `brain/action_library/`, grouped into gathering, movement, manufacturing and inventory.
 Python owns the behavior: `brain/observation.py` assembles observations and selects
 resource candidates; `brain/execution.py` plans movement directions and durations;
-`brain/logic.py` chooses tasks; `brain/runner.py` runs and times them. `brain/io.py` sends short
-Lua API adapters to read state or apply an instruction. It does not upload Lua
-files, install a new mod, or run policy/scoring logic inside Factorio.
+`brain/logic.py` chooses tasks; `brain/runner.py` runs and times them. The brain
+reaches the game only through the frozen `actuator/` package, which sends short
+Lua API adapters to read state or apply an honest instruction (reach, inventory
+costs and real crafting time are enforced). It does not upload Lua files,
+install a new mod, or run policy/scoring logic inside Factorio.
 `brain/score.py` rewards measured inventory gains, goal progress and plates produced
 per game second. It penalizes depleted resources, consumed fuel, elapsed game
 time, nearby enemies and damage. Production/fuel counters currently cover the
@@ -129,6 +131,28 @@ count. Routes are sampled for collision checks before using longer legs.
 Actions stop on interruption. Handcrafting uses the native queue and real costs;
 close machine transfers are paced and batched. Smelting runs in the
 actual game furnace. The loop does not restart or modify the running mod.
+
+## Self-improving factory (RSI loop)
+
+A hive of LLM agents improves `brain/` offline with
+[tinyrsi](https://github.com/tinyhumansai/tinyrsi), working toward 100 red + 100
+green science packs per minute. The brain itself stays a deterministic program.
+
+- `actuator/`: the only way the brain may touch the game, and an honest one.
+- `harness/`: plays a candidate brain on a disposable seeded world (base game,
+  game speed 4), halts the actor, and measures what the factory produces on its
+  own. Score = `min(red/min,100) + min(green/min,100) + 5 × milestones` over a
+  ladder G1 (Automation researched) … G12 (100 red + 100 green per minute).
+- `knowledge/`: 70 cached wiki pages, a cited ratio sheet and exact live
+  prototypes (`scripts/fetch_wiki.py`, `scripts/dump_prototypes.py`).
+- `memory/`: a dedicated CortexDB the hive shares (`./factorio memory`).
+- `loops/factorio-brain/`: the loop manifest, brief, hive (orchestrator,
+  builder, critic), scorer and gates. See its README to run it.
+
+```sh
+./factorio episode --seed 1 --wall-secs 600   # score the current brain
+./factorio gates                              # honesty + offline brain tests
+```
 
 ## Tools
 

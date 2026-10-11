@@ -8,8 +8,11 @@ Use `FACTORIO_CONNECTION_FILE` to select the running sandbox's private config.
 - `logic.py`: iron-chain decisions and common state helpers.
 - `research_rules/`: live recipes, batched smelting, shoreline power and unlock gates.
 - `observation.py`: bounded resources, recipes, technologies, machines and inventories.
-- `execution.py` and `io.py`: Python timing/navigation and short native API adapters.
+- `execution.py`: Python timing/navigation that turns action dicts into frozen `actuator` calls.
 - `goal.py`, `score.py`, `runner.py`: objectives, rewards and bounded execution.
+- `cli.py`: JSON commands plus `episode`, the entry the RSI harness calls
+  (`python -m brain episode --actor ID --wall-secs N`). The hive edits this folder
+  through `loops/factorio-brain`; game access goes only through `actuator/`.
 - `event_store.py`: separate observations/decisions/actions/outcomes and learning.
 
 The research chain produces 50 iron and 10 copper plates, builds a real powered
