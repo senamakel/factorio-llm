@@ -19,9 +19,22 @@ _lock = threading.Lock()
 _client = None
 
 
+def connection_file():
+    """Resolve the connection file: env override, this checkout, else the ``mcp.json`` manifest."""
+    if os.environ.get('FACTORIO_CONNECTION_FILE'):
+        return Path(os.environ['FACTORIO_CONNECTION_FILE'])
+    local = ROOT / 'server/data/connection.json'
+    if not local.exists() and (ROOT / 'mcp.json').exists():
+        from scripts.mcp_config import load_servers
+        env = load_servers(ROOT).get('factorio-control', {}).get('env', {})
+        if env.get('FACTORIO_CONNECTION_FILE'):
+            return Path(env['FACTORIO_CONNECTION_FILE'])
+    return local
+
+
 def settings():
     """Return host, port and password for the configured server."""
-    path = Path(os.environ.get('FACTORIO_CONNECTION_FILE', ROOT / 'server/data/connection.json'))
+    path = connection_file()
     record = json.loads(path.read_text()) if path.exists() else {}
     password = os.environ.get('FACTORIO_RCON_PASSWORD', record.get('password', ''))
     if not password:

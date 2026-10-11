@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from brain.cli import main
-from brain.controller import ownership
+from actuator.controller import ownership
 
 
 class BrainCliTest(unittest.TestCase):
@@ -29,7 +29,7 @@ class BrainCliTest(unittest.TestCase):
             with self.assertRaises(SystemExit):main(['stream','--actor','14','--count','0'])
 
     def test_actor_ownership_rejects_a_second_controller(self):
-        with tempfile.TemporaryDirectory() as tmp,patch('brain.controller.DATA',Path(tmp)):
+        with tempfile.TemporaryDirectory() as tmp,patch('actuator.controller.DATA',Path(tmp)):
             with ownership(14,'research'):
                 with self.assertRaisesRegex(RuntimeError,'another controller'):
                     with ownership(14,'research'):pass

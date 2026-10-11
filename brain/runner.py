@@ -24,7 +24,7 @@ def run_brain(actor_id, steps=500, interval=.5, target=100, objective='iron',
               run_timeout=1800, stall_timeout=120, action_timeout=30, observe_timeout=20,
               max_failures=3):
     """Own this actor exclusively while running the bounded objective and persistence loop."""
-    from brain.controller import ownership
+    from actuator.controller import ownership
     with ownership(actor_id,objective):
         return _run_brain(actor_id,steps,interval,target,objective,run_timeout,stall_timeout,
                           action_timeout,observe_timeout,max_failures)

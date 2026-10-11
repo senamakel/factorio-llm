@@ -10,13 +10,6 @@ import time
 ROOT=Path(__file__).resolve().parents[1]
 
 
-def configure_runtime():
-    """Use explicit connection overrides or the shared manifest before importing RCON settings."""
-    if not os.environ.get('FACTORIO_CONNECTION_FILE') and not (ROOT/'server/data/connection.json').exists():
-        from scripts.mcp_config import load_servers
-        for key,value in load_servers(ROOT)['factorio-control'].get('env',{}).items():os.environ.setdefault(key,value)
-
-
 def default_actor():
     """Read the private current assistant reference; require explicit selection if absent."""
     path=ROOT/'server/data/teeny-actor.json'
@@ -44,7 +37,6 @@ def episode(argv):
 def main(argv=None):
     """Run JSON-first commands; only run mutates the game, inspection/planning are read-only."""
     argv=list(sys.argv[1:] if argv is None else argv)
-    configure_runtime()
     if argv and argv[0].startswith('-') and argv[0] not in ('--help','-h'):
         from brain.runner import main as run
         return run(argv)
@@ -74,7 +66,7 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if args.command in ('status','stop'):
-            from brain.controller import status,stop
+            from actuator.controller import status,stop
             print(json.dumps(stop() if args.command=='stop' else status(),indent=2));return
         if args.command=='actions':
             from brain import actions
