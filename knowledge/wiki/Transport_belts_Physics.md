@@ -37,6 +37,7 @@ In the image above the belts have been started at 1 tick offsets, then all the t
 
 Below is a schematic example showing some items moving over two straight fast transport belt tiles and what their read signals would be at each tick. Their center points are marked with *. (The space between belt tile 1 and 2 is only for visualisation - in the game there are no such gaps between tiles.)
 
+```
 Tick  Belt tile 1                      Belt tile 2                       Read belt tile 1  Read belt tile 2
       |------------------------------| |------------------------------|    Pulse   Hold      Pulse   Hold
   0         <---*-->  <---*--> <---*-- ><---*-->            <---*-->         0       3         0       2
@@ -48,6 +49,7 @@ Tick  Belt tile 1                      Belt tile 2                       Read be
   6   --*-->            <---*-->  <--- *--> <---*--><---*-->                 0       2         1       3
   7   <---*-->            <---*-->  <- --*--> <---*--><---*-->               0       2         0       3
   8     <---*-->            <---*-->   <---*--> <---*--><---*-->             0       2         0       3
+```
 
 ## Belt positions and lengths
 Careful measurement shows that the outer lane of a turn is exactly 1.15234375 times longer than a straight belt, or 295/256 in fractional format. That means each straight belt tile has 256 *positions* an item can be in, even though measuring the position with that precision can only be done indirectly. This has since been confirmed by the devs.

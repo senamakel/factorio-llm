@@ -33,9 +33,9 @@ Inserters can insert and remove science packs from labs. This allows chaining mu
 
 ## Production requirements
 Calculating the number of science packs needed per second is straightforward:
-- <math>ERS = \left( 1 + \frac{B \left[ r \right] }{100} \right) \times \left( 1 + \frac{M \left[ r \right] }{100} \right) \times BLS </math>
-- <math>ACT = \frac{T \left[ r \right] }{ERS}</math>
-- <math>PPS = \frac{N}{ACT}</math>
+- `ERS = \left( 1 + \frac{B \left[ r \right] }{100} \right) \times \left( 1 + \frac{M \left[ r \right] }{100} \right) \times BLS`
+- `ACT = \frac{T \left[ r \right] }{ERS}`
+- `PPS = \frac{N}{ACT}`
 
 Where:
 - ***ERS*** is "effective lab research speed"
@@ -50,22 +50,22 @@ Where:
 Note: while the biolab(Space Age) has twice the speed of a regular lab, it also consumes packs half as fast. As such, the consumption rate of a biolab is the same as the consumption rate of an equal quality regular lab.
 
 Thus, with 10 base quality standard labs, researching Nuclear Power (30 second cycle time) with Lab Research Speed 4 (140% bonus) and no module effects, the calculation is:
-- <math>ERS =  1 + \frac{140}{100} = 2.4</math>
-- <math>ACT = \frac{30}{2.4}       = 12.5 s</math>
-- <math>PPS = \frac{10}{12.5}      = 0.8</math>
+- `ERS = 1 + \frac{140}{100} = 2.4`
+- `ACT = \frac{30}{2.4} = 12.5 s`
+- `PPS = \frac{10}{12.5} = 0.8`
 
 This means 0.8 science packs per second, of each type, would need to be produced to continuously supply the labs.
 
 ### Equation simplification
 Assuming all labs have the same *B[r]* and *BLS*), the above calculations can be combined into one equation:
 
-- <math>PPS = \frac{N}{T \left[ r \right] } \times \left( 1 + \frac{B \left[ r \right] }{100} \right) \times \left( 1 + \frac{M \left[ r \right] }{100} \right) \times BLS</math>
+- `PPS = \frac{N}{T \left[ r \right] } \times \left( 1 + \frac{B \left[ r \right] }{100} \right) \times \left( 1 + \frac{M \left[ r \right] }{100} \right) \times BLS`
 
 Thus for the numerical example:
-- <math>PPS = 10 \times \left( 1 + \frac{140}{100} \right) \times \frac{1}{30} = \frac{10}{30} \times \left( 1 + 1.4 \right) = \frac{1}{3} \times 2.4 = \frac{2.4}{3} = 0.8</math> packs per second
+- `PPS = 10 \times \left( 1 + \frac{140}{100} \right) \times \frac{1}{30} = \frac{10}{30} \times \left( 1 + 1.4 \right) = \frac{1}{3} \times 2.4 = \frac{2.4}{3} = 0.8` packs per second
 
 If trying to find the amount of labs needed to consume a given amount of packs per second, use the following rearrangement:
-- <math>N = \frac{PPS * T[r]}{\left(1 + \frac{B[r]}{100}\right)\times\left(1 + \frac{M[r]}{100}\right)\times BLS}</math>
+- `N = \frac{PPS * T[r]}{\left(1 + \frac{B[r]}{100}\right)\times\left(1 + \frac{M[r]}{100}\right)\times BLS}`
 
 ## History
 Version 2.1.7:

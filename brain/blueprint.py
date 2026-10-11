@@ -18,6 +18,7 @@ from brain.logic import decision, distance, move_or_act
 from brain.blueprint_solver import solve
 
 DIRECTIONS={'north':0,'northeast':2,'east':4,'southeast':6,'south':8,'southwest':10,'west':12,'northwest':14}
+DIRECTION_NAMES={v:k for k,v in DIRECTIONS.items()}
 DIMENSIONS={'stone-furnace':(2,2),'assembling-machine-1':(3,3),'lab':(3,3),
             'steam-engine':(3,5),'boiler':(3,2),'offshore-pump':(1,2)}
 
