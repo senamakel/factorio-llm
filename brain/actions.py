@@ -19,3 +19,12 @@ from brain.action_library.gathering.mine_wood import mine_wood
 from brain.action_library.research.first_research import first_research
 
 __all__ = ['mine_iron_ore', 'mine_coal', 'mine_stone', 'move_to', 'make_iron_plates', 'craft_furnace', 'build_furnace', 'fuel_furnace', 'load_iron_ore', 'collect_iron_plates','mine_copper_ore','mine_wood','first_research']
+
+from brain.action_library.power.build_steam_power import build_steam_power
+__all__.append("build_steam_power")
+
+from brain.action_library.manufacturing.make_red_science import make_red_science
+__all__.append("make_red_science")
+
+from brain.action_library.manufacturing.smelt_copper_plates import smelt_copper_plates
+__all__.append("smelt_copper_plates")

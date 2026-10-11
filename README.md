@@ -97,7 +97,10 @@ of expansion mods; it does not change an existing world's enabled mod list.
 The local server runs headless in the background; the separate desktop client
 connects to it to show and play the world.
 
-`brain/goal.py` defines Teeny's objective: 100 iron plates held in its inventory.
+All assistant logic and rules live in `brain/`. `brain/goal.py` defines iron and
+first-research objectives. Add `--objective research` to the command below for
+the real steam/electronics/red-science/Automation chain. Refresh attributed wiki
+facts with `.venv/bin/python scripts/enrich_wiki.py`.
 `brain/actions.py` exports high-level plans such as `mine_coal`, `mine_iron_ore`,
 `build_furnace`, and `make_iron_plates`. Each action lives in its own file under
 `brain/action_library/`, grouped into gathering, movement, manufacturing and inventory.
@@ -123,8 +126,8 @@ Clear, enemy-free walking legs and safe mining batches can last up to eight seco
 uncertain actions are capped at two seconds. Python estimates travel time from
 current movement speed and mining time from prototype speed, progress and batch
 count. Routes are sampled for collision checks before using longer legs.
-Actions stop on interruption. Furnace crafting uses scripted
-inventory-costed actions. Smelting runs in the
+Actions stop on interruption. Handcrafting uses the native queue and real costs;
+close machine transfers are paced and batched. Smelting runs in the
 actual game furnace. The loop does not restart or modify the running mod.
 
 ## Tools
