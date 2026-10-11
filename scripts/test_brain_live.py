@@ -76,6 +76,8 @@ class NativeActionTest(unittest.TestCase):
         time.sleep(2)
         energy=rpc('return game.surfaces["'+self.surface+'"].find_entities_filtered{name="lab"}[1].energy')
         self.assertGreater(energy,0,'lab must receive real steam-engine electricity')
+        observed=observe(self.actor,'Teeny')
+        self.assertTrue(any(e['name']=='lab' and e['energy']>0 for e in observed['entities']))
 
 
 if __name__ == '__main__':

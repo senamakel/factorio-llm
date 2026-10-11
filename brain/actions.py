@@ -2,7 +2,7 @@
 
 Functions plan actions without mutating the world. make_iron_plates orchestrates
 the full chain; gather/build/transfer actions can also be used independently.
-Native execution and adaptive durations remain in brain_actions.py.
+Native execution and adaptive durations remain in execution.py.
 """
 from brain.action_library.gathering.mine_iron_ore import mine_iron_ore
 from brain.action_library.gathering.mine_coal import mine_coal

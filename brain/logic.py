@@ -1,7 +1,7 @@
 """Pure local decisions for the first recursive-factorio objective: ore → iron plates.
 
 No network or game mutations here. Each decision consumes the world projection and
-persistent outcome scores; brain.py handles observation, execution and feedback.
+persistent outcome scores; runner.py handles observation, execution and feedback.
 """
 import math
 
@@ -84,7 +84,7 @@ def mining_decision(state,player,resource,experience,count=1):
         return decision('explore',f'No {resource} target is known on this surface; explore and observe again.')
     action={'kind':'mine','player':player['name'],'surface':player['surface'],
             'resource':resource,'position':target['position'],'count':count}
-    return decision('mine_'+resource,f'Gather {resource} for the iron-smelting chain.',
+    return decision('mine_'+resource,f'Gather {resource} for the production chain.',
         move_or_act(player,action,player.get('resource_reach_distance',2.7)))
 
 
