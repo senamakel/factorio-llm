@@ -1,0 +1,95 @@
+"""Bounded local assistant loop: observe, decide, execute, score and persist.
+
+The assistant is an unattached character. Movement is simulated by small,
+collision-checked teleports, and mining/crafting use inventory-costed script
+actions rather than a connected client's input. No LLM or mod restart is needed.
+"""
+import argparse
+import json
+from pathlib import Path
+import time
+
+from event_store import EventStore
+from goal import IronPlateGoal
+from logic import brain_think
+from mcp_server.server import lua_string, run
+from score import score_transition
+
+ROOT = Path(__file__).resolve().parent
+
+
+def rpc(body):
+    """Run console Lua and require structured success; empty/error replies raise."""
+    raw = run('/c local ok,v=pcall(function() ' + body +
+              ' end); rcon.print(helpers.table_to_json({ok=ok,value=ok and v or nil,error=not ok and tostring(v) or nil}))')
+    result = json.loads(raw)
+    if not result['ok']:
+        raise RuntimeError(result['error'])
+    return result.get('value')
+
+
+def observe(actor_id, name):
+    """Collect complete resources/furnaces on the actor surface and local threats."""
+    source = (ROOT/'scripts/brain_observe.lua').read_text()
+    state = rpc('return (function(...) ' + source + ' end)(' + lua_string(name) + ',' + str(actor_id) + ')')
+    for key in ('players', 'entities', 'enemies'):
+        if state[key] == {}:
+            state[key] = []
+    return state
+
+
+def execute(actor_id, action):
+    """Apply one bounded inventory-costed action and return its measured transfer."""
+    source = (ROOT/'scripts/brain_action.lua').read_text()
+    encoded = lua_string(json.dumps(action))
+    return rpc('return (function(...) ' + source + ' end)(' + str(actor_id) + ',helpers.json_to_table(' + encoded + '))')
+
+
+def run_brain(actor_id, steps=500, interval=0.5, target=100):
+    """Run at most steps actions, record each outcome, and stop on completion or danger."""
+    goal = IronPlateGoal(target=target)
+    baseline = observe(actor_id, goal.player_name)
+    total = 0
+    def measured():
+        state = observe(actor_id, goal.player_name)
+        state['resource_drain'] = max(0, baseline['resource_remaining'] - state['resource_remaining']) + max(0, state['fuel_consumed'] - baseline['fuel_consumed'])
+        return state
+    with EventStore() as store:
+        before = measured()
+        for step in range(steps):
+            sid = store.snapshot(before)
+            store.log('observation', goal.evaluate(before), before['tick'])
+            decision = brain_think(before, store.experience(), goal.player_name, goal.target)
+            ident = store.decision(sid, decision, applied=decision['phase'] not in ('complete','danger'))
+            if decision['phase'] in ('complete', 'danger'):
+                break
+            store.log('action', decision['action'], before['tick'])
+            try:
+                result = execute(actor_id, decision['action'])
+            except (RuntimeError, ValueError) as exc:
+                result = {'ok':False,'error':str(exc)}
+            time.sleep(interval)
+            after = measured()
+            reward = score_transition(before, after, goal)
+            total += reward['total']
+            outcome = {'result':result,'score':reward,'goal':goal.evaluate(after)}
+            store.outcome(ident, outcome)
+            store.log('outcome', outcome, after['tick'])
+            store.learn(decision['action_key'], result.get('ok',False), reward['total'])
+            print(json.dumps({'step':step,'phase':decision['phase'],**outcome}), flush=True)
+            before = after
+        summary = {**goal.evaluate(before),'score':total,'tick':before['tick']}
+        store.log('run_summary', summary, before['tick'])
+        return summary
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--actor',type=int,required=True)
+    parser.add_argument('--steps',type=int,default=500)
+    parser.add_argument('--interval',type=float,default=0.5)
+    parser.add_argument('--target',type=int,default=100)
+    args = parser.parse_args()
+    if args.steps <= 0 or args.interval <= 0:
+        parser.error('steps and interval must be positive')
+    print(json.dumps(run_brain(args.actor,args.steps,args.interval,args.target)))
