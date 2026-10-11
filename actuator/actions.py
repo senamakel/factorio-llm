@@ -76,14 +76,20 @@ def craft(actor_id, recipe, count):
 def build(actor_id, item, position, direction='north'):
     """Place one ``item`` from inventory at ``position``; collision and build reach are checked.
 
+    Collision uses the surface's script check (the player-style manual check
+    rejects valid offshore-pump shorelines); reach is the character's build
+    distance to the requested position.
+
     Returns the new entity's name, unit_number and actual (snapped) position.
     """
     return actor_rpc(actor_id,
         'assert(inv.get_item_count(a.item)>0,"building item missing from inventory"); '
         'local ip=prototypes.item[a.item]; assert(ip and ip.place_result,"item is not placeable"); '
         'local o={name=ip.place_result.name,position=a.position,direction=defines.direction[a.direction]}; '
-        'assert(e.can_place_entity(o),"site occupied or out of build reach"); '
-        'o.force=e.force; o.raise_built=true; '
+        'local dx,dy=a.position.x-e.position.x,a.position.y-e.position.y; '
+        'local reach=e.prototype.build_distance+e.character_build_distance_bonus; '
+        'assert(dx*dx+dy*dy<=reach*reach,"site out of build reach"); '
+        'o.force=e.force; assert(s.can_place_entity(o),"site occupied"); o.raise_built=true; '
         'local b=s.create_entity(o); assert(b,"build failed"); inv.remove{name=a.item,count=1}; '
         'return {ok=true,name=b.name,unit_number=b.unit_number,position=b.position}',
         {'item': item, 'position': position, 'direction': _direction(direction)})
