@@ -83,7 +83,7 @@ def build(actor_id, item, position, direction='north'):
         'local ip=prototypes.item[a.item]; assert(ip and ip.place_result,"item is not placeable"); '
         'local o={name=ip.place_result.name,position=a.position,direction=defines.direction[a.direction]}; '
         'assert(e.can_place_entity(o),"site occupied or out of build reach"); '
-        'o.force=e.force; o.raise_built=true; o.player=nil; '
+        'o.force=e.force; o.raise_built=true; '
         'local b=s.create_entity(o); assert(b,"build failed"); inv.remove{name=a.item,count=1}; '
         'return {ok=true,name=b.name,unit_number=b.unit_number,position=b.position}',
         {'item': item, 'position': position, 'direction': _direction(direction)})
